@@ -133,7 +133,7 @@ namespace cecsar
 		if (_systems.count(typeid(System)) == 0)
 		{
 			auto sys = new System();
-			sys->Initialize(*this);
+			static_cast<IComponentSystem*>(sys)->Initialize(*this);
 			_systems[typeid(System)] = sys;
 		}
 

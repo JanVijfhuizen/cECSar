@@ -163,9 +163,13 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
+    <ClCompile Include="src\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\Renderer.h" />
+    <ClInclude Include="include\Components\Transform.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
+    <ClInclude Include="include\Systems\RenderSystem.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

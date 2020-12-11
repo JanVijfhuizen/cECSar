@@ -1,12 +1,15 @@
 #include "Cecsar.h"
 #include "SDL.h"
 #include "Modules/RenderModule.h"
+#include "Systems/RenderSystem.h"
 
 int main(int argc, char* argv[])
 {
 	SDL_Init(0);
 
 	cecsar::Cecsar cecsar{};
+
+	// Modules.
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
 	SDL_Event event;
@@ -16,6 +19,10 @@ int main(int argc, char* argv[])
 			;
 
 		renderModule.PreRender();
+
+		// Update systems.
+		cecsar.Update<game::RenderSystem>();
+
 		renderModule.PostRender();
 	}
 
