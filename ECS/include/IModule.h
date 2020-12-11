@@ -11,7 +11,7 @@ namespace cecsar
 	public:
 		virtual ~IModule();
 
-	private:
+	protected:
 		virtual void Initialize(Cecsar& cecsar);
 	};
 }
