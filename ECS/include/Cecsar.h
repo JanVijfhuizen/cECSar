@@ -6,6 +6,7 @@
 #include <IComponentSystem.h>
 #include <IModule.h>
 #include <IEntityFactory.h>
+#include <memory>
 
 namespace cecsar
 {
@@ -27,7 +28,7 @@ namespace cecsar
 
 #pragma region Entity Management
 		template <typename Factory = IEntityFactory>
-		int32_t AddEntity();
+		int32_t* AddEntity(int32_t count = 1);
 
 		void RemoveEntity(int32_t index);
 #pragma endregion 
@@ -100,7 +101,7 @@ namespace cecsar
 		if (_modules.count(typeid(Module)) == 0)
 		{
 			auto module = new Module();
-			module->Initialize(*this);
+			static_cast<IModule*>(module)->Initialize(*this);
 			_modules[typeid(Module)] = module;
 		}
 
@@ -141,14 +142,24 @@ namespace cecsar
 	}
 
 	template <typename Factory>
-	int32_t Cecsar::AddEntity()
+	int32_t* Cecsar::AddEntity(const int32_t count)
 	{
-		const int32_t index = _entities.Add();
-		if(typeid(Factory) == typeid(IEntityFactory))
-			return index;
+		auto ptr = new int32_t[count];
 
-		GetFactory<Factory>().Construct(*this, index);
-		return index;
+		IEntityFactory* factory = nullptr;
+		if (typeid(Factory) != typeid(IEntityFactory))
+			factory = &GetFactory<Factory>();
+
+		for (int32_t i = 0; i < count; ++i)
+		{
+			const int32_t index = _entities.Add();
+			ptr[i] = index;
+		}
+
+		if(factory)
+			for (int32_t i = 0; i < count; ++i)
+				factory->Construct(*this, ptr[i]);
+		return ptr;
 	}
 
 	inline void Cecsar::RemoveEntity(const int32_t index)

@@ -1,22 +1,24 @@
 #include "Cecsar.h"
+#include "SDL.h"
+#include "Modules/RenderModule.h"
 
-#include "Testing/TestSystem.h"
-#include "Testing/TestModule.h"
-#include "Testing/TestFactory.h"
-
-int main()
+int main(int argc, char* argv[])
 {
+	SDL_Init(0);
+
 	cecsar::Cecsar cecsar{};
-	cecsar.Update<TestSystem>();
-	auto& module = cecsar.GetModule<TestModule>();
+	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
-	cecsar.AddEntity<TestFactory>();
-	cecsar.AddEntity<>();
+	SDL_Event event;
+	while(true)
+	{
+		if (SDL_PollEvent(&event) != 0)
+			;
 
-	auto& component = cecsar.AddComponent<TestBlockA>(12);
-	cecsar.RemoveComponent<TestBlockB>(7);
+		renderModule.PreRender();
+		renderModule.PostRender();
+	}
 
-	cecsar.RemoveEntity(0);
-
+	SDL_Quit();
 	return 0;
 }
