@@ -3,6 +3,11 @@
 #include <SDL_image.h>
 #include <string>
 
+SDL_Renderer& game::RenderModule::GetRenderer() const
+{
+	return *_renderer;
+}
+
 game::RenderModule::~RenderModule()
 {
 	const auto target = SDL_GetRenderTarget(_renderer);
@@ -30,13 +35,13 @@ void game::RenderModule::PostRender() const
 	SDL_SetRenderTarget(_renderer, nullptr);
 
 	SDL_Rect scaler;
-	scaler.x = xOffset + SCREEN_WIDTH * (1 - zoom) / 2;
-	scaler.y = yOffset + SCREEN_HEIGHT * (1 - zoom) / 2;
+	scaler.x = transform.x + SCREEN_WIDTH * (1 - zoom) / 2;
+	scaler.y = transform.y + SCREEN_HEIGHT * (1 - zoom) / 2;
 	scaler.w = SCREEN_WIDTH * zoom;
 	scaler.h = SCREEN_HEIGHT * zoom;
 
 	SDL_RenderCopyEx(_renderer, _renderTexture, nullptr, &scaler,
-		degrees, nullptr, SDL_FLIP_NONE);
+		transform.rotation, nullptr, SDL_FLIP_NONE);
 
 	SDL_RenderPresent(_renderer);
 }

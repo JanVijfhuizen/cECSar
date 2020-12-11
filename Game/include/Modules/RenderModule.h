@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include <unordered_map>
 #include <IModule.h>
+#include "Components/Transform.h"
 
 namespace jecs 
 {
@@ -16,15 +17,17 @@ namespace game
 		const char* WINDOW_TITLE = "Game Prototype";
 		const int32_t SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
+		Transform transform{};
 		float zoom = 1;
-		float degrees = 0;
-		float xOffset = 0, yOffset = 0;
 
 		float xCameraOffset = 0, yCameraOffset = 0;
 
 		int32_t colorForegroundClear = 0xff;
 		int32_t colorBackgroundClear = 0x00;
-		
+		float zMod = 1;
+
+		SDL_Renderer& GetRenderer() const;
+
 		~RenderModule();
 
 		void PreRender() const;

@@ -10,7 +10,7 @@ namespace game
 		int32_t xScale = 1;
 		int32_t yScale = 1;
 
-		float degrees = 0;
+		float rotation = 0;
 
 		int32_t xOffset = 0;
 		int32_t yOffset = 0;

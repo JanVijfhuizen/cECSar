@@ -8,7 +8,10 @@ namespace game
 		union
 		{
 			__m128 p4 = _mm_set_ps1(0);
-			float x, y, z, _;
+			struct 
+			{
+				float x, y, z, _;
+			};
 		};
 
 		float rotation = 0;
