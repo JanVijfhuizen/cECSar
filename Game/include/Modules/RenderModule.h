@@ -24,8 +24,7 @@ namespace game
 
 		int32_t colorForegroundClear = 0xff;
 		int32_t colorBackgroundClear = 0x00;
-
-		RenderModule();
+		
 		~RenderModule();
 
 		void PreRender() const;

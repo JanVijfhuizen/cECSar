@@ -8,7 +8,10 @@ game::RenderModule::~RenderModule()
 	const auto target = SDL_GetRenderTarget(_renderer);
 	if (target == _renderTexture)
 		SDL_SetRenderTarget(_renderer, nullptr);
+
 	SDL_DestroyTexture(_renderTexture);
+	SDL_DestroyRenderer(_renderer);
+	SDL_DestroyWindow(_window);
 }
 
 void game::RenderModule::PreRender() const
@@ -34,6 +37,8 @@ void game::RenderModule::PostRender() const
 
 	SDL_RenderCopyEx(_renderer, _renderTexture, nullptr, &scaler,
 		degrees, nullptr, SDL_FLIP_NONE);
+
+	SDL_RenderPresent(_renderer);
 }
 
 SDL_Texture* game::RenderModule::GetTexture(const std::string& path)
@@ -58,7 +63,6 @@ void game::RenderModule::Clear()
 
 void game::RenderModule::Initialize(cecsar::Cecsar& cecsar)
 {
-	// Simple nullcheck.
 	if (_window)
 		return;
 

@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
-		if (SDL_PollEvent(&event) != 0)
+		while (SDL_PollEvent(&event) != 0)
 			;
 
 		renderModule.PreRender();
