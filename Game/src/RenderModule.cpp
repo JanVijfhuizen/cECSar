@@ -3,37 +3,47 @@
 #include <SDL_image.h>
 #include <string>
 
+SDL_Renderer& game::RenderModule::GetRenderer() const
+{
+	return *_renderer;
+}
+
 game::RenderModule::~RenderModule()
 {
-	const auto target = SDL_GetRenderTarget(renderer);
-	if (target == renderTexture)
-		SDL_SetRenderTarget(renderer, nullptr);
-	SDL_DestroyTexture(renderTexture);
+	const auto target = SDL_GetRenderTarget(_renderer);
+	if (target == _renderTexture)
+		SDL_SetRenderTarget(_renderer, nullptr);
+
+	SDL_DestroyTexture(_renderTexture);
+	SDL_DestroyRenderer(_renderer);
+	SDL_DestroyWindow(_window);
 }
 
 void game::RenderModule::PreRender() const
 {
-	SDL_SetRenderDrawColor(renderer,
+	SDL_SetRenderDrawColor(_renderer,
 		colorForegroundClear, colorForegroundClear, colorForegroundClear, 0);
-	SDL_SetRenderTarget(renderer, renderTexture);
+	SDL_SetRenderTarget(_renderer, _renderTexture);
 
-	SDL_SetRenderDrawColor(renderer,
+	SDL_SetRenderDrawColor(_renderer,
 		colorBackgroundClear, colorBackgroundClear, colorBackgroundClear, 0);
-	SDL_RenderClear(renderer);
+	SDL_RenderClear(_renderer);
 }
 
 void game::RenderModule::PostRender() const
 {
-	SDL_SetRenderTarget(renderer, nullptr);
+	SDL_SetRenderTarget(_renderer, nullptr);
 
 	SDL_Rect scaler;
-	scaler.x = xOffset + SCREEN_WIDTH * (1 - zoom) / 2;
-	scaler.y = yOffset + SCREEN_HEIGHT * (1 - zoom) / 2;
+	scaler.x = transform.x + SCREEN_WIDTH * (1 - zoom) / 2;
+	scaler.y = transform.y + SCREEN_HEIGHT * (1 - zoom) / 2;
 	scaler.w = SCREEN_WIDTH * zoom;
 	scaler.h = SCREEN_HEIGHT * zoom;
 
-	SDL_RenderCopyEx(renderer, renderTexture, nullptr, &scaler,
-		degrees, nullptr, SDL_FLIP_NONE);
+	SDL_RenderCopyEx(_renderer, _renderTexture, nullptr, &scaler,
+		transform.rotation, nullptr, SDL_FLIP_NONE);
+
+	SDL_RenderPresent(_renderer);
 }
 
 SDL_Texture* game::RenderModule::GetTexture(const std::string& path)
@@ -43,7 +53,7 @@ SDL_Texture* game::RenderModule::GetTexture(const std::string& path)
 		return found->second;
 
 	SDL_Surface* surface = IMG_Load(path.c_str());
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(_renderer, surface);
 
 	SDL_FreeSurface(surface);
 	return texture;
@@ -58,14 +68,13 @@ void game::RenderModule::Clear()
 
 void game::RenderModule::Initialize(cecsar::Cecsar& cecsar)
 {
-	// Simple nullcheck.
-	if (window)
+	if (_window)
 		return;
 
-	window = SDL_CreateWindow(WINDOW_TITLE,
+	_window = SDL_CreateWindow(WINDOW_TITLE,
 		SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
-	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+	_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
 
-	renderTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+	_renderTexture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888,
 		SDL_TEXTUREACCESS_TARGET, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
