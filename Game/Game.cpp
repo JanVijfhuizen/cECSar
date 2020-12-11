@@ -11,6 +11,7 @@ int main()
 	auto& module = cecsar.GetModule<TestModule>();
 
 	cecsar.AddEntity<TestFactory>();
+	cecsar.AddEntity<>();
 
 	auto& component = cecsar.AddComponent<TestBlockA>(12);
 	cecsar.RemoveComponent<TestBlockB>(7);
