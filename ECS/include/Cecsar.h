@@ -26,7 +26,7 @@ namespace cecsar
 		void Update();
 
 #pragma region Entity Management
-		template <typename Factory = void>
+		template <typename Factory = IEntityFactory>
 		int32_t AddEntity();
 
 		void RemoveEntity(int32_t index);
@@ -144,7 +144,7 @@ namespace cecsar
 	int32_t Cecsar::AddEntity()
 	{
 		const int32_t index = _entities.Add();
-		if(typeid(Factory) == typeid(void))
+		if(typeid(Factory) == typeid(IEntityFactory))
 			return index;
 
 		GetFactory<Factory>().Construct(*this, index);

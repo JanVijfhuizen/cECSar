@@ -14,6 +14,6 @@ namespace cecsar
 
 	protected:
 		virtual void Initialize(Cecsar& cecsar);
-		virtual void Construct(Cecsar& cecsar, int32_t index) = 0;
+		virtual void Construct(Cecsar& cecsar, int32_t index);
 	};
 }
