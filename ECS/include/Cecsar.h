@@ -101,7 +101,7 @@ namespace cecsar
 		if (_modules.count(typeid(Module)) == 0)
 		{
 			auto module = new Module();
-			module->Initialize(*this);
+			static_cast<IModule*>(module)->Initialize(*this);
 			_modules[typeid(Module)] = module;
 		}
 

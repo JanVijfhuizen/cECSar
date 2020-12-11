@@ -72,8 +72,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)]ECS\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
-    <LibraryPath>$ProjectDir$\SDL2-2.0.12\lib\x64;$(SolutionDir)\ECS\lib\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
+    <IncludePath>D:\Projects\cECSar\Game\SDL2_image-2.0.5\include;include;$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)]ECS\Include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
+    <LibraryPath>D:\Projects\cECSar\Game\SDL2-2.0.12\lib\x64;$ProjectDir$\SDL2-2.0.12\lib\x64;$(SolutionDir)\ECS\lib\x64\Debug;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64);$(NETFXKitsDir)Lib\um\x64</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -95,13 +95,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)/ECS/Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\cECSar\Game\SDL2_image-2.0.5\include;$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)/ECS/Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)\SDL2-2.0.12\lib\x64;$(SolutionDir)\cECSar\ECS\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>sdl2.lib;sdl2main.lib;sdl2test.lib;ECS.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\Projects\cECSar\Game\SDL2_image-2.0.5\lib\x64;$(ProjectDir)\SDL2-2.0.12\lib\x64;$(SolutionDir)\cECSar\ECS\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2_image.lib;sdl2.lib;sdl2main.lib;ECS.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -162,13 +162,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
-    <ClCompile Include="Testing\TestSystem.cpp" />
+    <ClCompile Include="src\RenderModule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Testing\TestComponent.h" />
-    <ClInclude Include="Testing\TestFactory.h" />
-    <ClInclude Include="Testing\TestModule.h" />
-    <ClInclude Include="Testing\TestSystem.h" />
+    <ClInclude Include="include\Modules\RenderModule.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
