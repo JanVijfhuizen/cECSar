@@ -4,7 +4,7 @@
 
 namespace cecsar
 {
-	template <typename ...Args>
+	template <typename ... Args>
 	class EntityFactory : public IEntityFactory
 	{
 	protected:
@@ -12,8 +12,8 @@ namespace cecsar
 		virtual void OnConstruction(int32_t index, Args&... args) = 0;
 	};
 
-	template <typename ...Args>
-	void EntityFactory<Args...>::Construct(Cecsar& cecsar, const int32_t index)
+	template <typename ... Args>
+	void EntityFactory<Args...>::Construct(Cecsar& cecsar, int32_t index)
 	{
 		OnConstruction(index, cecsar.GetSet<Args>().Insert(index)...);
 	}
