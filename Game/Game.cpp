@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	// Modules.
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 	renderModule.zMod = .1;
-	renderModule.zColorFallof = .5f;
+	renderModule.zColorFallof = .2f;
 
 	// Component sets.
 	auto& transforms = cecsar.GetSet<game::Transform>();
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 			transform.x = x * posMod + x * padding;
 			transform.y = y * posMod + y * padding;
 
-			transform.z = -1;
+			transform.z = -.2f * (x + y);
 		}
 	}
 	delete [] ptrs;

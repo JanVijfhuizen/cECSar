@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\TransformSystem.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
     <ClCompile Include="src\RenderSystem.cpp" />
   </ItemGroup>
@@ -173,6 +174,7 @@
     <ClInclude Include="include\Factories\UndeadFactory.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Systems\TransformSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />

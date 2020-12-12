@@ -1,21 +1,16 @@
 #include <Systems/RenderSystem.h>
 #include "Modules/RenderModule.h"
 #include <algorithm>
-
-game::RenderSystem::RendererSorter::RendererSorter(utils::SparseSet<Transform>& set) :
-	_set(set)
-{
-
-}
-
-bool game::RenderSystem::RendererSorter::operator()(const int32_t a, const int32_t b) const
-{
-	return _set[a].z > _set[b].z;
-}
+#include <iostream>
 
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
+}
+
+float game::RenderSystem::Sort(const Renderer& renderer, int32_t index)
+{
+	return renderer._renderPriority;
 }
 
 void game::RenderSystem::OnUpdate(
@@ -30,9 +25,17 @@ void game::RenderSystem::OnUpdate(
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
-	// Sort renderers based on z positions.
+	// Sort renderers based on the transforms z positions.
 	const auto iterator = renderers.GetDenseIterator();
-	std::sort(iterator.begin(), iterator.end(), RendererSorter(transforms));
+	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
+	{
+		auto& renderer = renderers[i];
+		auto& transform = transforms[iterator[i]];
+
+		renderer._renderPriority = -transform.z;
+	}
+
+	renderers.Sort(Sort);
 
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
