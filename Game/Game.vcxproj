@@ -166,16 +166,21 @@
     <ClCompile Include="src\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
-    <ClInclude Include="include\Factories\PlayerFactory.h" />
+    <ClInclude Include="include\Factories\BlockFactory.h" />
+    <ClInclude Include="include\Factories\UndeadFactory.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />
+    <Image Include="Art\Block.png" />
     <Image Include="Art\IntellectDevourer.png" />
+    <Image Include="Art\Lantern.png" />
     <Image Include="Art\Spritesheet.png" />
+    <Image Include="Art\Undead.png" />
     <Image Include="Art\Wall.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

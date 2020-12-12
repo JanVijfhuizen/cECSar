@@ -12,15 +12,9 @@ namespace game
 
 		float rotation = 0;
 
-		int32_t xOffset = 0;
-		int32_t yOffset = 0;
-
 		// For animation purposes.
 		int32_t index = 0;
 		int32_t count = 1;
-
-		bool xCenter = true;
-		bool yCenter = true;
 
 		SDL_RendererFlip flip = SDL_FLIP_NONE;
 	};
