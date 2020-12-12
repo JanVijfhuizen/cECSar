@@ -10,18 +10,23 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 10000;
+	info.setCapacity = 1000;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
+	renderModule.zMod = .1;
+	renderModule.zColorFallof = .5f;
 
 	// Component sets.
 	auto& transforms = cecsar.GetSet<game::Transform>();
 
 	// Setup some nonsense to experiment with.
-	const int32_t WIDTH = 80, HEIGHT = 120;
+	const int32_t WIDTH = 20, HEIGHT = 12;
 	const int32_t* ptrs = cecsar.AddEntity<game::BlockFactory>(WIDTH * HEIGHT);
+
+	const int32_t posMod = renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
+	const int32_t padding = renderModule.DEFAULT_IMAGE_SIZE / 2;
 
 	// Setup floor.
 	for (int32_t y = 0; y < HEIGHT; ++y)
@@ -33,10 +38,10 @@ int main(int argc, char* argv[])
 			const int32_t* index = row + x;
 			auto& transform = transforms[*index];
 
-			transform.x = x * renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
-			transform.y = y * renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
+			transform.x = x * posMod + x * padding;
+			transform.y = y * posMod + y * padding;
 
-			transform.z = -0.02f * (x + y);
+			transform.z = -1;
 		}
 	}
 	delete [] ptrs;
@@ -46,16 +51,13 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
+		// Deltatime? What's that?
 		f += .02f;
 
 		while (SDL_PollEvent(&event) != 0)
 			;
 
 		renderModule.PreRender();
-
-		// Some testing nonsense.
-		renderModule.zColorFallof = 1.2f + sin(f);
-		renderModule.zMod = 1.2f + cos(f);
 
 		// Update systems.
 		cecsar.Update<game::RenderSystem>();

@@ -75,7 +75,7 @@ void game::RenderSystem::OnUpdate(
 
 		// Adjust color.
 		const float colMultiplier = 1.0f - std::max(.0f, 
-			abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof;
+			(abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
 		const float colorMultiplier = 255 * colMultiplier;
 		SDL_SetTextureColorMod(renderer.texture, 
 			colorMultiplier, colorMultiplier, colorMultiplier);
