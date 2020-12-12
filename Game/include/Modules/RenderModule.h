@@ -14,6 +14,9 @@ namespace game
 	class RenderModule final : public cecsar::IModule
 	{
 	public:
+		const int32_t DEFAULT_IMAGE_SIZE = 8;
+		const int32_t DEFAULT_IMAGE_UPSCALING = 10;
+
 		const char* WINDOW_TITLE = "Game Prototype";
 		const int32_t SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
@@ -24,7 +27,10 @@ namespace game
 
 		int32_t colorForegroundClear = 0xff;
 		int32_t colorBackgroundClear = 0x00;
+
 		float zMod = 1;
+		float zColorFallofThreshold = 0;
+		float zColorFallof = 1;
 
 		SDL_Renderer& GetRenderer() const;
 
