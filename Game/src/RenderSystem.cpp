@@ -16,16 +16,9 @@ void game::RenderSystem::OnUpdate(
 	utils::SparseSet<Renderer>& renderers, 
 	utils::SparseSet<Transform>& transforms)
 {
-	const auto p4Camera = _module->transform.p4;
-
-	// Used for SIMD calculations.
-	Transform p4Screen;
-
-	auto& screenRenderer = _module->GetRenderer();
-	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
+	const auto iterator = renderers.GetDenseIterator();
 
 	// Sort renderers based on the transforms z positions.
-	const auto iterator = renderers.GetDenseIterator();
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& renderer = renderers[i];
@@ -33,8 +26,13 @@ void game::RenderSystem::OnUpdate(
 
 		renderer._renderPriority = -transform.zGlobal;
 	}
-
 	renderers.Sort(Sort);
+
+	// Used for calculations.
+	Transform p4Screen;
+	const auto p4Camera = _module->transform.p4;
+	auto& screenRenderer = _module->GetRenderer();
+	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
@@ -55,10 +53,10 @@ void game::RenderSystem::OnUpdate(
 
 		// Calculate screen position based on world position.
 		SDL_Rect dstRect;
-		const float imgMod = depthModifier * imageSize;
+		const float imgMod = depthModifier * imageSize * _module->DEFAULT_IMAGE_UPSCALING;
 
-		dstRect.w = renderer.xScale * imgMod * _module->DEFAULT_IMAGE_UPSCALING;
-		dstRect.h = renderer.yScale * imgMod * _module->DEFAULT_IMAGE_UPSCALING;
+		dstRect.w = renderer.xScale * imgMod;
+		dstRect.h = renderer.yScale * imgMod;
 
 		dstRect.x = (p4Screen.x - dstRect.w / 2) * depthModifier + 
 			positionModifier * _module->SCREEN_WIDTH;

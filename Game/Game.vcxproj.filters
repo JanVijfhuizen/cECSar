@@ -56,7 +56,7 @@
     <ClInclude Include="include\Utils\Stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Helpers\TransformHelper.h">
+    <ClInclude Include="include\Helpers\TransformHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

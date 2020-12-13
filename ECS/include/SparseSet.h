@@ -34,7 +34,7 @@ namespace utils
 		constexpr T& operator[](int32_t denseIndex) const;
 
 		constexpr SparseIndexIterator<T> GetDenseIterator();
-		constexpr bool Contains(int32_t sparseIndex, T& out) const;
+		constexpr bool Contains(int32_t sparseIndex) const;
 		constexpr int32_t GetCount() const;
 
 		constexpr SparseSet(int32_t capacity);
@@ -78,14 +78,10 @@ namespace utils
 	}
 
 	template <typename T>
-	constexpr bool SparseSet<T>::Contains(const int32_t sparseIndex, T& out) const
+	constexpr bool SparseSet<T>::Contains(const int32_t sparseIndex) const
 	{
 		const int32_t denseIndex = _sparse[sparseIndex];
-		if (denseIndex == -1)
-			return false;
-
-		out = _values[denseIndex];
-		return true;
+		return denseIndex != -1;
 	}
 
 	template <typename T>
@@ -109,11 +105,9 @@ namespace utils
 	template <typename T>
 	constexpr int32_t SparseSet<T>::Add(T val)
 	{
-		T t;
-
 		for (int32_t i = 0; i < _capacity; ++i)
 		{
-			if (Contains(i, t))
+			if (Contains(i))
 				continue;
 
 			const int32_t index = _count++;
@@ -146,12 +140,13 @@ namespace utils
 	template <typename T>
 	constexpr void SparseSet<T>::RemoveAt(const int32_t sparseIndex)
 	{
-		T t;
-		if (!Contains(sparseIndex, t))
+		if (!Contains(sparseIndex))
 			return;
 
 		const int32_t denseIndex = _sparse[sparseIndex];
 		Swap(denseIndex, --_count);
+
+		_sparse[sparseIndex] = -1;
 	}
 
 	template <typename T>
