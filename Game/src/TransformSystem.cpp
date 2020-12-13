@@ -12,7 +12,7 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 	transforms.Sort(SortDepth);
 
 	ClearHangingObjects(transforms);
-	UpdateWorldTransforms(transforms);
+	UpdateGlobalPositions(transforms);
 }
 
 void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& transforms)
@@ -29,7 +29,7 @@ void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& tra
 	}
 }
 
-void game::TransformSystem::UpdateWorldTransforms(utils::SparseSet<Transform>& transforms)
+void game::TransformSystem::UpdateGlobalPositions(utils::SparseSet<Transform>& transforms)
 {
 	const float halfC = M_PI / 180;
 

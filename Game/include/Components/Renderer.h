@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL.h>
+#include "Utils/Color.h"
 
 namespace game
 {
@@ -10,6 +11,7 @@ namespace game
 		friend RenderSystem;
 
 		SDL_Texture* texture = nullptr;
+		Color color{};
 
 		int32_t xScale = 1;
 		int32_t yScale = 1;

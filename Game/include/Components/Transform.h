@@ -17,7 +17,7 @@ namespace game
 			__m128 p4 = _mm_set_ps1(0);
 			struct
 			{
-				float x, y, z, _;
+				float x, y, z;
 			};
 		};
 
@@ -30,7 +30,7 @@ namespace game
 			__m128 p4Global = _mm_set_ps1(0);
 			struct
 			{
-				float xGlobal, yGlobal, zGlobal, _Global;
+				float xGlobal, yGlobal, zGlobal;
 			};
 		};
 

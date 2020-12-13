@@ -30,6 +30,7 @@ void game::RenderSystem::OnUpdate(
 
 	// Used for calculations.
 	Transform p4Screen;
+	Color c4Render;
 	const auto p4Camera = _module->transform.p4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
@@ -74,11 +75,12 @@ void game::RenderSystem::OnUpdate(
 			continue;
 
 		// Adjust color.
-		const float colMultiplier = 1.0f - std::max(.0f, 
+		const float colorMultiplier = 1.0f - std::max(.0f, 
 			(abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
-		const float colorMultiplier = 255 * colMultiplier;
+		c4Render.c4 = _mm_mul_ps(renderer.color.c4, _mm_set_ps1(colorMultiplier));
+
 		SDL_SetTextureColorMod(renderer.texture, 
-			colorMultiplier, colorMultiplier, colorMultiplier);
+			c4Render.r, c4Render.g, c4Render.b);
 
 		const float rotation = renderer.rotation + transform.rotationGlobal;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
