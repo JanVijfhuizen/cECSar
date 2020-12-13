@@ -7,7 +7,7 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 
 	for (Transform& transform : transforms)
 	{
-		if (transform.parent == -1) 
+		if (transform.rDepth == 0) 
 		{
 			transform.p4Global = transform.p4;
 			transform.rotationGlobal = transform.rotation;
@@ -22,5 +22,5 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 
 float game::TransformSystem::Sort(const Transform& transform, const int32_t index)
 {
-	return -transform.depth;
+	return -transform.rDepth;
 }

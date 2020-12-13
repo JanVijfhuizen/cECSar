@@ -4,10 +4,12 @@
 namespace game
 {
 	class TransformSystem;
+	struct TransformHelper;
 
 	struct Transform final
 	{
 		friend TransformSystem;
+		friend TransformHelper;
 
 #pragma region Local
 		union
@@ -36,7 +38,7 @@ namespace game
 #pragma endregion
 
 	private:
-		int32_t depth = 0;
 		int32_t parent = -1;
+		int32_t rDepth = 0;
 	};
 }

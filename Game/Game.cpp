@@ -4,6 +4,7 @@
 #include "Systems/TransformSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
+#include "Helpers/TransformHelper.h"
 
 int main(int argc, char* argv[])
 {
@@ -48,6 +49,11 @@ int main(int argc, char* argv[])
 	}
 	delete [] ptrs;
 
+	const int32_t* ptrsMoving = cecsar.AddEntity<game::BlockFactory>(2);
+	game::TransformHelper::SetParent(transforms, ptrsMoving[1], ptrsMoving[0]);
+	//delete[] ptrsMoving;
+	transforms[ptrsMoving[0]].y = 100;
+
 	float f = 0;
 
 	SDL_Event event;
@@ -59,13 +65,14 @@ int main(int argc, char* argv[])
 		while (SDL_PollEvent(&event) != 0)
 			;
 
+		transforms[ptrsMoving[0]].x = 200 + sin(f) * 100;
+		//transforms[ptrsMoving[1]].y = cos(f) * 100;
+
 		renderModule.PreRender();
-
-		// Update systems.
-		cecsar.Update<game::TransformSystem>();
 		cecsar.Update<game::RenderSystem>();
-
 		renderModule.PostRender();
+
+		cecsar.Update<game::TransformSystem>();
 	}
 
 	SDL_Quit();
