@@ -31,7 +31,7 @@ void game::RenderSystem::OnUpdate(
 		auto& renderer = renderers[i];
 		auto& transform = transforms.Get(iterator[i]);
 
-		renderer._renderPriority = -transform.z;
+		renderer._renderPriority = -transform.zGlobal;
 	}
 
 	renderers.Sort(Sort);

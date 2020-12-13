@@ -65,14 +65,16 @@ int main(int argc, char* argv[])
 		while (SDL_PollEvent(&event) != 0)
 			;
 
+		transforms.Get(ptrsMoving[0]).rotation += .01f;
 		transforms.Get(ptrsMoving[0]).x = 200 + sin(f) * 100;
+		transforms.Get(ptrsMoving[0]).z = sin(f) * 5;
 		transforms.Get(ptrsMoving[1]).y = cos(f) * 100;
+
+		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();
 		cecsar.Update<game::RenderSystem>();
 		renderModule.PostRender();
-
-		cecsar.Update<game::TransformSystem>();
 	}
 
 	SDL_Quit();

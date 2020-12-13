@@ -1,4 +1,5 @@
 ﻿#include <Systems/TransformSystem.h>
+#include <SDL_stdinc.h>
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
@@ -15,8 +16,24 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 		}
 
 		auto& parent = transforms.Get(transform.parent);
-		transform.p4Global = _mm_add_ps(transform.p4, parent.p4Global);
+
 		transform.rotationGlobal = transform.rotation + parent.rotationGlobal;
+
+		const float halfC = M_PI / 180;
+		const float rad = transform.rotationGlobal * halfC;
+
+		const float sin = std::sinf(rad);
+		const float cos = std::cosf(rad);
+
+		const float xSin = transform.x * sin;
+		const float xCos = transform.x * cos;
+
+		const float ySin = transform.y * sin;
+		const float yCos = transform.y * cos;
+
+		transform.xGlobal = parent.xGlobal + xCos - ySin;
+		transform.yGlobal = parent.yGlobal + xSin + yCos;
+		transform.zGlobal = parent.zGlobal + transform.z;
 	}
 }
 
