@@ -1,7 +1,6 @@
 #include <Systems/RenderSystem.h>
 #include "Modules/RenderModule.h"
 #include <algorithm>
-#include <iostream>
 
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -42,7 +41,7 @@ void game::RenderSystem::OnUpdate(
 		auto& renderer = renderers[i];
 		auto& transform = transforms[iterator[i]];
 
-		p4Screen.p4 = _mm_sub_ps(transform.p4, p4Camera);
+		p4Screen.p4 = _mm_sub_ps(transform.p4Global, p4Camera);
 
 		SDL_Rect srcRect;
 		srcRect.x = imageSize * renderer.index;
@@ -83,7 +82,7 @@ void game::RenderSystem::OnUpdate(
 		SDL_SetTextureColorMod(renderer.texture, 
 			colorMultiplier, colorMultiplier, colorMultiplier);
 
-		const float rotation = renderer.rotation + transform.rotation;
+		const float rotation = renderer.rotation + transform.rotationGlobal;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);

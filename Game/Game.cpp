@@ -1,6 +1,7 @@
 #include "Cecsar.h"
 #include "SDL.h"
 #include "Modules/RenderModule.h"
+#include "Systems/TransformSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
 
@@ -42,6 +43,7 @@ int main(int argc, char* argv[])
 			transform.y = y * posMod + y * padding;
 
 			transform.z = -.2f * (x + y);
+			transform.rotation = x + y;
 		}
 	}
 	delete [] ptrs;
@@ -60,6 +62,7 @@ int main(int argc, char* argv[])
 		renderModule.PreRender();
 
 		// Update systems.
+		cecsar.Update<game::TransformSystem>();
 		cecsar.Update<game::RenderSystem>();
 
 		renderModule.PostRender();

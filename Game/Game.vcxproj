@@ -175,6 +175,7 @@
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />
