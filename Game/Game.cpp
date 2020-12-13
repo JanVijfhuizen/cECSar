@@ -23,9 +23,10 @@ int main(int argc, char* argv[])
 
 	// Component sets.
 	auto& transforms = cecsar.GetSet<game::Transform>();
+	auto& renderers = cecsar.GetSet<game::Renderer>();
 
 	// Setup some nonsense to experiment with.
-	const int32_t WIDTH = 6, HEIGHT = 4;
+	const int32_t WIDTH = 12, HEIGHT = 8;
 	const int32_t* ptrs = cecsar.AddEntity<game::BlockFactory>(WIDTH * HEIGHT);
 
 	const int32_t posMod = renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
@@ -46,6 +47,11 @@ int main(int argc, char* argv[])
 
 			transform.z = -.2f * (x + y);
 			transform.rotation = x + y;
+
+			auto& renderer = renderers[*index];
+			renderer.color.r = x * 10;
+			renderer.color.g = y * 10;
+			renderer.color.b = abs(transform.z) * 10;
 		}
 	}
 	delete [] ptrs;
