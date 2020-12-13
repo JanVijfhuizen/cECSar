@@ -12,7 +12,6 @@ namespace utils
 	{
 		friend SparseSet<T>;
 
-	public:
 		constexpr int32_t operator[](int32_t denseIndex) const;
 		constexpr int32_t GetCount() const;
 
@@ -43,15 +42,13 @@ namespace utils
 
 		constexpr int32_t Add(T val = T());
 		constexpr T& Insert(int32_t sparseIndex, T val = T());
+		constexpr T& Get(int32_t sparseIndex);
 
 		constexpr void RemoveAt(int32_t sparseIndex);
 		constexpr void Clear();
 
 		constexpr T* begin() const;
 		constexpr T* end() const;
-
-		constexpr int32_t ToSparseIndex(int32_t denseIndex) const;
-		constexpr int32_t ToDenseIndex(int32_t sparseIndex) const;
 
 		constexpr void Sort(Sorter func);
 		constexpr void Swap(int32_t a, int32_t b);
@@ -138,6 +135,12 @@ namespace utils
 		T& t = _values[_count] = val;
 		_dense[_count++] = sparseIndex;
 		return t;
+	}
+
+	template <typename T>
+	constexpr T& SparseSet<T>::Get(int32_t sparseIndex)
+	{
+		return _values[_sparse[sparseIndex]];
 	}
 
 	template <typename T>
@@ -257,17 +260,5 @@ namespace utils
 	constexpr T* SparseSet<T>::end() const
 	{
 		return &_values[_count];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseSet<T>::ToSparseIndex(const int32_t denseIndex) const
-	{
-		return _dense[denseIndex];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseSet<T>::ToDenseIndex(const int32_t sparseIndex) const
-	{
-		return _sparse[sparseIndex];
 	}
 }

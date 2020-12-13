@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
 	auto& transforms = cecsar.GetSet<game::Transform>();
 
 	// Setup some nonsense to experiment with.
-	const int32_t WIDTH = 20, HEIGHT = 12;
+	const int32_t WIDTH = 6, HEIGHT = 4;
 	const int32_t* ptrs = cecsar.AddEntity<game::BlockFactory>(WIDTH * HEIGHT);
 
 	const int32_t posMod = renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	const int32_t* ptrsMoving = cecsar.AddEntity<game::BlockFactory>(2);
 	game::TransformHelper::SetParent(transforms, ptrsMoving[1], ptrsMoving[0]);
 	//delete[] ptrsMoving;
-	transforms[ptrsMoving[0]].y = 100;
+	transforms.Get(ptrsMoving[0]).y = 100;
 
 	float f = 0;
 
@@ -60,13 +60,13 @@ int main(int argc, char* argv[])
 	while(true)
 	{
 		// Deltatime? What's that?
-		f += .02f;
+		f += .002f;
 
 		while (SDL_PollEvent(&event) != 0)
 			;
 
-		transforms[ptrsMoving[0]].x = 200 + sin(f) * 100;
-		//transforms[ptrsMoving[1]].y = cos(f) * 100;
+		transforms.Get(ptrsMoving[0]).x = 200 + sin(f) * 100;
+		transforms.Get(ptrsMoving[1]).y = cos(f) * 100;
 
 		renderModule.PreRender();
 		cecsar.Update<game::RenderSystem>();

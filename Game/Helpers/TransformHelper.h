@@ -13,13 +13,13 @@ namespace game
 	inline void TransformHelper::SetParent(utils::SparseSet<Transform>& transforms, 
 		const int32_t child, const int32_t parent)
 	{
-		auto& childTransform = transforms[child];
+		auto& childTransform = transforms.Get(child);
 
 		// Decrease depth.
 		int32_t index = childTransform.parent;
 		while(index != -1)
 		{
-			Transform& transform = transforms[index];
+			Transform& transform = transforms.Get(index);
 			index = transform.parent;
 
 			transform.rDepth--;
@@ -32,7 +32,7 @@ namespace game
 		index = parent;
 		while(index != -1)
 		{
-			Transform& transform = transforms[index];
+			Transform& transform = transforms.Get(index);
 			index = transform.parent;
 
 			transform.rDepth++;

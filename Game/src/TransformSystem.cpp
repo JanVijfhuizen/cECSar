@@ -7,14 +7,14 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 
 	for (Transform& transform : transforms)
 	{
-		if (transform.rDepth == 0) 
+		if (transform.parent == -1) 
 		{
 			transform.p4Global = transform.p4;
 			transform.rotationGlobal = transform.rotation;
 			continue;
 		}
 
-		auto& parent = transforms[transform.parent];
+		auto& parent = transforms.Get(transform.parent);
 		transform.p4Global = _mm_add_ps(transform.p4, parent.p4Global);
 		transform.rotationGlobal = transform.rotation + parent.rotationGlobal;
 	}

@@ -29,7 +29,7 @@ void game::RenderSystem::OnUpdate(
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& renderer = renderers[i];
-		auto& transform = transforms[iterator[i]];
+		auto& transform = transforms.Get(iterator[i]);
 
 		renderer._renderPriority = -transform.z;
 	}
@@ -39,7 +39,7 @@ void game::RenderSystem::OnUpdate(
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& renderer = renderers[i];
-		auto& transform = transforms[iterator[i]];
+		auto& transform = transforms.Get(iterator[i]);
 
 		p4Screen.p4 = _mm_sub_ps(transform.p4Global, p4Camera);
 
