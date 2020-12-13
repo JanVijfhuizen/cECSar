@@ -6,7 +6,7 @@
 
 namespace game
 {
-	class Undeadfactory final : public cecsar::EntityFactory<Transform, Renderer>
+	class UndeadFactory final : public cecsar::EntityFactory<Transform, Renderer>
 	{
 	protected:
 		RenderModule* _renderModule = nullptr;
@@ -15,12 +15,12 @@ namespace game
 		void OnConstruction(int32_t index, Transform&, Renderer&) override;
 	};
 
-	inline void Undeadfactory::Initialize(cecsar::Cecsar& cecsar)
+	inline void UndeadFactory::Initialize(cecsar::Cecsar& cecsar)
 	{
 		_renderModule = &cecsar.GetModule<RenderModule>();
 	}
 
-	inline void Undeadfactory::OnConstruction(const int32_t index,
+	inline void UndeadFactory::OnConstruction(const int32_t index,
 		Transform& transform, Renderer& renderer)
 	{
 		renderer.texture = _renderModule->GetTexture("Art/Undead.png");
