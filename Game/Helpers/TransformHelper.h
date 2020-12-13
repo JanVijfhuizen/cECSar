@@ -14,6 +14,7 @@ namespace game
 		const int32_t child, const int32_t parent)
 	{
 		auto& childTransform = transforms.Get(child);
+		const int32_t rDepth = childTransform.rDepth + 1;
 
 		// Decrease depth.
 		int32_t index = childTransform.parent;
@@ -22,7 +23,7 @@ namespace game
 			Transform& transform = transforms.Get(index);
 			index = transform.parent;
 
-			transform.rDepth--;
+			transform.rDepth -= rDepth;
 		}
 
 		// Set parent.
@@ -35,7 +36,7 @@ namespace game
 			Transform& transform = transforms.Get(index);
 			index = transform.parent;
 
-			transform.rDepth++;
+			transform.rDepth += rDepth;
 		}
 	}
 }
