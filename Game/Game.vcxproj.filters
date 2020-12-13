@@ -24,6 +24,9 @@
     <ClCompile Include="src\RenderSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TransformSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Modules\RenderModule.h">
@@ -38,7 +41,22 @@
     <ClInclude Include="include\Systems\RenderSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Factories\PlayerFactory.h">
+    <ClInclude Include="include\Factories\UndeadFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Factories\BlockFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Controller.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Systems\TransformSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils\Stack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Helpers\TransformHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,6 +71,15 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Art\Wall.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Art\Block.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Art\Lantern.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Art\Undead.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

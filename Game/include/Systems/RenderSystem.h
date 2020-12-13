@@ -2,10 +2,11 @@
 #include "ComponentSystem.h"
 #include <Components/Renderer.h>
 #include <Components/Transform.h>
-#include "Modules/RenderModule.h"
 
 namespace game
 {
+	class RenderModule;
+
 	class RenderSystem final : public cecsar::ComponentSystem<Renderer, Transform>
 	{
 	private:
@@ -13,5 +14,7 @@ namespace game
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) override;
+
+		static float Sort(const Renderer& renderer, int32_t index);
 	};
 }
