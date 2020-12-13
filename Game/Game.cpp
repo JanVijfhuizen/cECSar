@@ -5,6 +5,7 @@
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
 #include "Helpers/TransformHelper.h"
+#include <cassert>
 
 int main(int argc, char* argv[])
 {
@@ -67,7 +68,7 @@ int main(int argc, char* argv[])
 
 		transforms.Get(ptrsMoving[0]).rotation += .01f;
 		transforms.Get(ptrsMoving[0]).x = 200 + sin(f) * 100;
-		transforms.Get(ptrsMoving[0]).z = sin(f) * 5;
+		//transforms.Get(ptrsMoving[0]).z = sin(f) * 5;
 		transforms.Get(ptrsMoving[1]).y = cos(f) * 100;
 
 		cecsar.Update<game::TransformSystem>();
