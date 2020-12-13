@@ -12,7 +12,6 @@ namespace utils
 	{
 		friend SparseSet<T>;
 
-	public:
 		constexpr int32_t operator[](int32_t denseIndex) const;
 		constexpr int32_t GetCount() const;
 
@@ -30,6 +29,8 @@ namespace utils
 	class SparseSet final
 	{
 	public:
+		typedef float (*Sorter)(const T& instance, int32_t index);
+
 		constexpr T& operator[](int32_t denseIndex) const;
 
 		constexpr SparseIndexIterator<T> GetDenseIterator();
@@ -41,6 +42,7 @@ namespace utils
 
 		constexpr int32_t Add(T val = T());
 		constexpr T& Insert(int32_t sparseIndex, T val = T());
+		constexpr T& Get(int32_t sparseIndex);
 
 		constexpr void RemoveAt(int32_t sparseIndex);
 		constexpr void Clear();
@@ -48,8 +50,8 @@ namespace utils
 		constexpr T* begin() const;
 		constexpr T* end() const;
 
-		constexpr int32_t ToSparseIndex(int32_t denseIndex) const;
-		constexpr int32_t ToDenseIndex(int32_t sparseIndex) const;
+		constexpr void Sort(Sorter func);
+		constexpr void Swap(int32_t a, int32_t b);
 
 	private:
 		int32_t* _dense = nullptr;
@@ -58,6 +60,9 @@ namespace utils
 
 		int32_t _count = 0;
 		int32_t _capacity = 0;
+
+		constexpr void QuickSort(int32_t low, int32_t high, Sorter func);
+		constexpr int32_t Partition(int32_t low, int32_t high, Sorter func);
 	};
 
 	template <typename T>
@@ -133,6 +138,12 @@ namespace utils
 	}
 
 	template <typename T>
+	constexpr T& SparseSet<T>::Get(int32_t sparseIndex)
+	{
+		return _values[_sparse[sparseIndex]];
+	}
+
+	template <typename T>
 	constexpr void SparseSet<T>::RemoveAt(const int32_t sparseIndex)
 	{
 		T t;
@@ -140,11 +151,7 @@ namespace utils
 			return;
 
 		const int32_t denseIndex = _sparse[sparseIndex];
-		const int32_t otherSparseIndex = _dense[denseIndex] = _dense[--_count];
-
-		_sparse[otherSparseIndex] = denseIndex;
-		_sparse[sparseIndex] = -1;
-		_values[denseIndex] = _values[_count];
+		Swap(denseIndex, --_count);
 	}
 
 	template <typename T>
@@ -195,6 +202,55 @@ namespace utils
 	}
 
 	template <typename T>
+	constexpr void SparseSet<T>::QuickSort(const int32_t low, const int32_t high, 
+		const Sorter func)
+	{
+		if (low > high)
+			return;
+
+		const int32_t ptr = Partition(low, high, func);
+		QuickSort(low, ptr - 1, func);
+		QuickSort(ptr + 1, high, func);
+	}
+
+	template <typename T>
+	constexpr int32_t SparseSet<T>::Partition(const int32_t low, const int32_t high,
+		const Sorter func)
+	{
+		const float pivot = func(_values[high], high);
+		int32_t i = low - 1;
+
+		for (int32_t j = low; j <= high - 1; ++j)
+			if (func(_values[j], j) <= pivot)
+				Swap(++i, j);
+
+		++i;
+		Swap(i, high);
+		return i;;
+	}
+
+	template <typename T>
+	constexpr void SparseSet<T>::Sort(const Sorter func)
+	{
+		QuickSort(0, _count - 1, func);
+	}
+
+	template <typename T>
+	constexpr void SparseSet<T>::Swap(const int32_t a, const int32_t b)
+	{
+		const int32_t aSparse = _dense[a];
+		const int32_t bSparse = _dense[a] = _dense[b];
+		_dense[b] = aSparse;
+
+		const T aValue = _values[a];
+		_values[a] = _values[b];
+		_values[b] = aValue;
+
+		_sparse[aSparse] = b;
+		_sparse[bSparse] = a;
+	}
+
+	template <typename T>
 	constexpr T* SparseSet<T>::begin() const
 	{
 		return &_values[0];
@@ -204,17 +260,5 @@ namespace utils
 	constexpr T* SparseSet<T>::end() const
 	{
 		return &_values[_count];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseSet<T>::ToSparseIndex(const int32_t denseIndex) const
-	{
-		return _dense[denseIndex];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseSet<T>::ToDenseIndex(const int32_t sparseIndex) const
-	{
-		return _sparse[sparseIndex];
 	}
 }

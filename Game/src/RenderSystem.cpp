@@ -2,20 +2,14 @@
 #include "Modules/RenderModule.h"
 #include <algorithm>
 
-game::RenderSystem::RendererSorter::RendererSorter(utils::SparseSet<Transform>& set) :
-	_set(set)
-{
-
-}
-
-bool game::RenderSystem::RendererSorter::operator()(const int32_t a, const int32_t b) const
-{
-	return _set[a].z > _set[b].z;
-}
-
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
+}
+
+float game::RenderSystem::Sort(const Renderer& renderer, int32_t index)
+{
+	return renderer._renderPriority;
 }
 
 void game::RenderSystem::OnUpdate(
@@ -30,16 +24,24 @@ void game::RenderSystem::OnUpdate(
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
-	// Sort renderers based on z positions.
+	// Sort renderers based on the transforms z positions.
 	const auto iterator = renderers.GetDenseIterator();
-	std::sort(iterator.begin(), iterator.end(), RendererSorter(transforms));
+	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
+	{
+		auto& renderer = renderers[i];
+		auto& transform = transforms.Get(iterator[i]);
+
+		renderer._renderPriority = -transform.zGlobal;
+	}
+
+	renderers.Sort(Sort);
 
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& renderer = renderers[i];
-		auto& transform = transforms[iterator[i]];
+		auto& transform = transforms.Get(iterator[i]);
 
-		p4Screen.p4 = _mm_sub_ps(transform.p4, p4Camera);
+		p4Screen.p4 = _mm_sub_ps(transform.p4Global, p4Camera);
 
 		SDL_Rect srcRect;
 		srcRect.x = imageSize * renderer.index;
@@ -75,12 +77,12 @@ void game::RenderSystem::OnUpdate(
 
 		// Adjust color.
 		const float colMultiplier = 1.0f - std::max(.0f, 
-			abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof;
+			(abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
 		const float colorMultiplier = 255 * colMultiplier;
 		SDL_SetTextureColorMod(renderer.texture, 
 			colorMultiplier, colorMultiplier, colorMultiplier);
 
-		const float rotation = renderer.rotation + transform.rotation;
+		const float rotation = renderer.rotation + transform.rotationGlobal;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);
