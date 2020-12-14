@@ -4,10 +4,11 @@
 #include "Components/Renderer.h"
 #include "Modules/RenderModule.h"
 #include "Helpers/TransformHelper.h"
+#include "Components/Controller.h"
 
 namespace game
 {
-	class UndeadFactory final : public cecsar::EntityFactory<Transform, Renderer>
+	class UndeadFactory final : public cecsar::EntityFactory<Transform, Renderer, Controller>
 	{
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
@@ -17,7 +18,7 @@ namespace game
 		utils::SparseSet<Renderer>* _renderers = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(int32_t index, Transform&, Renderer&) override;
+		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&) override;
 	};
 
 	inline void UndeadFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -30,7 +31,7 @@ namespace game
 	}
 
 	inline void UndeadFactory::OnConstruction(const int32_t index,
-		Transform& transform, Renderer& renderer)
+		Transform& transform, Renderer& renderer, Controller&)
 	{
 		SDL_Texture* texture = _renderModule->GetTexture("Art/Undead.png");
 		renderer.texture = texture;
