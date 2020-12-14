@@ -79,4 +79,7 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
 			const float diff = abs(abs(offset.y) - _hardFollowThreshold.y);
 			cameraPosition.y -= diff * (offset.y > 0 ? 1 : -1);
 		}
+
+	const float zoomLerp = offset.Magnitude() / _hardFollowThreshold.Magnitude();
+	_renderModule->zoom = 1 + zoomLerp * _movementZoomMultiplier;
 }
