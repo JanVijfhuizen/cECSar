@@ -11,6 +11,7 @@
 #include "Systems/ControllerSystem.h"
 #include "Modules/TimeModule.h"
 #include <iostream>
+#include "Systems/CameraSystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -73,6 +74,7 @@ int main(int argc, char* argv[])
 
 	const auto& player = cecsar.AddEntity<game::UndeadFactory>(1);
 	cecsar.GetSet<game::Controller>().Get(player[0]).type = game::ControllerType::player;
+	cecsar.AddComponent<game::CameraFollowTarget>(player[0]);
 	delete[] player;
 
 	SDL_Event event;
@@ -95,6 +97,7 @@ int main(int argc, char* argv[])
 		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();
+		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
 		renderModule.PostRender();
 	}

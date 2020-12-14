@@ -28,9 +28,8 @@ void game::RenderSystem::OnUpdate(
 	}
 	renderers.Sort(Sort);
 
-	utils::Vector3 screenSpace;
 	Color c4Render;
-	const auto p4Camera = _module->transform.posGlobal.v4;
+	const auto p4Camera = _module->cameraTransform.posLocal.v4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
@@ -40,6 +39,7 @@ void game::RenderSystem::OnUpdate(
 		auto& transform = transforms.Get(iterator[i]);
 
 		// Calculate screenspace position.
+		utils::Vector3 screenSpace;
 		screenSpace.v4 = _mm_sub_ps(transform.posGlobal.v4, p4Camera);
 
 		SDL_Rect srcRect;

@@ -13,5 +13,21 @@ namespace utils
 				float x, y, z;
 			};
 		};
+
+		constexpr Vector3();
+		constexpr Vector3(__m128 v4);
+		constexpr Vector3(float x, float y, float z);
 	};
+
+	constexpr Vector3::Vector3() = default;
+
+	constexpr Vector3::Vector3(const __m128 v4) : v4(v4)
+	{
+
+	}
+
+	constexpr Vector3::Vector3(const float x, const float y, const float z) : 
+		x(x), y(y), z(z)
+	{
+	}
 }
