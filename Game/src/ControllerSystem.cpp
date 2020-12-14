@@ -18,6 +18,6 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 	playerController.space = state[SDL_SCANCODE_SPACE];
 
 	for (auto& controller : controllers)
-		if (controller.type == ControllerType::ai)
+		if (controller.type == ControllerType::player)
 			controller = playerController;
 }

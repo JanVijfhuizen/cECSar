@@ -162,12 +162,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\MovementSystem.cpp" />
     <ClCompile Include="src\ControllerSystem.cpp" />
     <ClCompile Include="src\TransformSystem.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
     <ClCompile Include="src\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\MovementComponent.h" />
     <ClInclude Include="include\Helpers\TransformHelper.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
@@ -175,7 +177,9 @@
     <ClInclude Include="include\Factories\BlockFactory.h" />
     <ClInclude Include="include\Factories\UndeadFactory.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
+    <ClInclude Include="include\Modules\TimeModule.h" />
     <ClInclude Include="include\Systems\ControllerSystem.h" />
+    <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />

@@ -8,10 +8,15 @@
 #include <cassert>
 #include "Factories/UndeadFactory.h"
 #include "Systems/ControllerSystem.h"
+#include "Modules/TimeModule.h"
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
 	SDL_Init(0);
+
+	// THIS IS JUST SOME NONSENSE TESTING STUFF.
+	// The interesting stuff happens in the ComponentSystems.
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
@@ -63,21 +68,22 @@ int main(int argc, char* argv[])
 	//delete[] ptrsMoving;
 	transforms.Get(ptrsMoving[0]).posLocal.y = 100;
 
-	float f = 0;
+	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 
 	SDL_Event event;
 	while(true)
 	{
-		// Deltatime? What's that?
-		f += .002f;
+		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)
 			;
 
-		transforms.Get(ptrsMoving[0]).rot += .01f;
-		transforms.Get(ptrsMoving[0]).posLocal.x = 200 + sin(f) * 100;
-		transforms.Get(ptrsMoving[0]).posLocal.z = sin(f) * 5;
-		transforms.Get(ptrsMoving[1]).posLocal.y = cos(f) * 100;
+		const float time = timeModule.GetTime();
+
+		transforms.Get(ptrsMoving[0]).rot += timeModule.GetDeltaTime() * 50;
+		transforms.Get(ptrsMoving[0]).posLocal.x = 200 + sin(time) * 100;
+		transforms.Get(ptrsMoving[0]).posLocal.z = sin(time) * 2;
+		transforms.Get(ptrsMoving[1]).posLocal.y = cos(time) * 100;
 
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::TransformSystem>();
