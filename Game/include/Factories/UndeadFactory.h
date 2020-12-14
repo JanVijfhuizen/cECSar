@@ -44,8 +44,8 @@ namespace game
 			const int32_t feetIndex = feet[i];
 
 			auto& feetTransform = _cecsar->AddComponent<Transform>(feetIndex);
-			feetTransform.x = (2 * i - 1) * _renderModule->DEFAULT_IMAGE_SIZE * 2;
-			feetTransform.z = -.05f;
+			feetTransform.posLocal.x = (2 * i - 1) * _renderModule->DEFAULT_IMAGE_SIZE * 2;
+			feetTransform.posLocal.z = -.05f;
 
 			auto& feetRenderer = _cecsar->AddComponent<Renderer>(feetIndex);
 			feetRenderer.texture = texture;
@@ -64,9 +64,9 @@ namespace game
 			const int32_t handIndex = hands[i];
 
 			auto& handTransform = _cecsar->AddComponent<Transform>(handIndex);
-			handTransform.x = (2 * i - 1) * _renderModule->DEFAULT_IMAGE_SIZE * 4;
-			handTransform.y = _renderModule->DEFAULT_IMAGE_SIZE * 2;
-			handTransform.z = .05f;
+			handTransform.posLocal.x = (2 * i - 1) * _renderModule->DEFAULT_IMAGE_SIZE * 4;
+			handTransform.posLocal.y = _renderModule->DEFAULT_IMAGE_SIZE * 2;
+			handTransform.posLocal.z = .05f;
 
 			auto& handRenderer = _cecsar->AddComponent<Renderer>(handIndex);
 			handRenderer.texture = texture;
