@@ -6,6 +6,7 @@
 #include "Factories/BlockFactory.h"
 #include "Helpers/TransformHelper.h"
 #include <cassert>
+#include "Factories/UndeadFactory.h"
 
 int main(int argc, char* argv[])
 {
@@ -56,7 +57,7 @@ int main(int argc, char* argv[])
 	}
 	delete [] ptrs;
 
-	const int32_t* ptrsMoving = cecsar.AddEntity<game::BlockFactory>(2);
+	const int32_t* ptrsMoving = cecsar.AddEntity<game::UndeadFactory>(2);
 	game::TransformHelper::SetParent(transforms, ptrsMoving[1], ptrsMoving[0]);
 	//delete[] ptrsMoving;
 	transforms.Get(ptrsMoving[0]).y = 100;
