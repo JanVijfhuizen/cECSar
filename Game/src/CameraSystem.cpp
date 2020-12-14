@@ -80,6 +80,11 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
 			cameraPosition.y -= diff * (offset.y > 0 ? 1 : -1);
 		}
 
-	const float zoomLerp = offset.Magnitude() / _hardFollowThreshold.Magnitude();
-	_renderModule->zoom = 1 + zoomLerp * _movementZoomMultiplier;
+	const float hardFollowMagn = _hardFollowThreshold.Magnitude();
+	const float offsetMagn = offset.Magnitude();
+
+	const float magnLerp = offsetMagn / hardFollowMagn;
+	const float convLerp = std::max(.0f, magnLerp - _movementZoomThreshold) / (1.0f - _movementZoomThreshold);
+	
+	_renderModule->zoom = 1 + convLerp * _movementZoomMultiplier;
 }

@@ -12,8 +12,11 @@ namespace game
 	private:
 		utils::Vector3 _followThreshold{40, 30, 0 };
 		utils::Vector3  _hardFollowThreshold{80, 60, 0 };
+
 		float _followSpeed = 100;
+
 		float _movementZoomMultiplier = .2f;
+		float _movementZoomThreshold = .2f;
 
 		RenderModule* _renderModule = nullptr;
 		TimeModule* _timeModule = nullptr;
