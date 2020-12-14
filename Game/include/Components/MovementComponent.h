@@ -4,7 +4,7 @@ namespace game
 {
 	struct MovementComponent final
 	{
-		float movementSpeed = 1;
-		float rotationSpeed = 1;
+		float movementSpeed = 200;
+		float rotationSpeed = 500;
 	};
 }

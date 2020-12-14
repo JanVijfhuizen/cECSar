@@ -7,6 +7,7 @@
 #include "Helpers/TransformHelper.h"
 #include <cassert>
 #include "Factories/UndeadFactory.h"
+#include "Systems/MovementSystem.h"
 #include "Systems/ControllerSystem.h"
 #include "Modules/TimeModule.h"
 #include <iostream>
@@ -70,6 +71,10 @@ int main(int argc, char* argv[])
 
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 
+	const auto& player = cecsar.AddEntity<game::UndeadFactory>(1);
+	cecsar.GetSet<game::Controller>().Get(player[0]).type = game::ControllerType::player;
+	delete[] player;
+
 	SDL_Event event;
 	while(true)
 	{
@@ -86,6 +91,7 @@ int main(int argc, char* argv[])
 		transforms.Get(ptrsMoving[1]).posLocal.y = cos(time) * 100;
 
 		cecsar.Update<game::ControllerSystem>();
+		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();

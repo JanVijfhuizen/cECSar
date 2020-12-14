@@ -5,10 +5,12 @@
 #include "Modules/RenderModule.h"
 #include "Helpers/TransformHelper.h"
 #include "Components/Controller.h"
+#include "Components/MovementComponent.h"
 
 namespace game
 {
-	class UndeadFactory final : public cecsar::EntityFactory<Transform, Renderer, Controller>
+	class UndeadFactory final : public cecsar::EntityFactory<Transform, Renderer, 
+		Controller, MovementComponent>
 	{
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
@@ -18,7 +20,7 @@ namespace game
 		utils::SparseSet<Renderer>* _renderers = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&) override;
+		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&, MovementComponent&) override;
 	};
 
 	inline void UndeadFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -31,7 +33,7 @@ namespace game
 	}
 
 	inline void UndeadFactory::OnConstruction(const int32_t index,
-		Transform& transform, Renderer& renderer, Controller&)
+		Transform& transform, Renderer& renderer, Controller&, MovementComponent&)
 	{
 		SDL_Texture* texture = _renderModule->GetTexture("Art/Undead.png");
 		renderer.texture = texture;
@@ -40,6 +42,7 @@ namespace game
 		const auto feet = _cecsar->AddEntity(2);
 		const auto hands = _cecsar->AddEntity(2);
 
+		// Add feet.
 		for (int32_t i = 0; i < 2; ++i)
 		{
 			const int32_t feetIndex = feet[i];
@@ -60,6 +63,7 @@ namespace game
 				feetRenderer.flip = SDL_FLIP_HORIZONTAL;
 		}
 
+		// Add hands.
 		for (int32_t i = 0; i < 2; ++i)
 		{
 			const int32_t handIndex = hands[i];

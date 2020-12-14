@@ -11,7 +11,7 @@ void game::MovementSystem::OnUpdate(
 	utils::SparseSet<Transform>& transforms, utils::SparseSet<Controller>& controllers,
 	utils::SparseSet<MovementComponent>& movementComponents)
 {
-	auto halfP = 180 / M_PI;
+	const float halfP = 180 / M_PI;
 	const auto deltaTime = _timeModule->GetDeltaTime();
 
 	const auto iterator = movementComponents.GetDenseIterator();
@@ -20,9 +20,10 @@ void game::MovementSystem::OnUpdate(
 		auto& movementComponent = movementComponents[i];
 		auto& controller = controllers.Get(iterator[i]);
 		auto& transform = transforms.Get(iterator[i]);
-
-		const float xDelta = controller.xDir * movementComponent.movementSpeed * deltaTime;
-		const float yDelta = controller.yDir * movementComponent.movementSpeed * deltaTime;
+		
+		const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
+		const float xDelta = controller.xDir * deltaSpeed;
+		const float yDelta = controller.yDir * deltaSpeed;
 
 		transform.posLocal.x += xDelta;
 		transform.posLocal.y += yDelta;
@@ -31,7 +32,7 @@ void game::MovementSystem::OnUpdate(
 		if (!rotate)
 			continue;
 
-		float targetDegrees = atan2f(controller.xDir, -controller.yDir) * halfP;
+		float targetDegrees = atan2f(-controller.xDir, controller.yDir) * halfP;
 		if (targetDegrees < 0)
 			targetDegrees += 360;
 
