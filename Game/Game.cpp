@@ -13,6 +13,7 @@
 #include <iostream>
 #include "Systems/CameraSystem.h"
 #include "Managers/LevelGenerator.h"
+#include "Factories/PlayerFactory.h"
 
 int main(int argc, char* argv[])
 {
@@ -38,10 +39,7 @@ int main(int argc, char* argv[])
 	delete [] generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto& player = cecsar.AddEntity<game::UndeadFactory>(1);
-	cecsar.GetSet<game::Controller>().Get(player[0]).type = game::ControllerType::player;
-	cecsar.AddComponent<game::CameraFollowTarget>(player[0]);
-	delete[] player;
+	delete [] cecsar.AddEntity<game::PlayerFactory>(1);
 
 	SDL_Event event;
 	while(true)

@@ -172,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
+    <ClInclude Include="include\Factories\PlayerFactory.h" />
     <ClInclude Include="include\Helpers\TransformHelper.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
