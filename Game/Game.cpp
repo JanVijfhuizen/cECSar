@@ -6,10 +6,19 @@
 #include "Factories/BlockFactory.h"
 #include "Helpers/TransformHelper.h"
 #include <cassert>
+#include "Factories/UndeadFactory.h"
+#include "Systems/MovementSystem.h"
+#include "Systems/ControllerSystem.h"
+#include "Modules/TimeModule.h"
+#include <iostream>
+#include "Systems/CameraSystem.h"
 
 int main(int argc, char* argv[])
 {
 	SDL_Init(0);
+
+	// THIS IS JUST SOME NONSENSE TESTING STUFF.
+	// The interesting stuff happens in the ComponentSystems.
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
@@ -42,44 +51,53 @@ int main(int argc, char* argv[])
 			const int32_t* index = row + x;
 			auto& transform = transforms[*index];
 
-			transform.x = x * posMod + x * padding;
-			transform.y = y * posMod + y * padding;
+			transform.posLocal.x = x * posMod + x * padding;
+			transform.posLocal.y = y * posMod + y * padding;
 
-			transform.z = -.2f * (x + y);
-			transform.rotation = x + y;
+			transform.posLocal.z = -.2f * (x + y);
+			transform.rot = x + y;
 
 			auto& renderer = renderers[*index];
 			renderer.color.r = x * 10;
 			renderer.color.g = y * 10;
-			renderer.color.b = abs(transform.z) * 10;
+			renderer.color.b = abs(transform.posLocal.z) * 10;
 		}
 	}
 	delete [] ptrs;
 
-	const int32_t* ptrsMoving = cecsar.AddEntity<game::BlockFactory>(2);
+	const int32_t* ptrsMoving = cecsar.AddEntity<game::UndeadFactory>(2);
 	game::TransformHelper::SetParent(transforms, ptrsMoving[1], ptrsMoving[0]);
 	//delete[] ptrsMoving;
-	transforms.Get(ptrsMoving[0]).y = 100;
+	transforms.Get(ptrsMoving[0]).posLocal.y = 100;
 
-	float f = 0;
+	auto& timeModule = cecsar.GetModule<game::TimeModule>();
+
+	const auto& player = cecsar.AddEntity<game::UndeadFactory>(1);
+	cecsar.GetSet<game::Controller>().Get(player[0]).type = game::ControllerType::player;
+	cecsar.AddComponent<game::CameraFollowTarget>(player[0]);
+	delete[] player;
 
 	SDL_Event event;
 	while(true)
 	{
-		// Deltatime? What's that?
-		f += .002f;
+		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)
 			;
 
-		transforms.Get(ptrsMoving[0]).rotation += .01f;
-		transforms.Get(ptrsMoving[0]).x = 200 + sin(f) * 100;
-		//transforms.Get(ptrsMoving[0]).z = sin(f) * 5;
-		transforms.Get(ptrsMoving[1]).y = cos(f) * 100;
+		const float time = timeModule.GetTime();
 
+		transforms.Get(ptrsMoving[0]).rot += timeModule.GetDeltaTime() * 50;
+		transforms.Get(ptrsMoving[0]).posLocal.x = 200 + sin(time) * 100;
+		transforms.Get(ptrsMoving[0]).posLocal.z = sin(time) * 2;
+		transforms.Get(ptrsMoving[1]).posLocal.y = cos(time) * 100;
+
+		cecsar.Update<game::ControllerSystem>();
+		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();
+		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
 		renderModule.PostRender();
 	}

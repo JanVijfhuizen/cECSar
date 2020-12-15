@@ -37,27 +37,29 @@ void game::TransformSystem::UpdateGlobalPositions(utils::SparseSet<Transform>& t
 	{
 		if (transform.parent == -1)
 		{
-			transform.p4Global = transform.p4;
-			transform.rotationGlobal = transform.rotation;
+			transform.posGlobal = transform.posLocal;
+			transform.rotGlobal = transform.rot;
 			continue;
 		}
 
 		auto& parent = transforms.Get(transform.parent);
-		transform.rotationGlobal = transform.rotation + parent.rotationGlobal;
+		transform.rotGlobal = transform.rot + parent.rotGlobal;
 
-		const float rad = transform.rotationGlobal * halfC;
+		const float rad = transform.rotGlobal * halfC;
 		const float sin = std::sinf(rad);
 		const float cos = std::cosf(rad);
 
-		const float xSin = transform.x * sin;
-		const float xCos = transform.x * cos;
+		const auto local = transform.posLocal;
 
-		const float ySin = transform.y * sin;
-		const float yCos = transform.y * cos;
+		const float xSin = local.x * sin;
+		const float xCos = local.x * cos;
 
-		transform.xGlobal = parent.xGlobal + xCos - ySin;
-		transform.yGlobal = parent.yGlobal + xSin + yCos;
-		transform.zGlobal = parent.zGlobal + transform.z;
+		const float ySin = local.y * sin;
+		const float yCos = local.y * cos;
+
+		transform.posGlobal.x = parent.posGlobal.x + xCos - ySin;
+		transform.posGlobal.y = parent.posGlobal.y + xSin + yCos;
+		transform.posGlobal.z = parent.posGlobal.z + local.z;
 	}
 }
 
