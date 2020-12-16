@@ -6,9 +6,9 @@ namespace game
 {
 	struct BodyComponent final
 	{
-		float moveThreshold = 20;
-		float stoppingDistance = 10;
-		float moveSpeed = 200;
+		float moveThreshold = 48;
+		float stoppingDistance = 5;
+		float speedMultiplier = 1.5f;
 
 		int32_t parent = -1;
 		utils::Vector3 offset{};

@@ -25,8 +25,9 @@ void game::MovementSystem::OnUpdate(
 		const float xDelta = controller.xDir * deltaSpeed;
 		const float yDelta = controller.yDir * deltaSpeed;
 
-		transform.posLocal.x += xDelta;
-		transform.posLocal.y += yDelta;
+		const auto normVector = utils::Vector3(xDelta, yDelta, 1).Normalized();
+		transform.posLocal.x += normVector.x;
+		transform.posLocal.y += normVector.y;
 
 		const bool rotate = abs(xDelta) > 0 || abs(yDelta) > 0;
 		if (!rotate)

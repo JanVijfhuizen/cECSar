@@ -38,7 +38,7 @@ namespace game
 		renderer.texture = texture;
 		controller.type = ControllerType::player;
 
-		const auto bodyParts = _cecsar->AddEntity<BodyFactory>(4);
+		const auto bodyParts = _cecsar->AddEntity<BodyFactory>(2);
 
 		// Hands.
 		for (int32_t i = 0; i < 2; ++i)
@@ -46,18 +46,8 @@ namespace game
 			auto& body = _bodies->Get(bodyParts[i]);
 			body.parent = index;
 
-			body.offset.y = -16;
+			body.offset.y = 8;
 			body.offset.x = 24 * (i * 2 - 1);
-		}
-
-		// Feet.
-		for (int32_t i = 2; i < 4; ++i)
-		{
-			auto& body = _bodies->Get(bodyParts[i]);
-			body.parent = index;
-
-			body.offset.y = 24;
-			body.offset.x = 32 * ((i == 2) * 2 - 1);
 		}
 
 		delete[] bodyParts;
