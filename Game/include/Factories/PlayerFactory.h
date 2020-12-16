@@ -40,14 +40,15 @@ namespace game
 
 		const auto bodyParts = _cecsar->AddEntity<BodyFactory>(2);
 
-		// Hands.
+		// Feet.
 		for (int32_t i = 0; i < 2; ++i)
 		{
 			auto& body = _bodies->Get(bodyParts[i]);
 			body.parent = index;
 
-			body.offset.y = 8;
+			body.offset.y = -8;
 			body.offset.x = 24 * (i * 2 - 1);
+			body.other = bodyParts[1 - i];
 		}
 
 		delete[] bodyParts;

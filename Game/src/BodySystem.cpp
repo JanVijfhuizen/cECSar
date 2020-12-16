@@ -24,39 +24,48 @@ void game::BodySystem::OnUpdate(
 		auto& parentTransform = transforms.Get(body.parent);
 		const auto& parentMovement = movements.Get(body.parent);
 
-		// Update z position.
-		transform.posLocal.z = parentTransform.posGlobal.z - .05f;
+		// Calculate target position.
+		const auto rotatedTargetOffset = body.offset.Rotate(parentTransform.rotGlobal);
+		auto targetPosition = parentTransform.posGlobal + rotatedTargetOffset;
+		const utils::Vector3 offset = targetPosition - transform.posGlobal;
 
-		const auto target4 = _mm_add_ps(transform.posGlobal.v4, body.offset.v4);
-		utils::Vector3 offset(_mm_sub_ps(parentTransform.posGlobal.v4, target4));
-		offset.z = 1;
+		// Calculate offset.
+		const float magnitude = offset.Magnitude2d();
 
-		const float magnitude = offset.Magnitude();
-		utils::Vector3 offsetNormalized = offset.Normalized();
-		offsetNormalized.z = 0;
-
-		// Move if it's too far away.
+		// Move if it's too far away and the linked bodypart isn't moving either.
 		if(!body.moving)
 			if (magnitude > body.moveThreshold)
-				body.moving = true;
-
-		if (!body.moving)
-			continue;
-
-		// If the bodypart is close enough.
-		if(magnitude < body.stoppingDistance)
+				if (body.other == -1)
+					body.moving = true;
+				else
+				{
+					if (!bodies.Get(body.other).moving)
+						body.moving = true;
+				}
+		// Somehow it doesnt center.
+		if (body.moving)
 		{
-			body.moving = false;
-			continue;
+			// TODO Teleport if too far away.
+
+			// If the bodypart is close enough.
+			if (magnitude < body.stoppingDistance)
+			{
+				body.moving = false;
+				continue;
+			}
+
+			const auto offsetNormalized = offset.Normalized2d();
+
+			const float&& delta = parentMovement.movementSpeed * body.speedMultiplier * deltaTime;
+			const auto&& p4Delta = _mm_set_ps1(delta);
+
+			const utils::Vector3 dir(_mm_mul_ps(offsetNormalized.v4, p4Delta));
+			transform.posLocal.v4 = _mm_add_ps(transform.posLocal.v4, dir.v4);
+
+			// Rotate smoothly.
+			transform.rot = parentTransform.rot;
 		}
 
-		// Teleport if too far away.
-		// Also rotate towards the correct direction.
-
-		const float&& delta = parentMovement.movementSpeed * body.speedMultiplier * deltaTime;
-		const auto&& p4Delta = _mm_set_ps1(delta);
-		const utils::Vector3 dir(_mm_mul_ps(offsetNormalized.v4, p4Delta));
-
-		transform.posLocal.v4 = _mm_add_ps(transform.posLocal.v4, dir.v4);
+		transform.posLocal.z = parentTransform.posGlobal.z - .05f;
 	}
 }
