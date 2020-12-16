@@ -34,8 +34,13 @@ namespace utils
 #pragma endregion 
 
 		inline Vector3& operator =(const Vector3& other);
-		inline Vector3& operator +(const Vector3& other);
-		inline Vector3& operator -(const Vector3& other);
+
+		inline Vector3 operator +(const Vector3& other) const;
+		inline Vector3 operator -(const Vector3& other) const;
+		inline Vector3& operator+=(const Vector3& vector3);
+		inline Vector3& operator-=(const Vector3& vector3);
+
+		inline Vector3 operator *(float f) const;
 	};
 
 	constexpr Vector3::Vector3() = default;
@@ -81,10 +86,7 @@ namespace utils
 	inline Vector3 Vector3::Normalized2d() const
 	{
 		const float magnitude = Magnitude2d();
-		return
-		{ 
-			x / magnitude, y / magnitude 
-		};
+		return{ x / magnitude, y / magnitude };
 	}
 
 	constexpr Vector3 Vector3::To2D() const
@@ -98,24 +100,36 @@ namespace utils
 		return *this;
 	}
 
-	inline Vector3& Vector3::operator+(const Vector3& other)
+	inline Vector3 Vector3::operator+(const Vector3& other) const
 	{
-		v4 = _mm_add_ps(v4, other.v4);
+		return { _mm_add_ps(v4, other.v4) };
+	}
+
+	inline Vector3 Vector3::operator-(const Vector3& other) const
+	{
+		return { _mm_sub_ps(v4, other.v4) };
+	}
+
+	inline Vector3& Vector3::operator+=(const Vector3& vector3)
+	{
+		v4 = _mm_add_ps(v4, vector3.v4);
 		return *this;
 	}
 
-	inline Vector3& Vector3::operator-(const Vector3& other)
+	inline Vector3& Vector3::operator-=(const Vector3& vector3)
 	{
-		v4 = _mm_sub_ps(v4, other.v4);
+		v4 = _mm_sub_ps(v4, vector3.v4);
 		return *this;
+	}
+
+	inline Vector3 Vector3::operator*(const float f) const
+	{
+		return { _mm_mul_ps(v4, _mm_set_ps1(f)) };
 	}
 
 	inline Vector3 Vector3::Normalized() const
 	{
-		return 
-		{ 
-			_mm_div_ps(v4, _mm_set_ps1(Magnitude())) 
-		};
+		return { _mm_div_ps(v4, _mm_set_ps1(Magnitude())) };
 	}
 
 	inline float Vector3::Magnitude() const

@@ -46,7 +46,7 @@ namespace game
 			auto& body = _bodies->Get(bodyParts[i]);
 			body.parent = index;
 
-			body.offset.y = -8;
+			body.offset.y = 16;
 			body.offset.x = 24 * (i * 2 - 1);
 			body.other = bodyParts[1 - i];
 		}

@@ -42,6 +42,7 @@ void game::BodySystem::OnUpdate(
 					if (!bodies.Get(body.other).moving)
 						body.moving = true;
 				}
+
 		// Somehow it doesnt center.
 		if (body.moving)
 		{
@@ -54,13 +55,10 @@ void game::BodySystem::OnUpdate(
 				continue;
 			}
 
-			const auto offsetNormalized = offset.Normalized2d();
-
+			const auto&& offsetNormalized = offset.Normalized2d();
 			const float&& delta = parentMovement.movementSpeed * body.speedMultiplier * deltaTime;
-			const auto&& p4Delta = _mm_set_ps1(delta);
 
-			const utils::Vector3 dir(_mm_mul_ps(offsetNormalized.v4, p4Delta));
-			transform.posLocal.v4 = _mm_add_ps(transform.posLocal.v4, dir.v4);
+			transform.posLocal += offsetNormalized * delta;
 
 			// Rotate smoothly.
 			transform.rot = parentTransform.rot;
