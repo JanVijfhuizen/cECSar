@@ -5,6 +5,8 @@
 #include "Components/Controller.h"
 #include "Components/MovementComponent.h"
 #include "Modules/RenderModule.h"
+#include "BodyFactory.h"
+#include "Components/BodyComponent.h"
 
 namespace game
 {
@@ -12,7 +14,9 @@ namespace game
 		Controller, MovementComponent, CameraFollowTarget>
 	{
 	protected:
+		cecsar::Cecsar* _cecsar = nullptr;
 		RenderModule* _renderModule = nullptr;
+		utils::SparseSet<BodyComponent>* _bodies = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&, 
@@ -21,15 +25,41 @@ namespace game
 
 	inline void PlayerFactory::Initialize(cecsar::Cecsar& cecsar)
 	{
+		_cecsar = &cecsar;
 		_renderModule = &cecsar.GetModule<RenderModule>();
+		_bodies = &cecsar.GetSet<BodyComponent>();
 	}
 
 	inline void PlayerFactory::OnConstruction(const int32_t index, 
-		Transform&, Renderer& renderer, Controller& controller, 
+		Transform& transform, Renderer& renderer, Controller& controller, 
 		MovementComponent&, CameraFollowTarget&)
 	{
 		SDL_Texture* texture = _renderModule->GetTexture("Art/Player.png");
 		renderer.texture = texture;
 		controller.type = ControllerType::player;
+
+		const auto bodyParts = _cecsar->AddEntity<BodyFactory>(4);
+
+		// Hands.
+		for (int32_t i = 0; i < 2; ++i)
+		{
+			auto& body = _bodies->Get(bodyParts[i]);
+			body.parent = index;
+
+			body.offset.y = -16;
+			body.offset.x = 24 * (i * 2 - 1);
+		}
+
+		// Feet.
+		for (int32_t i = 2; i < 4; ++i)
+		{
+			auto& body = _bodies->Get(bodyParts[i]);
+			body.parent = index;
+
+			body.offset.y = 24;
+			body.offset.x = 32 * ((i == 2) * 2 - 1);
+		}
+
+		delete[] bodyParts;
 	}
 }

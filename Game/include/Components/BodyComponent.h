@@ -4,20 +4,15 @@
 
 namespace game
 {
-	enum class BodyMovementType
-	{
-		none, in, out
-	};
-
 	struct BodyComponent final
 	{
-		float outMoveThreshold = 8;
-		float inMoveThreshold = 20;
+		float moveThreshold = 20;
+		float stoppingDistance = 10;
 		float moveSpeed = 200;
 
 		int32_t parent = -1;
 		utils::Vector3 offset{};
 
-		BodyMovementType movementType = BodyMovementType::none;
+		bool moving = false;
 	};
 }

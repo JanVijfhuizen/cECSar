@@ -4,16 +4,13 @@
 #include "Systems/TransformSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
-#include "Helpers/TransformHelper.h"
-#include <cassert>
-#include "Factories/UndeadFactory.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/ControllerSystem.h"
 #include "Modules/TimeModule.h"
-#include <iostream>
 #include "Systems/CameraSystem.h"
 #include "Managers/LevelGenerator.h"
 #include "Factories/PlayerFactory.h"
+#include "Systems/BodySystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -50,12 +47,15 @@ int main(int argc, char* argv[])
 			;
 
 		cecsar.Update<game::ControllerSystem>();
+		cecsar.Update<game::BodySystem>();
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();
+
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
+
 		renderModule.PostRender();
 	}
 
