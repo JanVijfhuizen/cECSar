@@ -31,6 +31,7 @@ namespace utils
 #pragma region 2d
 		inline float Magnitude2d() const;
 		inline Vector3 Normalized2d() const;
+		inline float SquaredLength() const;
 #pragma endregion 
 
 		inline Vector3& operator =(const Vector3& other);
@@ -87,6 +88,11 @@ namespace utils
 	{
 		const float magnitude = Magnitude2d();
 		return{ x / magnitude, y / magnitude };
+	}
+
+	inline float Vector3::SquaredLength() const
+	{
+		return x * x + y * y + z * z;
 	}
 
 	constexpr Vector3 Vector3::To2D() const

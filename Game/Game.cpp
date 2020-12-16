@@ -10,7 +10,8 @@
 #include "Systems/CameraSystem.h"
 #include "Managers/LevelGenerator.h"
 #include "Factories/PlayerFactory.h"
-#include "Systems/BodySystem.h"
+#include "Systems/LegSystem.h"
+#include "Systems/HandSystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -47,7 +48,8 @@ int main(int argc, char* argv[])
 			;
 
 		cecsar.Update<game::ControllerSystem>();
-		cecsar.Update<game::BodySystem>();
+		cecsar.Update<game::HandSystem>();
+		cecsar.Update<game::LegSystem>();
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 

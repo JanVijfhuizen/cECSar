@@ -15,21 +15,19 @@ void game::MovementSystem::OnUpdate(
 	const auto deltaTime = _timeModule->GetDeltaTime();
 
 	const auto iterator = movementComponents.GetDenseIterator();
-	for (int i = iterator.GetCount() - 1; i >= 0; --i)
+	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& movementComponent = movementComponents[i];
 		auto& controller = controllers.Get(iterator[i]);
 		auto& transform = transforms.Get(iterator[i]);
 		
 		const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
-		const float xDelta = controller.xDir * deltaSpeed;
-		const float yDelta = controller.yDir * deltaSpeed;
+		const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
+		const auto normalized = input.Normalized() * deltaSpeed;
+		transform.posLocal.x += normalized.x;
+		transform.posLocal.y += normalized.y;
 
-		const auto normVector = utils::Vector3(xDelta, yDelta, 1).Normalized();
-		transform.posLocal.x += normVector.x;
-		transform.posLocal.y += normVector.y;
-
-		const bool rotate = abs(xDelta) > 0 || abs(yDelta) > 0;
+		const bool rotate = abs(normalized.x) > 0 || abs(normalized.y) > 0;
 		if (!rotate)
 			continue;
 
