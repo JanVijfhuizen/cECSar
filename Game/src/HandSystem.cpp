@@ -1,4 +1,5 @@
 ﻿#include <Systems/HandSystem.h>
+#include <algorithm>
 
 void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands, 
 	utils::SparseSet<Transform>& transforms)
@@ -7,18 +8,20 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
 		auto& hand = hands[i];
-		if (!hand.follow)
+		if (hand.target == -1)
 			continue;
 
 		auto& transform = transforms.Get(iterator[i]);
-		const auto offset = transform.posGlobal - hand.target;
-		if (offset.SquaredLength() < 1e-5)
+		auto& targetTransform = transforms.Get(hand.target);
+
+		const auto offset = targetTransform.posGlobal - transform.posGlobal;
+		if (offset.SquaredLength() < 1e-3)
 			continue;
 
 		const auto dir = offset.Normalized2d();
-		float distance = offset.Magnitude2d();
+		const float distance = offset.Magnitude2d();
 
-		// Rotate and move hand towards objective.
-		// Keep in mind that the local position is rotated.
+		transform.posLocal = dir * std::min(distance * .9f, hand.maxDistance);
+		transform.posLocal = hand.offset + transform.posLocal.Rotate(-transform.rotGlobal);
 	}
 }

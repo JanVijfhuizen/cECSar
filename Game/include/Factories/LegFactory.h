@@ -7,7 +7,7 @@
 
 namespace game
 {
-	class BodyFactory final : public cecsar::EntityFactory<LegComponent, Transform, Renderer>
+	class LegFactory final : public cecsar::EntityFactory<LegComponent, Transform, Renderer>
 	{
 	protected:
 		RenderModule* _renderModule = nullptr;
@@ -16,15 +16,14 @@ namespace game
 		void OnConstruction(int32_t index, LegComponent&, Transform&, Renderer&) override;
 	};
 
-	inline void BodyFactory::Initialize(cecsar::Cecsar& cecsar)
+	inline void LegFactory::Initialize(cecsar::Cecsar& cecsar)
 	{
 		_renderModule = &cecsar.GetModule<RenderModule>();
 	}
 
-	inline void BodyFactory::OnConstruction(const int32_t index, LegComponent&, Transform&, Renderer& renderer)
+	inline void LegFactory::OnConstruction(const int32_t index, LegComponent&, Transform&, Renderer& renderer)
 	{
 		SDL_Texture* texture = _renderModule->GetTexture("Art/Leg.png");
 		renderer.texture = texture;
-		renderer.color.c4 = _mm_set_ps1(220);
 	}
 }

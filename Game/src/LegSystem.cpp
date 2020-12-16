@@ -15,16 +15,16 @@ void game::LegSystem::OnUpdate(
 	const auto iterator = legs.GetDenseIterator();
 	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
 	{
-		auto& body = legs[i];
-		if (body.parent == -1)
+		auto& leg = legs[i];
+		if (leg.parent == -1)
 			continue;
 
 		auto& transform = transforms.Get(iterator[i]);
-		auto& parentTransform = transforms.Get(body.parent);
-		const auto& parentMovement = movements.Get(body.parent);
+		auto& parentTransform = transforms.Get(leg.parent);
+		const auto& parentMovement = movements.Get(leg.parent);
 
 		// Calculate target position.
-		const auto rotatedTargetOffset = body.offset.Rotate(parentTransform.rotGlobal);
+		const auto rotatedTargetOffset = leg.offset.Rotate(parentTransform.rotGlobal);
 		auto targetPosition = parentTransform.posGlobal + rotatedTargetOffset;
 		const utils::Vector3 offset = targetPosition - transform.posGlobal;
 
@@ -32,37 +32,37 @@ void game::LegSystem::OnUpdate(
 		const float magnitude = offset.Magnitude2d();
 
 		// Teleport if too far away.
-		if (magnitude > body.teleportThreshold)
+		if (magnitude > leg.teleportThreshold)
 		{
 			transform.posLocal = parentTransform.posGlobal;
 			continue;
 		}
 
 		// Move if it's too far away and the linked bodypart isn't moving either.
-		if(!body.moving)
-			if (magnitude > body.moveThreshold)
+		if(!leg.moving)
+			if (magnitude > leg.moveThreshold)
 			{
-				if (body.other == -1)
-					body.moving = true;
-				else if(!legs.Get(body.other).moving)
-					body.moving = true;
+				if (leg.other == -1)
+					leg.moving = true;
+				else if(!legs.Get(leg.other).moving)
+					leg.moving = true;
 			}
 
 		// Somehow it doesnt center.
-		if (body.moving)
+		if (leg.moving)
 		{
 			// If the bodypart is close enough.
-			if (magnitude < body.stoppingDistance)
+			if (magnitude < leg.stoppingDistance)
 			{
-				body.moving = false;
+				leg.moving = false;
 				continue;
 			}
 
 			const auto&& offsetNormalized = offset.Normalized2d();
-			const float&& delta = parentMovement.movementSpeed * body.speedMultiplier * deltaTime;
+			const float&& delta = parentMovement.movementSpeed * leg.speedMultiplier * deltaTime;
 
 			transform.posLocal += offsetNormalized * delta;
-			transform.rot = parentTransform.rot;
+			transform.rot = parentTransform.rotGlobal;
 		}
 
 		transform.posLocal.z = parentTransform.posGlobal.z - .05f;

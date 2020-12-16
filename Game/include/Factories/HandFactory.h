@@ -25,6 +25,5 @@ namespace game
 	{
 		SDL_Texture* texture = _renderModule->GetTexture("Art/Hand.png");
 		renderer.texture = texture;
-		renderer.color.c4 = _mm_set_ps1(220);
 	}
 }
