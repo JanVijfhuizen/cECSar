@@ -4,15 +4,14 @@
 #include "Systems/TransformSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
-#include "Helpers/TransformHelper.h"
-#include <cassert>
-#include "Factories/UndeadFactory.h"
 #include "Systems/MovementSystem.h"
 #include "Systems/ControllerSystem.h"
 #include "Modules/TimeModule.h"
-#include <iostream>
 #include "Systems/CameraSystem.h"
 #include "Managers/LevelGenerator.h"
+#include "Factories/PlayerFactory.h"
+#include "Systems/LegSystem.h"
+#include "Systems/HandSystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -38,10 +37,7 @@ int main(int argc, char* argv[])
 	delete [] generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto& player = cecsar.AddEntity<game::UndeadFactory>(1);
-	cecsar.GetSet<game::Controller>().Get(player[0]).type = game::ControllerType::player;
-	cecsar.AddComponent<game::CameraFollowTarget>(player[0]);
-	delete[] player;
+	delete [] cecsar.AddEntity<game::PlayerFactory>(1);
 
 	SDL_Event event;
 	while(true)
@@ -52,12 +48,16 @@ int main(int argc, char* argv[])
 			;
 
 		cecsar.Update<game::ControllerSystem>();
+		cecsar.Update<game::HandSystem>();
+		cecsar.Update<game::LegSystem>();
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		renderModule.PreRender();
+
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
+
 		renderModule.PostRender();
 	}
 

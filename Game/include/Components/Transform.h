@@ -1,5 +1,4 @@
 #pragma once
-#include <emmintrin.h>
 #include "Utils/Vector3.h"
 
 namespace game

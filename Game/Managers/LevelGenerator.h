@@ -47,9 +47,7 @@ namespace game
 
 				transform.posLocal.x = x * posMod + x * padding;
 				transform.posLocal.y = y * posMod + y * padding;
-
-				//transform.posLocal.z = -.2f * (x + y);
-				//transform.rot = x + y;
+				transform.posLocal.z = -.1f;
 
 				auto& renderer = renderers[*index];
 				renderer.color.r = x * 10;
