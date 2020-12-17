@@ -3,9 +3,9 @@
 #include <SparseSet.h>
 #include <unordered_map>
 
+#include "IEntityFactory.h"
 #include <IComponentSystem.h>
 #include <IModule.h>
-#include <IEntityFactory.h>
 #include <memory>
 
 namespace cecsar
@@ -144,21 +144,20 @@ namespace cecsar
 	template <typename Factory>
 	int32_t* Cecsar::AddEntity(const int32_t count)
 	{
-		auto ptr = new int32_t[count];
-
-		IEntityFactory* factory = nullptr;
-		if (typeid(Factory) != typeid(IEntityFactory))
-			factory = &GetFactory<Factory>();
-
+		const auto ptr = new int32_t[count];
 		for (int32_t i = 0; i < count; ++i)
 		{
 			const int32_t index = _entities.Add();
 			ptr[i] = index;
 		}
 
-		if(factory)
+		if (typeid(Factory) != typeid(IEntityFactory)) 
+		{
+			auto& factory = GetFactory<Factory>();
 			for (int32_t i = 0; i < count; ++i)
-				factory->Construct(*this, ptr[i]);
+				factory.Construct(*this, ptr[i]);
+		}
+
 		return ptr;
 	}
 

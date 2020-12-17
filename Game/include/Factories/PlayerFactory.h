@@ -13,8 +13,7 @@
 
 namespace game
 {
-	class PlayerFactory final : public cecsar::EntityFactory<Transform, Renderer,
-		Controller, MovementComponent, CameraFollowTarget>
+	class PlayerFactory final : public cecsar::EntityFactory
 	{
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
@@ -24,9 +23,9 @@ namespace game
 		utils::SparseSet<Transform>* _transforms = nullptr;
 		utils::SparseSet<Renderer>* _renderers = nullptr;
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&, 
-			MovementComponent&, CameraFollowTarget&) override;
+		inline void Initialize(cecsar::Cecsar& cecsar) override;
+		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
+		inline void SpawnBodyParts(int32_t index) const;
 	};
 
 	inline void PlayerFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -40,14 +39,19 @@ namespace game
 		_renderers = &cecsar.GetSet<Renderer>();
 	}
 
-	inline void PlayerFactory::OnConstruction(const int32_t index, 
-		Transform&, Renderer& renderer, Controller& controller, 
-		MovementComponent&, CameraFollowTarget&)
+	inline void PlayerFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
-		SDL_Texture* texture = _renderModule->GetTexture("Art/Player.png");
-		renderer.texture = texture;
-		controller.type = ControllerType::player;
+		cecsar.AddComponent<Transform>(index);
+		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Player.png");
+		cecsar.AddComponent<Controller>(index).type = ControllerType::player;
+		cecsar.AddComponent<MovementComponent>(index);
+		cecsar.AddComponent<CameraFollowTarget>(index);
 
+		SpawnBodyParts(index);
+	}
+
+	inline void PlayerFactory::SpawnBodyParts(const int32_t index) const
+	{
 		// Feet.
 		const auto feet = _cecsar->AddEntity<LegFactory>(2);
 		for (int32_t i = 0; i < 2; ++i)
@@ -71,7 +75,7 @@ namespace game
 
 		auto& gunRenderer = _cecsar->AddComponent<Renderer>(gun[0]);
 		gunRenderer.texture = _renderModule->GetTexture("Art/Gun.png");
-		
+
 		TransformHelper::SetParent(*_transforms, gun[0], index);
 
 		// Hands.
