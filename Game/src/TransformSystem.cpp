@@ -8,14 +8,17 @@ void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
+	// TODO SORT
+
 	// Get root objects at the front.
+	_sortableIndexes.Copy(transforms.GetDenseRaw(), transforms.GetCount());
 	transforms.Sort(SortDepth);
 
 	ClearHangingObjects(transforms);
 	UpdateGlobalPositions(transforms);
 }
 
-void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& transforms)
+void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& transforms) const
 {
 	const auto iterator = transforms.GetDenseIterator();
 	for (int32_t i = transforms.GetCount() - 1; i >= 0; --i)
