@@ -28,7 +28,7 @@ namespace cecsar
 
 #pragma region Entity Management
 		template <typename Factory = IEntityFactory>
-		int32_t* AddEntity(int32_t count = 1);
+		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
 
 		void RemoveEntity(int32_t index);
 #pragma endregion 
@@ -142,9 +142,10 @@ namespace cecsar
 	}
 
 	template <typename Factory>
-	int32_t* Cecsar::AddEntity(const int32_t count)
+	std::shared_ptr<int32_t[]> Cecsar::AddEntity(const int32_t count)
 	{
-		const auto ptr = new int32_t[count];
+		std::shared_ptr<int32_t[]> ptr(new int32_t[count]);
+
 		for (int32_t i = 0; i < count; ++i)
 		{
 			const int32_t index = _entities.Add();

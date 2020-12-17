@@ -64,8 +64,6 @@ namespace game
 			leg.other = feet[1 - i];
 		}
 
-		delete[] feet;
-
 		// Gun. For testing purposes.
 		const auto gun = _cecsar->AddEntity();
 		auto& gunTransform = _cecsar->AddComponent<Transform>(gun[0]);
@@ -94,8 +92,5 @@ namespace game
 
 			hand.target = gun[0];
 		}
-
-		delete[] gun;
-		delete[] hands;
 	}
 }

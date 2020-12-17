@@ -34,10 +34,10 @@ int main(int argc, char* argv[])
 
 	// Spawn level.
 	const game::LevelGenerator generator;
-	delete [] generator.Generate(cecsar);
+	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	delete [] cecsar.AddEntity<game::PlayerFactory>(1);
+	cecsar.AddEntity<game::PlayerFactory>(1);
 
 	SDL_Event event;
 	while(true)
