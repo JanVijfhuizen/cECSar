@@ -4,11 +4,6 @@
 #include <IModule.h>
 #include "Components/Transform.h"
 
-namespace jecs 
-{
-	class Cecsar;
-}
-
 namespace game
 {
 	class RenderModule final : public cecsar::IModule
@@ -20,7 +15,8 @@ namespace game
 		const char* WINDOW_TITLE = "Game Prototype";
 		const int32_t SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
-		Transform transform{};
+		Transform cameraTransform{};
+		Transform screenTransform{};
 		float zoom = 1;
 
 		float xCameraOffset = 0, yCameraOffset = 0;

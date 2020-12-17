@@ -12,7 +12,7 @@ namespace game
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Transform>& transforms) override;
 		void ClearHangingObjects(utils::SparseSet<Transform>& transforms);
-		void UpdateWorldTransforms(utils::SparseSet<Transform>& transforms);
+		void UpdateGlobalPositions(utils::SparseSet<Transform>& transforms);
 
 		static float SortDepth(const Transform& transform, int32_t index);	
 	};

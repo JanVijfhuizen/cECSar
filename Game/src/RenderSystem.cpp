@@ -24,13 +24,12 @@ void game::RenderSystem::OnUpdate(
 		auto& renderer = renderers[i];
 		auto& transform = transforms.Get(iterator[i]);
 
-		renderer._renderPriority = -transform.zGlobal;
+		renderer._renderPriority = -transform.posGlobal.z;
 	}
 	renderers.Sort(Sort);
 
-	// Used for calculations.
-	Transform p4Screen;
-	const auto p4Camera = _module->transform.p4;
+	Color c4Render;
+	const auto p4Camera = _module->cameraTransform.posLocal.v4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
@@ -39,7 +38,9 @@ void game::RenderSystem::OnUpdate(
 		auto& renderer = renderers[i];
 		auto& transform = transforms.Get(iterator[i]);
 
-		p4Screen.p4 = _mm_sub_ps(transform.p4Global, p4Camera);
+		// Calculate screenspace position.
+		utils::Vector3 screenSpace;
+		screenSpace.v4 = _mm_sub_ps(transform.posGlobal.v4, p4Camera);
 
 		SDL_Rect srcRect;
 		srcRect.x = imageSize * renderer.index;
@@ -48,7 +49,7 @@ void game::RenderSystem::OnUpdate(
 		srcRect.h = imageSize;
 
 		// Spread objects out based on depth/z axis.
-		const float depthModifier = std::max(.0f, 1.0f + p4Screen.z * _module->zMod);
+		const float depthModifier = std::max(.0f, 1.0f + screenSpace.z * _module->zMod);
 		const float positionModifier = (1 - depthModifier) / 2;
 
 		// Calculate screen position based on world position.
@@ -58,9 +59,9 @@ void game::RenderSystem::OnUpdate(
 		dstRect.w = renderer.xScale * imgMod;
 		dstRect.h = renderer.yScale * imgMod;
 
-		dstRect.x = (p4Screen.x - dstRect.w / 2) * depthModifier + 
+		dstRect.x = (screenSpace.x - dstRect.w / 2) * depthModifier +
 			positionModifier * _module->SCREEN_WIDTH;
-		dstRect.y = (p4Screen.y - dstRect.h / 2) * depthModifier + 
+		dstRect.y = (screenSpace.y - dstRect.h / 2) * depthModifier +
 			positionModifier * _module->SCREEN_HEIGHT;
 
 		// Out of bounds check.
@@ -74,13 +75,14 @@ void game::RenderSystem::OnUpdate(
 			continue;
 
 		// Adjust color.
-		const float colMultiplier = 1.0f - std::max(.0f, 
-			(abs(p4Screen.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
-		const float colorMultiplier = 255 * colMultiplier;
-		SDL_SetTextureColorMod(renderer.texture, 
-			colorMultiplier, colorMultiplier, colorMultiplier);
+		const float colorMultiplier = 1.0f - std::max(.0f, 
+			(abs(screenSpace.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
+		c4Render.c4 = _mm_mul_ps(renderer.color.c4, _mm_set_ps1(colorMultiplier));
 
-		const float rotation = renderer.rotation + transform.rotationGlobal;
+		SDL_SetTextureColorMod(renderer.texture, 
+			c4Render.r, c4Render.g, c4Render.b);
+
+		const float rotation = renderer.rotation + transform.rotGlobal;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);

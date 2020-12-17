@@ -162,11 +162,23 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\HandSystem.cpp" />
+    <ClCompile Include="src\LegSystem.cpp" />
+    <ClCompile Include="src\CameraSystem.cpp" />
+    <ClCompile Include="src\MovementSystem.cpp" />
+    <ClCompile Include="src\ControllerSystem.cpp" />
     <ClCompile Include="src\TransformSystem.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
     <ClCompile Include="src\RenderSystem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\LegComponent.h" />
+    <ClInclude Include="include\Components\CameraFollowTarget.h" />
+    <ClInclude Include="include\Components\HandComponent.h" />
+    <ClInclude Include="include\Components\MovementComponent.h" />
+    <ClInclude Include="include\Factories\LegFactory.h" />
+    <ClInclude Include="include\Factories\HandFactory.h" />
+    <ClInclude Include="include\Factories\PlayerFactory.h" />
     <ClInclude Include="include\Helpers\TransformHelper.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
@@ -174,9 +186,18 @@
     <ClInclude Include="include\Factories\BlockFactory.h" />
     <ClInclude Include="include\Factories\UndeadFactory.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
+    <ClInclude Include="include\Modules\TimeModule.h" />
+    <ClInclude Include="include\Systems\HandSystem.h" />
+    <ClInclude Include="include\Systems\LegSystem.h" />
+    <ClInclude Include="include\Systems\CameraSystem.h" />
+    <ClInclude Include="include\Systems\ControllerSystem.h" />
+    <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
+    <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\Stack.h" />
+    <ClInclude Include="include\Utils\Vector3.h" />
+    <ClInclude Include="Managers\LevelGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />
