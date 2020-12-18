@@ -24,6 +24,6 @@ namespace game
 	{
 		cecsar.AddComponent<Transform>(index);
 		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Gun.png");
-		cecsar.AddComponent<CameraFollowTarget>(index);
+		//cecsar.AddComponent<CameraFollowTarget>(index);
 	}
 }
