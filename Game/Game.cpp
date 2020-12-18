@@ -12,6 +12,7 @@
 #include "Factories/PlayerFactory.h"
 #include "Systems/LegSystem.h"
 #include "Systems/HandSystem.h"
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
@@ -22,7 +23,7 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 1000;
+	info.setCapacity = 5000;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
@@ -34,10 +35,14 @@ int main(int argc, char* argv[])
 
 	// Spawn level.
 	const game::LevelGenerator generator;
-	delete [] generator.Generate(cecsar);
+	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	delete [] cecsar.AddEntity<game::PlayerFactory>(1);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>(1);
+	auto& set = cecsar.GetSet<game::Transform>();
+	auto& transform = set.Get(player[0]);
+	transform.posLocal.x = 100;
+	transform.posLocal.y = 100;
 
 	SDL_Event event;
 	while(true)

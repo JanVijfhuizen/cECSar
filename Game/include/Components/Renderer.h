@@ -25,6 +25,6 @@ namespace game
 		SDL_RendererFlip flip = SDL_FLIP_NONE;
 
 	private:
-		float _renderPriority;
+		float _renderPriority = 0;
 	};
 }

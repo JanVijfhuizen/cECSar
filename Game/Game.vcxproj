@@ -184,7 +184,6 @@
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
     <ClInclude Include="include\Factories\BlockFactory.h" />
-    <ClInclude Include="include\Factories\UndeadFactory.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
     <ClInclude Include="include\Systems\HandSystem.h" />
@@ -196,14 +195,19 @@
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\Stack.h" />
+    <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
     <ClInclude Include="Managers\LevelGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />
     <Image Include="Art\Block.png" />
+    <Image Include="Art\Gun.png" />
+    <Image Include="Art\Hand.png" />
     <Image Include="Art\IntellectDevourer.png" />
     <Image Include="Art\Lantern.png" />
+    <Image Include="Art\Leg.png" />
+    <Image Include="Art\Player.png" />
     <Image Include="Art\Spritesheet.png" />
     <Image Include="Art\Undead.png" />
     <Image Include="Art\Wall.png" />
