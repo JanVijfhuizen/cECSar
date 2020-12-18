@@ -7,13 +7,13 @@
 
 namespace game
 {
-	class LegFactory final : public cecsar::EntityFactory<LegComponent, Transform, Renderer>
+	class LegFactory final : public cecsar::EntityFactory
 	{
 	protected:
 		RenderModule* _renderModule = nullptr;
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(int32_t index, LegComponent&, Transform&, Renderer&) override;
+		inline void Initialize(cecsar::Cecsar& cecsar) override;
+		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
 	};
 
 	inline void LegFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -21,9 +21,10 @@ namespace game
 		_renderModule = &cecsar.GetModule<RenderModule>();
 	}
 
-	inline void LegFactory::OnConstruction(const int32_t index, LegComponent&, Transform&, Renderer& renderer)
+	inline void LegFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
-		SDL_Texture* texture = _renderModule->GetTexture("Art/Leg.png");
-		renderer.texture = texture;
+		cecsar.AddComponent<LegComponent>(index);
+		cecsar.AddComponent<Transform>(index);
+		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Leg.png");
 	}
 }

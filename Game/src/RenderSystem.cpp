@@ -1,42 +1,38 @@
 #include <Systems/RenderSystem.h>
 #include "Modules/RenderModule.h"
 #include <algorithm>
+#include "Sorter.h"
+#include "Utils/Utils.h"
+#include <iostream>
+
+game::RenderSystem::~RenderSystem()
+{
+	delete[] _sortableIndexes;
+}
 
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
-}
-
-float game::RenderSystem::Sort(const Renderer& renderer, int32_t index)
-{
-	return renderer._renderPriority;
+	_sortableIndexes = new int32_t[cecsar.info.setCapacity];
 }
 
 void game::RenderSystem::OnUpdate(
 	utils::SparseSet<Renderer>& renderers, 
 	utils::SparseSet<Transform>& transforms)
 {
-	const auto iterator = renderers.GetDenseIterator();
-
-	// Sort renderers based on the transforms z positions.
-	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
-	{
-		auto& renderer = renderers[i];
-		auto& transform = transforms.Get(iterator[i]);
-
-		renderer._renderPriority = -transform.posGlobal.z;
-	}
-	renderers.Sort(Sort);
+	SortIndexes(renderers, transforms);
 
 	Color c4Render;
 	const auto p4Camera = _module->cameraTransform.posLocal.v4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
-	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
+	const auto iterator = renderers.GetDenseIterator();
+	for (int32_t i = renderers.GetCount() - 1; i >= 0; --i)
 	{
-		auto& renderer = renderers[i];
-		auto& transform = transforms.Get(iterator[i]);
+		const int32_t index = _sortableIndexes[i];
+		auto& renderer = renderers[index];
+		auto& transform = transforms.Get(iterator[index]);
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
@@ -87,4 +83,36 @@ void game::RenderSystem::OnUpdate(
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);
 	}
+}
+
+void game::RenderSystem::SortIndexes(
+	utils::SparseSet<Renderer>& renderers, 
+	utils::SparseSet<Transform>& transforms) const
+{
+	// Fill indexes cache with ordered indexes.
+	const auto fillMethod = [](const int32_t index)
+	{
+		return index;
+	};
+	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, 
+		renderers.GetCount(), fillMethod);
+
+	// Set the renderpriority based on a number of factors.
+	// Currently it only really factors the z axis.
+	const auto iterator = renderers.GetDenseIterator();
+	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
+	{
+		auto& renderer = renderers[i];
+		auto& transform = transforms.Get(iterator[i]);
+
+		renderer._renderPriority = -transform.posGlobal.z;
+	}
+
+	// Order renderers based on the chosen factors.
+	const auto sortingMethod = [&renderers](const int32_t index)
+	{
+		return renderers[index]._renderPriority;
+	};
+	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
+		renderers.GetCount(), sortingMethod);
 }

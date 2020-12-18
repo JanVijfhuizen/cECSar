@@ -7,13 +7,13 @@
 
 namespace game
 {
-	class HandFactory final : public cecsar::EntityFactory<HandComponent, Transform, Renderer>
+	class HandFactory final : public cecsar::EntityFactory
 	{
 	protected:
 		RenderModule* _renderModule = nullptr;
 
 		inline void Initialize(cecsar::Cecsar& cecsar) override;
-		inline void OnConstruction(int32_t index, HandComponent&, Transform&, Renderer&) override;
+		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
 	};
 
 	inline void HandFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -21,9 +21,10 @@ namespace game
 		_renderModule = &cecsar.GetModule<RenderModule>();
 	}
 
-	inline void HandFactory::OnConstruction(const int32_t index, HandComponent&, Transform&, Renderer& renderer)
+	inline void HandFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
-		SDL_Texture* texture = _renderModule->GetTexture("Art/Hand.png");
-		renderer.texture = texture;
+		cecsar.AddComponent<HandComponent>(index);
+		cecsar.AddComponent<Transform>(index);
+		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Hand.png");
 	}
 }

@@ -6,13 +6,13 @@
 
 namespace game
 {
-	class BlockFactory final : public cecsar::EntityFactory<Renderer, Transform>
+	class BlockFactory final : public cecsar::EntityFactory
 	{
 	protected:
 		RenderModule* _renderModule = nullptr;
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
-		inline void OnConstruction(int32_t index, Renderer&, Transform&) override;
+		inline void Initialize(cecsar::Cecsar& cecsar) override;
+		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
 	};
 
 	inline void BlockFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -20,9 +20,9 @@ namespace game
 		_renderModule = &cecsar.GetModule<RenderModule>();
 	}
 
-	inline void BlockFactory::OnConstruction(const int32_t index, 
-		Renderer& renderer, Transform& transform)
+	inline void BlockFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
-		renderer.texture = _renderModule->GetTexture("Art/Block.png");
+		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Block.png");
+		cecsar.AddComponent<Transform>(index);
 	}
 }

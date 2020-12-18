@@ -3,9 +3,9 @@
 #include <SparseSet.h>
 #include <unordered_map>
 
+#include "IEntityFactory.h"
 #include <IComponentSystem.h>
 #include <IModule.h>
-#include <IEntityFactory.h>
 #include <memory>
 
 namespace cecsar
@@ -28,7 +28,7 @@ namespace cecsar
 
 #pragma region Entity Management
 		template <typename Factory = IEntityFactory>
-		int32_t* AddEntity(int32_t count = 1);
+		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
 
 		void RemoveEntity(int32_t index);
 #pragma endregion 
@@ -142,13 +142,9 @@ namespace cecsar
 	}
 
 	template <typename Factory>
-	int32_t* Cecsar::AddEntity(const int32_t count)
+	std::shared_ptr<int32_t[]> Cecsar::AddEntity(const int32_t count)
 	{
-		auto ptr = new int32_t[count];
-
-		IEntityFactory* factory = nullptr;
-		if (typeid(Factory) != typeid(IEntityFactory))
-			factory = &GetFactory<Factory>();
+		std::shared_ptr<int32_t[]> ptr(new int32_t[count]);
 
 		for (int32_t i = 0; i < count; ++i)
 		{
@@ -156,9 +152,13 @@ namespace cecsar
 			ptr[i] = index;
 		}
 
-		if(factory)
+		if (typeid(Factory) != typeid(IEntityFactory)) 
+		{
+			auto& factory = GetFactory<Factory>();
 			for (int32_t i = 0; i < count; ++i)
-				factory->Construct(*this, ptr[i]);
+				factory.Construct(*this, ptr[i]);
+		}
+
 		return ptr;
 	}
 

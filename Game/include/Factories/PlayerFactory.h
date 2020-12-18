@@ -10,11 +10,11 @@
 #include "Components/HandComponent.h"
 #include "HandFactory.h"
 #include "Helpers/TransformHelper.h"
+#include "GunFactory.h"
 
 namespace game
 {
-	class PlayerFactory final : public cecsar::EntityFactory<Transform, Renderer,
-		Controller, MovementComponent, CameraFollowTarget>
+	class PlayerFactory final : public cecsar::EntityFactory
 	{
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
@@ -24,9 +24,9 @@ namespace game
 		utils::SparseSet<Transform>* _transforms = nullptr;
 		utils::SparseSet<Renderer>* _renderers = nullptr;
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(int32_t index, Transform&, Renderer&, Controller&, 
-			MovementComponent&, CameraFollowTarget&) override;
+		inline void Initialize(cecsar::Cecsar& cecsar) override;
+		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
+		inline void SpawnBodyParts(int32_t index) const;
 	};
 
 	inline void PlayerFactory::Initialize(cecsar::Cecsar& cecsar)
@@ -40,14 +40,19 @@ namespace game
 		_renderers = &cecsar.GetSet<Renderer>();
 	}
 
-	inline void PlayerFactory::OnConstruction(const int32_t index, 
-		Transform&, Renderer& renderer, Controller& controller, 
-		MovementComponent&, CameraFollowTarget&)
+	inline void PlayerFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
-		SDL_Texture* texture = _renderModule->GetTexture("Art/Player.png");
-		renderer.texture = texture;
-		controller.type = ControllerType::player;
+		cecsar.AddComponent<Transform>(index);
+		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Player.png");
+		cecsar.AddComponent<Controller>(index).type = ControllerType::player;
+		cecsar.AddComponent<MovementComponent>(index);
+		cecsar.AddComponent<CameraFollowTarget>(index);
 
+		SpawnBodyParts(index);
+	}
+
+	inline void PlayerFactory::SpawnBodyParts(const int32_t index) const
+	{
 		// Feet.
 		const auto feet = _cecsar->AddEntity<LegFactory>(2);
 		for (int32_t i = 0; i < 2; ++i)
@@ -60,18 +65,8 @@ namespace game
 			leg.other = feet[1 - i];
 		}
 
-		delete[] feet;
-
 		// Gun. For testing purposes.
-		const auto gun = _cecsar->AddEntity();
-		auto& gunTransform = _cecsar->AddComponent<Transform>(gun[0]);
-		gunTransform.posLocal.z = .3f;
-		gunTransform.posLocal.y = 40;
-		gunTransform.posLocal.x = 20;
-
-		auto& gunRenderer = _cecsar->AddComponent<Renderer>(gun[0]);
-		gunRenderer.texture = _renderModule->GetTexture("Art/Gun.png");
-		
+		const auto gun = _cecsar->AddEntity<GunFactory>();
 		TransformHelper::SetParent(*_transforms, gun[0], index);
 
 		// Hands.
@@ -85,13 +80,10 @@ namespace game
 
 			TransformHelper::SetParent(*_transforms, hands[i], index);
 
-			hand.offset.y = 34;
-			hand.offset.x = 18 * (i * 2 - 1);
+			hand.offset.y = 32;
+			hand.offset.x = 24 * (i * 2 - 1);
 
 			hand.target = gun[0];
 		}
-
-		delete[] gun;
-		delete[] hands;
 	}
 }

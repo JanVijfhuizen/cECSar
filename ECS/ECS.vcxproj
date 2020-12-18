@@ -162,10 +162,11 @@
     <ClInclude Include="Include\framework.h" />
     <ClInclude Include="Include\Cecsar.h" />
     <ClInclude Include="Include\ComponentSystem.h" />
-    <ClInclude Include="Include\EntityFactory.h" />
     <ClInclude Include="Include\IComponentSystem.h" />
-    <ClInclude Include="Include\IEntityFactory.h" />
+    <ClInclude Include="Include\EntityFactory.h" />
+    <ClInclude Include="include\IEntityFactory.h" />
     <ClInclude Include="Include\IModule.h" />
+    <ClInclude Include="include\Sorter.h" />
     <ClInclude Include="Include\SparseSet.h" />
     <ClInclude Include="Include\pch.h" />
   </ItemGroup>

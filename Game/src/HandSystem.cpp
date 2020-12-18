@@ -1,5 +1,6 @@
 ﻿#include <Systems/HandSystem.h>
 #include <algorithm>
+#include "Helpers/TransformHelper.h"
 
 void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands, 
 	utils::SparseSet<Transform>& transforms)
@@ -14,14 +15,13 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 		auto& transform = transforms.Get(iterator[i]);
 		auto& targetTransform = transforms.Get(hand.target);
 
-		const auto offset = targetTransform.posGlobal - transform.posGlobal;
-		if (offset.SquaredLength() < 1e-3)
-			continue;
+		const auto rootPos = TransformHelper::ToWorld(transform, hand.offset);
+		const auto offset = targetTransform.posGlobal - rootPos;
 
-		const auto dir = offset.Normalized2d();
+		auto dir = offset.Normalized2d();
 		const float distance = offset.Magnitude2d();
 
-		transform.posLocal = dir * std::min(distance * .9f, hand.maxDistance);
-		transform.posLocal = hand.offset + transform.posLocal.Rotate(-transform.rotGlobal);
+		dir *= std::min(distance, hand.maxDistance);
+		transform.posLocal = hand.offset + dir.Rotate(-transform.rotGlobal);
 	}
 }

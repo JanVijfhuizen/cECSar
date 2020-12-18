@@ -18,10 +18,10 @@ namespace game
 	class LevelGenerator final
 	{
 	public:
-		const int32_t* Generate(cecsar::Cecsar& cecsar, LevelGeneratorInfo info = LevelGeneratorInfo()) const;
+		const std::shared_ptr<int32_t[]> Generate(cecsar::Cecsar& cecsar, LevelGeneratorInfo info = LevelGeneratorInfo()) const;
 	};
 
-	inline const int32_t* LevelGenerator::Generate(cecsar::Cecsar& cecsar, const LevelGeneratorInfo info) const
+	inline const std::shared_ptr<int32_t[]> LevelGenerator::Generate(cecsar::Cecsar& cecsar, const LevelGeneratorInfo info) const
 	{
 		// Modules.
 		auto& renderModule = cecsar.GetModule<RenderModule>();
@@ -30,7 +30,7 @@ namespace game
 		auto& transforms = cecsar.GetSet<Transform>();
 		auto& renderers = cecsar.GetSet<Renderer>();
 
-		const int32_t* ptrs = cecsar.AddEntity<BlockFactory>(info.width * info.height);
+		const auto ptrs = cecsar.AddEntity<BlockFactory>(info.width * info.height);
 
 		const int32_t posMod = renderModule.DEFAULT_IMAGE_SIZE * renderModule.DEFAULT_IMAGE_UPSCALING;
 		const int32_t padding = renderModule.DEFAULT_IMAGE_SIZE / 2;
