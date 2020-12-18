@@ -1,6 +1,9 @@
 ﻿#include <Systems/MovementSystem.h>
 #include <SDL_stdinc.h>
 #include "Modules/TimeModule.h"
+#include <algorithm>
+#include <iostream>
+#include "Utils/Mathf.h"
 
 void game::MovementSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -32,17 +35,12 @@ void game::MovementSystem::OnUpdate(
 			continue;
 
 		float targetDegrees = atan2f(-controller.xDir, controller.yDir) * halfP;
-		if (targetDegrees < 0)
-			targetDegrees += 360;
+		targetDegrees = utils::Mathf::ConstrainAngle(targetDegrees);
 
-		const float currentDegrees = transform.rotGlobal - floor(transform.rotGlobal / 360) * 360;
+		const float diff = utils::Mathf::GetAngle(transform.rot, targetDegrees);
+		const float rotDelta = movementComponent.rotationSpeed * deltaTime * (diff > 0 ? 1 : -1);
 
-		bool dir = currentDegrees > targetDegrees;
-		const bool reverse = std::abs(currentDegrees - targetDegrees) < 180;
-		if (reverse)
-			dir = !dir;
-
-		const float delta = movementComponent.rotationSpeed * (dir * 2 - 1) * deltaTime;
-		transform.rot += delta;
+		// Clamp rotation to the size of the angle.
+		transform.rot += abs(diff) < abs(rotDelta) ? diff : rotDelta;
 	}
 }

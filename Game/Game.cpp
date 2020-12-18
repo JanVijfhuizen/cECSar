@@ -47,6 +47,11 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
+		for (int i = 0; i < 10000000; ++i)
+		{
+			
+		}
+
 		set.Get(99).posLocal.x = sin(timeModule.GetTime()) * 256;
 		set.Get(99).posLocal.y = cos(timeModule.GetTime()) * 256;
 
