@@ -15,7 +15,7 @@ namespace game
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Transform>& transforms) override;
+		void SortIndexes(utils::SparseSet<Transform>& transforms) const;
 		void ClearHangingObjects(utils::SparseSet<Transform>& transforms) const;
-		void UpdateGlobalPositions(utils::SparseSet<Transform>& transforms);
 	};
 }
