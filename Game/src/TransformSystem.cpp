@@ -66,7 +66,7 @@ void game::TransformSystem::SortIndexes(utils::SparseSet<Transform>& transforms)
 	{
 		return transforms[index].rDepth;
 	};
-	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, 
+	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
 		transforms.GetCount(), sortingMethod);
 }
 

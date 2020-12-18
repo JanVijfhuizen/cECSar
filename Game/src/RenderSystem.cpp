@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Sorter.h"
 #include "Utils/Utils.h"
+#include <iostream>
 
 game::RenderSystem::~RenderSystem()
 {
@@ -112,6 +113,6 @@ void game::RenderSystem::SortIndexes(
 	{
 		return renderers[index]._renderPriority;
 	};
-	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, 
+	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
 		renderers.GetCount(), sortingMethod);
 }
