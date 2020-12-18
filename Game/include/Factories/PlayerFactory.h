@@ -87,8 +87,8 @@ namespace game
 
 			TransformHelper::SetParent(*_transforms, hands[i], index);
 
-			hand.offset.y = 34;
-			hand.offset.x = 18 * (i * 2 - 1);
+			hand.offset.y = 32;
+			hand.offset.x = 24 * (i * 2 - 1);
 
 			hand.target = gun[0];
 		}

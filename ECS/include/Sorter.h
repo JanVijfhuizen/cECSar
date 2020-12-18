@@ -56,7 +56,7 @@ namespace utils
 		int32_t i = low - 1;
 
 		for (int32_t j = low; j <= high - 1; ++j)
-			if (func(arr[j]) <= pivot)
+			if (func(arr[j]) < pivot)
 				Swap(arr, ++i, j);
 
 		++i;

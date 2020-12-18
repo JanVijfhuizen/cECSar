@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 5000;
+	info.setCapacity = 2000;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto player = cecsar.AddEntity<game::PlayerFactory>(1);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>(2);
 	auto& set = cecsar.GetSet<game::Transform>();
 	auto& transform = set.Get(player[0]);
 	transform.posLocal.x = 100;
@@ -47,6 +47,9 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
+		set.Get(100).posLocal.x = sin(timeModule.GetTime()) * 64;
+		set.Get(100).posLocal.y = cos(timeModule.GetTime()) * 64;
+
 		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)
