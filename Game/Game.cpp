@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto player = cecsar.AddEntity<game::PlayerFactory>(2);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>(1);
 	auto& set = cecsar.GetSet<game::Transform>();
 	auto& transform = set.Get(player[0]);
 	transform.posLocal.x = 100;
@@ -47,8 +47,8 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
-		set.Get(100).posLocal.x = sin(timeModule.GetTime()) * 64;
-		set.Get(100).posLocal.y = cos(timeModule.GetTime()) * 64;
+		set.Get(99).posLocal.x = sin(timeModule.GetTime()) * 256;
+		set.Get(99).posLocal.y = cos(timeModule.GetTime()) * 256;
 
 		timeModule.Update();
 

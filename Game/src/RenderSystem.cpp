@@ -93,7 +93,8 @@ void game::RenderSystem::SortIndexes(
 	{
 		return index;
 	};
-	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, renderers.GetCount(), fillMethod);
+	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, 
+		renderers.GetCount(), fillMethod);
 
 	// Set the renderpriority based on a number of factors.
 	// Currently it only really factors the z axis.
@@ -111,5 +112,6 @@ void game::RenderSystem::SortIndexes(
 	{
 		return renderers[index]._renderPriority;
 	};
-	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, renderers.GetCount(), sortingMethod);
+	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, 
+		renderers.GetCount(), sortingMethod);
 }
