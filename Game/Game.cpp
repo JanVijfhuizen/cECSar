@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 5000;
+	info.setCapacity = 2000;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
@@ -47,6 +47,9 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	while(true)
 	{
+		set.Get(99).posLocal.x = sin(timeModule.GetTime()) * 256;
+		set.Get(99).posLocal.y = cos(timeModule.GetTime()) * 256;
+
 		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)

@@ -41,7 +41,8 @@ namespace utils
 		inline Vector3& operator+=(const Vector3& vector3);
 		inline Vector3& operator-=(const Vector3& vector3);
 
-		inline Vector3 operator *(float f) const;
+		inline Vector3 operator *(const float& f) const;
+		inline Vector3& operator*=(const float& f);
 	};
 
 	constexpr Vector3::Vector3() = default;
@@ -128,9 +129,15 @@ namespace utils
 		return *this;
 	}
 
-	inline Vector3 Vector3::operator*(const float f) const
+	inline Vector3 Vector3::operator*(const float& f) const
 	{
 		return { _mm_mul_ps(v4, _mm_set_ps1(f)) };
+	}
+
+	inline Vector3& Vector3::operator*=(const float& f)
+	{
+		v4 = _mm_mul_ps(v4, _mm_set_ps1(f));
+		return *this;
 	}
 
 	inline Vector3 Vector3::Normalized() const

@@ -58,14 +58,16 @@ void game::TransformSystem::SortIndexes(utils::SparseSet<Transform>& transforms)
 	{
 		return index;
 	};
-	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, transforms.GetCount(), fillMethod);
+	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, 
+		transforms.GetCount(), fillMethod);
 
 	// Get root objects at the front.
 	const auto sortingMethod = [&transforms](const int32_t index)
 	{
 		return transforms[index].rDepth;
 	};
-	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, transforms.GetCount(), sortingMethod);
+	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
+		transforms.GetCount(), sortingMethod);
 }
 
 void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& transforms) const

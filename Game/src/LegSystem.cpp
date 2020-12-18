@@ -1,5 +1,6 @@
 ﻿#include "Systems/LegSystem.h"
 #include "Modules/TimeModule.h"
+#include <algorithm>
 
 void game::LegSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -61,7 +62,7 @@ void game::LegSystem::OnUpdate(
 			const auto&& offsetNormalized = offset.Normalized2d();
 			const float&& delta = parentMovement.movementSpeed * leg.speedMultiplier * deltaTime;
 
-			transform.posLocal += offsetNormalized * delta;
+			transform.posLocal += offsetNormalized * std::min(delta, magnitude);
 			transform.rot = parentTransform.rotGlobal;
 		}
 

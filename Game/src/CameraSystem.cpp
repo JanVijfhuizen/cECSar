@@ -57,7 +57,8 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
 		// Moving.
 		if (abs(offset.x) <= _hardFollowThreshold.x)
 		{
-			cameraPosition.x -= deltaTime * _followSpeed * (offset.x > 0 ? 1 : -1);
+			const float xFollowSpeed = deltaTime * _followSpeed * (offset.x > 0 ? 1 : -1);
+			cameraPosition.x -= xFollowSpeed;
 		}
 	// Teleporting.
 		else
@@ -71,7 +72,8 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
 		// Moving.
 		if (abs(offset.y) <= _hardFollowThreshold.y)
 		{
-			cameraPosition.y -= deltaTime * _followSpeed * (offset.y > 0 ? 1 : -1);
+			const float yFollowSpeed = deltaTime * _followSpeed * (offset.y > 0 ? 1 : -1);
+			cameraPosition.y -= yFollowSpeed;
 		}
 	// Teleporting.
 		else

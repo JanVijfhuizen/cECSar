@@ -10,8 +10,8 @@ namespace game
 	class CameraSystem final : public cecsar::ComponentSystem<CameraFollowTarget, Transform>
 	{
 	private:
-		utils::Vector3 _followThreshold{40, 30, 0 };
-		utils::Vector3  _hardFollowThreshold{80, 60, 0 };
+		utils::Vector3 _followThreshold{80, 60, 0 };
+		utils::Vector3  _hardFollowThreshold{160, 120, 0 };
 
 		float _followSpeed = 100;
 

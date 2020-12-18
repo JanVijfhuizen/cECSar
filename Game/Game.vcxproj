@@ -176,6 +176,7 @@
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\HandComponent.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
+    <ClInclude Include="include\Factories\GunFactory.h" />
     <ClInclude Include="include\Factories\LegFactory.h" />
     <ClInclude Include="include\Factories\HandFactory.h" />
     <ClInclude Include="include\Factories\PlayerFactory.h" />

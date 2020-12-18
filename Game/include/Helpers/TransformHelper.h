@@ -6,11 +6,14 @@ namespace game
 {
 	struct TransformHelper final
 	{
-		static void SetParent(utils::SparseSet<Transform>& transforms, 
+		static constexpr void SetParent(utils::SparseSet<Transform>& transforms, 
 			int32_t child, int32_t parent);
+
+		static inline utils::Vector3 ToWorld(Transform& t, const utils::Vector3& local);
+		static inline utils::Vector3 ToLocal(Transform& t, const utils::Vector3& global);
 	};
 
-	inline void TransformHelper::SetParent(utils::SparseSet<Transform>& transforms, 
+	constexpr void TransformHelper::SetParent(utils::SparseSet<Transform>& transforms,
 		const int32_t child, const int32_t parent)
 	{
 		auto& childTransform = transforms.Get(child);
@@ -38,5 +41,15 @@ namespace game
 
 			transform.rDepth += rDepth;
 		}
+	}
+
+	inline utils::Vector3 TransformHelper::ToWorld(Transform& t, const utils::Vector3& local)
+	{
+		return t.posGlobal - (t.posLocal - local).Rotate(t.rotGlobal);
+	}
+
+	inline utils::Vector3 TransformHelper::ToLocal(Transform& t, const utils::Vector3& global)
+	{
+		return (global - t.posGlobal).Rotate(t.rotGlobal);
 	}
 }
