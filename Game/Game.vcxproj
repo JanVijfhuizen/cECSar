@@ -195,6 +195,7 @@
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\Stack.h" />
+    <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
     <ClInclude Include="Managers\LevelGenerator.h" />
   </ItemGroup>

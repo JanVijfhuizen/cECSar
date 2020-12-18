@@ -20,7 +20,7 @@ namespace utils
 
 	private:
 		int32_t* _dense = nullptr;
-		int32_t _count;
+		int32_t _count = 0;
 
 		constexpr SparseIndexIterator(int32_t* dense, int32_t count);
 	};
@@ -37,6 +37,7 @@ namespace utils
 
 		constexpr bool Contains(int32_t sparseIndex) const;
 		constexpr int32_t GetCount() const;
+		constexpr int32_t GetCapacity() const;
 
 		constexpr SparseSet(int32_t capacity);
 		~SparseSet();
@@ -95,6 +96,12 @@ namespace utils
 	constexpr int32_t SparseSet<T>::GetCount() const
 	{
 		return _count;
+	}
+
+	template <typename T>
+	constexpr int32_t SparseSet<T>::GetCapacity() const
+	{
+		return _capacity;
 	}
 
 	template <typename T>

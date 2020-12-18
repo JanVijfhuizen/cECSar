@@ -1,18 +1,31 @@
 ﻿#include <Systems/TransformSystem.h>
 #include <SDL_stdinc.h>
+#include "Sorter.h"
+#include "Utils/Utils.h"
+#include <iostream>
+
+game::TransformSystem::~TransformSystem()
+{
+	delete [] _sortableIndexes;
+}
 
 void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_cecsar = &cecsar;
+	_sortableIndexes = new int32_t[_cecsar->info.setCapacity];
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
-	// TODO SORT
-
 	// Get root objects at the front.
-	_sortableIndexes.Copy(transforms.GetDenseRaw(), transforms.GetCount());
-	transforms.Sort(SortDepth);
+	utils::Utils::Copy(transforms.GetDenseRaw(), _sortableIndexes, 0, transforms.GetCount());
+	const auto sortingMethod = [&transforms](const int32_t index)
+	{
+		std::cout << index;
+		return -transforms[index].rDepth;
+	};
+
+	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, transforms.GetCount(), sortingMethod);
 
 	ClearHangingObjects(transforms);
 	UpdateGlobalPositions(transforms);
@@ -64,9 +77,4 @@ void game::TransformSystem::UpdateGlobalPositions(utils::SparseSet<Transform>& t
 		transform.posGlobal.y = parent.posGlobal.y + xSin + yCos;
 		transform.posGlobal.z = parent.posGlobal.z + local.z;
 	}
-}
-
-float game::TransformSystem::SortDepth(const Transform& transform, const int32_t index)
-{
-	return -transform.rDepth;
 }
