@@ -10,6 +10,7 @@
 #include "Components/HandComponent.h"
 #include "HandFactory.h"
 #include "Helpers/TransformHelper.h"
+#include "GunFactory.h"
 
 namespace game
 {
@@ -65,15 +66,7 @@ namespace game
 		}
 
 		// Gun. For testing purposes.
-		const auto gun = _cecsar->AddEntity();
-		auto& gunTransform = _cecsar->AddComponent<Transform>(gun[0]);
-		gunTransform.posLocal.z = .3f;
-		gunTransform.posLocal.y = 40;
-		gunTransform.posLocal.x = 20;
-
-		auto& gunRenderer = _cecsar->AddComponent<Renderer>(gun[0]);
-		gunRenderer.texture = _renderModule->GetTexture("Art/Gun.png");
-
+		const auto gun = _cecsar->AddEntity<GunFactory>();
 		TransformHelper::SetParent(*_transforms, gun[0], index);
 
 		// Hands.
