@@ -2,7 +2,6 @@
 #include <SDL_stdinc.h>
 #include "Sorter.h"
 #include "Utils/Utils.h"
-#include <iostream>
 
 game::TransformSystem::~TransformSystem()
 {
@@ -17,14 +16,18 @@ void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
+	// Fill indexes cache with ordered indexes.
+	const auto fillMethod = [](const int32_t index)
+	{
+		return index;
+	};
+	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, transforms.GetCount(), fillMethod);
+
 	// Get root objects at the front.
-	utils::Utils::Copy(transforms.GetDenseRaw(), _sortableIndexes, 0, transforms.GetCount());
 	const auto sortingMethod = [&transforms](const int32_t index)
 	{
-		std::cout << index;
 		return -transforms[index].rDepth;
 	};
-
 	utils::Sorter<int32_t>::Sort(_sortableIndexes, 0, transforms.GetCount(), sortingMethod);
 
 	ClearHangingObjects(transforms);
@@ -36,12 +39,13 @@ void game::TransformSystem::ClearHangingObjects(utils::SparseSet<Transform>& tra
 	const auto iterator = transforms.GetDenseIterator();
 	for (int32_t i = transforms.GetCount() - 1; i >= 0; --i)
 	{
-		auto& transform = transforms[i];
+		const int32_t index = _sortableIndexes[i];
+		auto& transform = transforms[index];
 		if (transform.parent == -1)
 			continue;
 
 		if (!transforms.Contains(transform.parent))
-			_cecsar->RemoveEntity(iterator[i]);
+			_cecsar->RemoveEntity(iterator[index]);
 	}
 }
 

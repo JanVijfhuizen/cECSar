@@ -23,7 +23,7 @@ namespace utils
 	constexpr void Sorter<T>::Sort(T* arr, 
 		const int32_t begin, const int32_t end, const SortingMethod func)
 	{
-		QuickSort(arr, begin, end, func);
+		QuickSort(arr, begin, end - 1, func);
 	}
 
 	template <typename T>
