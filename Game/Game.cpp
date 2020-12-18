@@ -45,20 +45,20 @@ int main(int argc, char* argv[])
 	transform.posLocal.y = 100;
 
 	SDL_Event event;
-	while(true)
-	{
-		for (int i = 0; i < 10000000; ++i)
-		{
-			
-		}
+	bool quit = false;
 
+	while(!quit)
+	{
 		set.Get(99).posLocal.x = sin(timeModule.GetTime()) * 256;
 		set.Get(99).posLocal.y = cos(timeModule.GetTime()) * 256;
 
 		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)
-			;
+		{
+			if (event.type == SDL_QUIT)
+				quit = true;
+		}
 
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::HandSystem>();

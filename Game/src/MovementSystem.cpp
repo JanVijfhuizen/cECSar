@@ -27,6 +27,7 @@ void game::MovementSystem::OnUpdate(
 		const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
 		const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
 		const auto normalized = input.Normalized() * deltaSpeed;
+
 		transform.posLocal.x += normalized.x;
 		transform.posLocal.y += normalized.y;
 
@@ -34,13 +35,8 @@ void game::MovementSystem::OnUpdate(
 		if (!rotate)
 			continue;
 
-		float targetDegrees = atan2f(-controller.xDir, controller.yDir) * halfP;
-		targetDegrees = utils::Mathf::ConstrainAngle(targetDegrees);
-
-		const float diff = utils::Mathf::GetAngle(transform.rot, targetDegrees);
-		const float rotDelta = movementComponent.rotationSpeed * deltaTime * (diff > 0 ? 1 : -1);
-
-		// Clamp rotation to the size of the angle.
-		transform.rot += abs(diff) < abs(rotDelta) ? diff : rotDelta;
+		const float delta = movementComponent.rotationSpeed * deltaTime;
+		const auto target = utils::Vector3(controller.xDir, controller.yDir);
+		transform.rot = utils::Vector3::RotateTowards2d(transform.rot, target, delta);
 	}
 }

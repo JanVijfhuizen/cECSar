@@ -82,6 +82,7 @@ namespace game
 
 			hand.offset.y = 32;
 			hand.offset.x = 24 * (i * 2 - 1);
+			hand.offset.z = .05f;
 
 			hand.target = gun[0];
 		}
