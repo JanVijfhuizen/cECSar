@@ -8,16 +8,18 @@ namespace utils
 	{
 	public:
 		template <typename SortingMethod>
-		constexpr static void InsertionSort(T* arr, int32_t begin, int32_t end, SortingMethod func);
+		constexpr static void InsertionSort(T* arr, int32_t begin, int32_t end, 
+			const SortingMethod& func);
 
 		template <typename SortingMethod>
-		constexpr static void QuickSort(T* arr, int32_t low, int32_t high, SortingMethod func);
+		constexpr static void QuickSort(T* arr, int32_t low, int32_t high, 
+			const SortingMethod& func);
 		constexpr static void Swap(T* arr, int32_t a, int32_t b);
 
 	private:
 		template <typename SortingMethod>
 		constexpr static int32_t Partition(T* arr, 
-			int32_t low, int32_t high, SortingMethod func);
+			int32_t low, int32_t high, const SortingMethod& func);
 	};
 
 	template <typename T>
@@ -32,7 +34,7 @@ namespace utils
 	template <typename T>
 	template <typename SortingMethod>
 	constexpr void Sorter<T>::InsertionSort(T* arr, 
-		const int32_t begin, const int32_t end, const SortingMethod func)
+		const int32_t begin, const int32_t end, const SortingMethod& func)
 	{
 		for (int32_t i = begin + 1; i < end; ++i)
 		{
@@ -53,7 +55,7 @@ namespace utils
 	template <typename T>
 	template <typename SortingMethod>
 	constexpr void Sorter<T>::QuickSort(T* arr, 
-		int32_t low, int32_t high, const SortingMethod func)
+		int32_t low, int32_t high, const SortingMethod& func)
 	{
 		if (low > high)
 			return;
@@ -66,7 +68,7 @@ namespace utils
 	template <typename T>
 	template <typename SortingMethod>
 	constexpr int32_t Sorter<T>::Partition(T* arr, 
-		const int32_t low, const int32_t high, const SortingMethod func)
+		const int32_t low, const int32_t high, const SortingMethod& func)
 	{
 		const float pivot = func(arr[high]);
 		int32_t i = low - 1;
