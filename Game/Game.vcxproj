@@ -185,6 +185,7 @@
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
     <ClInclude Include="include\Factories\BlockFactory.h" />
+    <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
     <ClInclude Include="include\Systems\HandSystem.h" />

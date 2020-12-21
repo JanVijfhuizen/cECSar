@@ -13,6 +13,12 @@
 #include "Systems/LegSystem.h"
 #include "Systems/HandSystem.h"
 #include <iostream>
+#include "Modules/JobSystemModule.h"
+
+void Job()
+{
+	
+}
 
 int main(int argc, char* argv[])
 {
@@ -27,6 +33,7 @@ int main(int argc, char* argv[])
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
+	auto& jobSystem = cecsar.GetModule<game::JobSystemModule>();
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
@@ -72,6 +79,8 @@ int main(int argc, char* argv[])
 		cecsar.Update<game::RenderSystem>();
 
 		renderModule.PostRender();
+
+		jobSystem.Wait();
 	}
 
 	SDL_Quit();
