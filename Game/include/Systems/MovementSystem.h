@@ -3,6 +3,7 @@
 #include "Components/Transform.h"
 #include "Components/Controller.h"
 #include "Components/MovementComponent.h"
+#include "Modules/JobConverterModule.h"
 
 namespace game
 {
@@ -12,6 +13,7 @@ namespace game
 	{
 	private:
 		TimeModule* _timeModule = nullptr;
+		JobConverterModule* _jobConverter = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Transform>&, utils::SparseSet<Controller>&,

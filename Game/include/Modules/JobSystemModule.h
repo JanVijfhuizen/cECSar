@@ -21,6 +21,8 @@ namespace game
 		inline bool IsDone();
 		inline void Wait();
 
+		inline int32_t GetThreadCount() const;
+
 	private:
 		std::queue<Job> _jobPool{};
 		std::vector<std::thread> _threads{};
@@ -30,6 +32,7 @@ namespace game
 
 		std::mutex _mutexJobPool{};
 		int32_t _activeNum = 0, _inactiveNum = 0;
+		int32_t _threadNum = 0;
 
 		inline bool RequestJob(Job& job);
 	};
@@ -42,8 +45,8 @@ namespace game
 
 	inline void JobSystemModule::Initialize(cecsar::Cecsar& cecsar)
 	{
-		const int32_t threadNum = std::thread::hardware_concurrency() - 1;
-		for (int32_t i = threadNum; i >= 0; --i)
+		_threadNum = std::thread::hardware_concurrency();
+		for (int32_t i = _threadNum - 1; i >= 0; --i)
 			_threads.emplace_back([this]()
 				{
 					while (true)
@@ -87,6 +90,11 @@ namespace game
 	{
 		while (!IsDone())
 			std::this_thread::yield();
+	}
+
+	inline int32_t JobSystemModule::GetThreadCount() const
+	{
+		return _threadNum;
 	}
 
 	inline bool JobSystemModule::RequestJob(Job& job)

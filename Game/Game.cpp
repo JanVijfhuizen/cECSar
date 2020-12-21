@@ -12,10 +12,10 @@
 #include "Factories/PlayerFactory.h"
 #include "Systems/LegSystem.h"
 #include "Systems/HandSystem.h"
-#include <iostream>
 #include "Modules/JobSystemModule.h"
+#include <iostream>
 
-void Job()
+void Job(int32_t x, int32_t y)
 {
 	
 }
@@ -29,13 +29,15 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 2000;
+	info.setCapacity = 5000;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
 	auto& jobSystem = cecsar.GetModule<game::JobSystemModule>();
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
+
+	jobSystem.Wait();
 
 	renderModule.zMod = .1;
 	renderModule.zColorFallof = .2f;
@@ -45,7 +47,7 @@ int main(int argc, char* argv[])
 	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto player = cecsar.AddEntity<game::PlayerFactory>(1);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>(700);
 	auto& set = cecsar.GetSet<game::Transform>();
 	auto& transform = set.Get(player[0]);
 	transform.posLocal.x = 100;
