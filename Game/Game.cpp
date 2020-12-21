@@ -47,11 +47,17 @@ int main(int argc, char* argv[])
 	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto player = cecsar.AddEntity<game::PlayerFactory>(700);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>( 700);
 	auto& set = cecsar.GetSet<game::Transform>();
-	auto& transform = set.Get(player[0]);
-	transform.posLocal.x = 100;
-	transform.posLocal.y = 100;
+	
+
+	for (int i = 0; i < 700; ++i)
+	{
+		auto& transform = set.Get(player[i]);
+		transform.posLocal.x = rand() % 100;
+		transform.posLocal.y = rand() % 100;
+		transform.posLocal.z = 2 - rand() % 5;
+	}
 
 	SDL_Event event;
 	bool quit = false;

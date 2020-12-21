@@ -113,6 +113,6 @@ void game::RenderSystem::SortIndexes(
 	{
 		return renderers[index]._renderPriority;
 	};
-	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
-		renderers.GetCount(), sortingMethod);
+	//utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
+		//renderers.GetCount(), sortingMethod);
 }
