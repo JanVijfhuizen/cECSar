@@ -30,7 +30,7 @@ void game::RenderSystem::OnUpdate(
 	SortIndexes(renderers, transforms);
 
 	Color c4Render;
-	const auto p4Camera = _module->cameraTransform.posLocal.v4;
+	const auto p4Camera = _module->cameraPos.v4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 

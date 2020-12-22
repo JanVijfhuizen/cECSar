@@ -45,7 +45,7 @@ void game::CameraSystem::OnUpdate(
 
 void game::CameraSystem::UpdatePosition(const utils::Vector3& target) const
 {
-	auto& cameraPosition = _renderModule->cameraTransform.posLocal;
+	auto& cameraPosition = _renderModule->cameraPos;
 	const utils::Vector3 offset(
 		cameraPosition.x - target.x,
 		cameraPosition.y - target.y);
