@@ -51,13 +51,8 @@ int main(int argc, char* argv[])
 	generator.Generate(cecsar);
 
 	// Spawn player for testing purposes.
-	const auto player = cecsar.AddEntity<game::PlayerFactory>( 700);
+	const auto player = cecsar.AddEntity<game::PlayerFactory>( 1);
 	auto& set = cecsar.GetSet<game::Transform>();
-
-	for (int i = 0; i < 700; ++i)
-	{
-		set.Get(player[i]).posLocal = { float(rand() % 20), float(rand() % 20) };
-	}
 
 	SDL_Event event;
 	bool quit = false;
@@ -88,13 +83,13 @@ int main(int argc, char* argv[])
 #pragma endregion 
 
 #pragma region Sequenced Threading
+		cecsar.Update<game::MovementSystem>();
+		jobSystem.Wait();
+
 		cecsar.Update<game::HandSystem>();
 		jobSystem.Wait();
 
 		cecsar.Update<game::LegSystem>();
-		jobSystem.Wait();
-
-		cecsar.Update<game::MovementSystem>();
 		jobSystem.Wait();
 #pragma endregion
 

@@ -43,7 +43,8 @@ namespace game
 	inline void PlayerFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
 		cecsar.AddComponent<Transform>(index);
-		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Player.png");
+		cecsar.AddComponent<Renderer>(index).texture = 
+			_renderModule->GetTexture("Art/Player.png");
 		cecsar.AddComponent<Controller>(index).type = ControllerType::player;
 		cecsar.AddComponent<MovementComponent>(index);
 		cecsar.AddComponent<CameraFollowTarget>(index);
@@ -62,6 +63,7 @@ namespace game
 
 			leg.offset.y = 16;
 			leg.offset.x = 24 * (i * 2 - 1);
+			leg.offset.z = -.05f;
 			leg.other = feet[1 - i];
 		}
 
