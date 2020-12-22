@@ -80,25 +80,27 @@ int main(int argc, char* argv[])
 		renderBuffer.UpdateBuffer();
 		controllerBuffer.UpdateBuffer();
 
-#pragma region Independently Threadable
+#pragma region Independent Threading
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		jobSystem.Wait();
 #pragma endregion 
 
-		// Move the rendering above the non-threadable stuff so it happens at the same time.
-
 #pragma region Sequenced Threading
 		cecsar.Update<game::HandSystem>();
-		cecsar.Update<game::LegSystem>();
-		cecsar.Update<game::MovementSystem>();
+		jobSystem.Wait();
 
+		cecsar.Update<game::LegSystem>();
+		jobSystem.Wait();
+
+		cecsar.Update<game::MovementSystem>();
 		jobSystem.Wait();
 #pragma endregion
 
-		// Systems that can be threaded
-		
+		// I'm probably going to make rendering a special snowflake when it
+		// comes to threading. I'll probably make a separate system for it as well,
+		// As I want to render at the same time as litteraly the rest of the code.
 
 		// Update rendersystems.
 		renderModule.PreRender();

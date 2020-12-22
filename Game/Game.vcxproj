@@ -191,6 +191,7 @@
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
     <ClInclude Include="include\Systems\HandSystem.h" />
+    <ClInclude Include="include\Systems\JobSystem.h" />
     <ClInclude Include="include\Systems\LegSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
     <ClInclude Include="include\Systems\ControllerSystem.h" />

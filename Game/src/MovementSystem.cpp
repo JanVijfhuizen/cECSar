@@ -6,9 +6,9 @@
 
 void game::MovementSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	_timeModule = &cecsar.GetModule<TimeModule>();
-	_jobConverter = &cecsar.GetModule<JobConverterModule>();
+	JobSystem<MovementComponent, Transform>::Initialize(cecsar);
 
+	_timeModule = &cecsar.GetModule<TimeModule>();
 	_controllerBuffer = cecsar.GetModule<BufferModule<Controller>>().buffer;
 }
 
@@ -19,7 +19,7 @@ void game::MovementSystem::OnUpdate(
 	const auto deltaTime = _timeModule->GetDeltaTime();
 	const auto dense = movementComponents.GetDenseRaw();
 
-	_jobConverter->ToLinearJobs(movementComponents.GetCount(),
+	GetJobModule().ToLinearJobs(movementComponents.GetCount(),
 		[this, deltaTime, dense, &movementComponents, &transforms]
 		(const int32_t start, const int32_t stop)
 		{

@@ -9,16 +9,15 @@ game::TransformSystem::~TransformSystem()
 
 void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	_cecsar = &cecsar;
-	_jobConverter = &_cecsar->GetModule<JobConverterModule>();
+	JobSystem<Transform>::Initialize(cecsar);
 
-	_sortableIndexes = new int32_t[_cecsar->info.setCapacity];
+	_sortableIndexes = new int32_t[cecsar.info.setCapacity];
 	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
-	_jobConverter->ToLinearJobs(transforms.GetCount(),
+	GetJobModule().ToLinearJobs(transforms.GetCount(),
 		[this, &transforms]
 	(const int32_t start, const int32_t stop)
 		{
