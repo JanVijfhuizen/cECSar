@@ -1,6 +1,7 @@
 #pragma once
 #include <emmintrin.h>
 #include <SDL_stdinc.h>
+#include "Mathf.h"
 
 namespace utils
 {
@@ -32,6 +33,9 @@ namespace utils
 		inline float Magnitude2d() const;
 		inline Vector3 Normalized2d() const;
 		inline float SquaredLength() const;
+
+		inline Vector3 Lerp2d(const Vector3& other, const float& f) const;
+		inline Vector3 MoveTowards2d(const Vector3& other, const float& f) const;
 #pragma endregion 
 
 		inline Vector3& operator =(const Vector3& other);
@@ -43,6 +47,10 @@ namespace utils
 
 		inline Vector3 operator *(const float& f) const;
 		inline Vector3& operator*=(const float& f);
+
+#pragma region Statics
+		inline static float RotateTowards2d(const float& f, const Vector3& to, const float& delta);
+#pragma endregion 
 	};
 
 	constexpr Vector3::Vector3() = default;
@@ -96,6 +104,18 @@ namespace utils
 		return x * x + y * y + z * z;
 	}
 
+	inline Vector3 Vector3::Lerp2d(const Vector3& other, const float& f) const
+	{
+		auto&& lerpable = _mm_sub_ps(other.v4, v4);
+		return { _mm_add_ps(v4, _mm_mul_ps(lerpable, _mm_set_ps1(f))) };
+	}
+
+	inline Vector3 Vector3::MoveTowards2d(const Vector3& other, const float& f) const
+	{
+		const auto dir = (other - *this).Normalized2d();
+		return *this + dir * f;
+	}
+
 	constexpr Vector3 Vector3::To2D() const
 	{
 		return{ x, y };
@@ -138,6 +158,18 @@ namespace utils
 	{
 		v4 = _mm_mul_ps(v4, _mm_set_ps1(f));
 		return *this;
+	}
+
+	inline float Vector3::RotateTowards2d(const float& f, const Vector3& to, const float& delta)
+	{
+		float targetDegrees = atan2f(-to.x, to.y) * 180 / M_PI;
+		targetDegrees = Mathf::ConstrainAngle(targetDegrees);
+
+		const float diff = Mathf::GetAngle(f, targetDegrees);
+		const float rotDelta = delta * (diff > 0 ? 1 : -1);
+
+		// Clamp rotation to the size of the angle.
+		return f + (abs(diff) < abs(rotDelta) ? diff : rotDelta);
 	}
 
 	inline Vector3 Vector3::Normalized() const

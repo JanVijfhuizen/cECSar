@@ -15,8 +15,12 @@ namespace game
 		const char* WINDOW_TITLE = "Game Prototype";
 		const int32_t SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
 
-		Transform cameraTransform{};
-		Transform screenTransform{};
+		utils::Vector3 cameraPos{};
+		float cameraRot = 0;
+
+		utils::Vector3 screenPos{};
+		float screenRot = 0;
+
 		float zoom = 1;
 
 		float xCameraOffset = 0, yCameraOffset = 0;

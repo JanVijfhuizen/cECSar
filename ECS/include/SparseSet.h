@@ -5,34 +5,12 @@
 namespace utils
 {
 	template <typename T>
-	class SparseSet;
-
-	template <typename T>
-	struct SparseIndexIterator final
-	{
-		friend SparseSet<T>;
-
-		constexpr int32_t operator[](int32_t denseIndex) const;
-		constexpr int32_t GetCount() const;
-
-		constexpr int32_t* begin() const;
-		constexpr int32_t* end() const;
-
-	private:
-		int32_t* _dense = nullptr;
-		int32_t _count = 0;
-
-		constexpr SparseIndexIterator(int32_t* dense, int32_t count);
-	};
-
-	template <typename T>
 	class SparseSet final
 	{
 	public:
-		typedef float (*Sorter)(const T& instance, int32_t index);
+		typedef float (*Sorter)(const T& instance);
 		constexpr T& operator[](int32_t denseIndex) const;
 
-		constexpr SparseIndexIterator<T> GetDenseIterator();
 		constexpr int32_t* GetDenseRaw() const;
 
 		constexpr bool Contains(int32_t sparseIndex) const;
@@ -52,7 +30,6 @@ namespace utils
 		constexpr T* begin() const;
 		constexpr T* end() const;
 
-		constexpr void Sort(Sorter func);	
 		constexpr void Swap(int32_t a, int32_t b);
 
 	private:
@@ -62,21 +39,12 @@ namespace utils
 
 		int32_t _count = 0;
 		int32_t _capacity = 0;
-
-		constexpr void QuickSort(int32_t low, int32_t high, Sorter func);
-		constexpr int32_t Partition(int32_t low, int32_t high, Sorter func);
 	};
 
 	template <typename T>
 	constexpr T& SparseSet<T>::operator[](const int32_t denseIndex) const
 	{
 		return _values[denseIndex];
-	}
-
-	template <typename T>
-	constexpr SparseIndexIterator<T> SparseSet<T>::GetDenseIterator()
-	{
-		return {_dense, _count};
 	}
 
 	template <typename T>
@@ -172,76 +140,11 @@ namespace utils
 	}
 
 	template <typename T>
-	constexpr int32_t* SparseIndexIterator<T>::begin() const
-	{
-		return _dense;
-	}
-
-	template <typename T>
-	constexpr int32_t* SparseIndexIterator<T>::end() const
-	{
-		return &_dense[_count];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseIndexIterator<T>::operator[](const int32_t denseIndex) const
-	{
-		return _dense[denseIndex];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseIndexIterator<T>::GetCount() const
-	{
-		return _count;
-	}
-
-	template <typename T>
-	constexpr SparseIndexIterator<T>::SparseIndexIterator(int32_t* dense, const int32_t count) :
-		_dense(dense), _count(count)
-	{
-
-	}
-
-	template <typename T>
 	SparseSet<T>::~SparseSet()
 	{
 		delete[] _dense;
 		delete[] _sparse;
 		delete[] _values;
-	}
-
-	template <typename T>
-	constexpr void SparseSet<T>::QuickSort(const int32_t low, const int32_t high, 
-		const Sorter func)
-	{
-		if (low > high)
-			return;
-
-		const int32_t ptr = Partition(low, high, func);
-		QuickSort(low, ptr - 1, func);
-		QuickSort(ptr + 1, high, func);
-	}
-
-	template <typename T>
-	constexpr int32_t SparseSet<T>::Partition(const int32_t low, const int32_t high,
-		const Sorter func)
-	{
-		const float pivot = func(_values[high], high);
-		int32_t i = low - 1;
-
-		for (int32_t j = low; j <= high - 1; ++j)
-			if (func(_values[j], j) <= pivot)
-				Swap(++i, j);
-
-		++i;
-		Swap(i, high);
-		return i;;
-	}
-
-	template <typename T>
-	constexpr void SparseSet<T>::Sort(const Sorter func)
-	{
-		QuickSort(0, _count - 1, func);
 	}
 
 	template <typename T>

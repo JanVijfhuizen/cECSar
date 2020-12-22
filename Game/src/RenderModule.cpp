@@ -35,13 +35,13 @@ void game::RenderModule::PostRender() const
 	SDL_SetRenderTarget(_renderer, nullptr);
 
 	SDL_Rect scaler;
-	scaler.x = screenTransform.posLocal.x + SCREEN_WIDTH * (1 - zoom) / 2;
-	scaler.y = screenTransform.posLocal.y + SCREEN_HEIGHT * (1 - zoom) / 2;
+	scaler.x = screenPos.x + SCREEN_WIDTH * (1 - zoom) / 2;
+	scaler.y = screenPos.y + SCREEN_HEIGHT * (1 - zoom) / 2;
 	scaler.w = SCREEN_WIDTH * zoom;
 	scaler.h = SCREEN_HEIGHT * zoom;
 
 	SDL_RenderCopyEx(_renderer, _renderTexture, nullptr, &scaler,
-		screenTransform.rot, nullptr, SDL_FLIP_NONE);
+		screenRot, nullptr, SDL_FLIP_NONE);
 
 	SDL_RenderPresent(_renderer);
 }
