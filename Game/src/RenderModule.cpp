@@ -41,7 +41,7 @@ void game::RenderModule::PostRender() const
 	scaler.h = SCREEN_HEIGHT * zoom;
 
 	SDL_RenderCopyEx(_renderer, _renderTexture, nullptr, &scaler,
-		screenTransform.rot, nullptr, SDL_FLIP_NONE);
+		screenTransform.rotLocal, nullptr, SDL_FLIP_NONE);
 
 	SDL_RenderPresent(_renderer);
 }

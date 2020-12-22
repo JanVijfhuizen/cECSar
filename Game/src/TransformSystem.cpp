@@ -18,39 +18,43 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 		if (transform.parent == -1)
 		{
 			transform.posGlobal = transform.posLocal;
-			transform.rotGlobal = transform.rot;
+			transform.rotGlobal = transform.rotLocal;
 			continue;
 		}
 
-		utils::Vector3 worldPos{};
-		float worldRot = 0;
+		utils::Vector3 worldPos = transform.posLocal;
+		float worldRot = transform.rotLocal;
 
+		Transform* current = &transform;
 		int32_t parentIndex = transform.parent;
+
 		while(parentIndex != -1)
 		{
-			auto& parent = transforms.Get(parentIndex);
-			const int32_t grandParentIndex = parent.parent;
-
-			// Check if parent has been deleted.
-			if (grandParentIndex != -1)
+			if(!transforms.Contains(parentIndex))
 			{
-				if (!transforms.Contains(grandParentIndex))
-				{
-					worldPos += parent.posGlobal;
-					worldRot += parent.rot;
+				worldPos -= current->posLocal;
+				worldRot -= current->rotLocal;
 
-					parent.parent = -1;
-					break;
-				}
+				worldPos += current->posGlobal;
+				worldPos += current->rotGlobal;
+
+				current->posLocal = worldPos;
+				current->rotLocal = utils::Mathf::ConstrainAngle(worldRot);
+
+				current->parent = -1;
+				break;
 			}
 
-			worldPos += parent.posLocal.Rotate(worldRot);
-			worldRot += parent.rot;
+			auto& parent = transforms.Get(parentIndex);
 
-			parentIndex = grandParentIndex;
+			worldPos = parent.posLocal + worldPos.Rotate(parent.rotLocal);
+			worldRot += parent.rotLocal;
+
+			parentIndex = parent.parent;
+			current = &parent;
 		}
 
-		transform.posGlobal = worldPos + transform.posLocal.Rotate(worldRot);
-		transform.rotGlobal = utils::Mathf::ConstrainAngle(worldRot + transform.rot);
+		transform.posGlobal = worldPos;
+		transform.rotGlobal = utils::Mathf::ConstrainAngle(worldRot);
 	}
 }

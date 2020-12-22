@@ -39,7 +39,7 @@ void game::MovementSystem::OnUpdate(
 
 				const float delta = movementComponent.rotationSpeed * deltaTime;
 				const auto target = utils::Vector3(controller.xDir, controller.yDir);
-				transform.rot = utils::Vector3::RotateTowards2d(transform.rot, target, delta);
+				transform.rotLocal = utils::Vector3::RotateTowards2d(transform.rotLocal, target, delta);
 			}
 		});
 

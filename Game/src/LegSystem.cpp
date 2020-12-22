@@ -63,7 +63,7 @@ void game::LegSystem::OnUpdate(
 			const float&& delta = parentMovement.movementSpeed * leg.speedMultiplier * deltaTime;
 
 			transform.posLocal += offsetNormalized * std::min(delta, magnitude);
-			transform.rot = parentTransform.rotGlobal;
+			transform.rotLocal = parentTransform.rotGlobal;
 		}
 
 		transform.posLocal.z = parentTransform.posGlobal.z - .05f;
