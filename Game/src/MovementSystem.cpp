@@ -9,28 +9,26 @@ void game::MovementSystem::Initialize(cecsar::Cecsar& cecsar)
 	_timeModule = &cecsar.GetModule<TimeModule>();
 	_jobConverter = &cecsar.GetModule<JobConverterModule>();
 
-	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 	_controllerBuffer = cecsar.GetModule<BufferModule<Controller>>().buffer;
 }
 
-void game::MovementSystem::OnUpdate(utils::SparseSet<MovementComponent>& movementComponents)
+void game::MovementSystem::OnUpdate(
+	utils::SparseSet<MovementComponent>& movementComponents, 
+	utils::SparseSet<Transform>& transforms)
 {
 	const auto deltaTime = _timeModule->GetDeltaTime();
-	const auto iterator = movementComponents.GetDenseIterator();
+	const auto dense = movementComponents.GetDenseRaw();
 
-	auto& transforms = *_transformBuffer;
-	auto& controllers = *_controllerBuffer;
-
-	_jobConverter->ToLinearJobs(iterator.GetCount(),
-		[deltaTime, &movementComponents, &controllers, &transforms, &iterator]
+	_jobConverter->ToLinearJobs(movementComponents.GetCount(),
+		[this, deltaTime, dense, &movementComponents, &transforms]
 		(const int32_t start, const int32_t stop)
 		{
 			for (int32_t i = stop - 1; i >= start; --i)
 			{
-				const int32_t index = iterator[i];
+				const int32_t index = dense[i];
 
 				auto& movementComponent = movementComponents[i];
-				auto& controller = controllers.Get(index);
+				auto& controller = _controllerBuffer->Get(index);
 				auto& transform = transforms.Get(index);
 
 				const float deltaSpeed = movementComponent.movementSpeed * deltaTime;

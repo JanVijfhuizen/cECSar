@@ -81,16 +81,16 @@ int main(int argc, char* argv[])
 		controllerBuffer.UpdateBuffer();
 
 #pragma region Independently Threadable
-		// System without dependencies, no threading issues.
+		// Sets Controllers.
 		cecsar.Update<game::ControllerSystem>();
 
-		// System with getters, solved by using buffers.
+		// Sets Transforms.
 		cecsar.Update<game::MovementSystem>();
 
 		jobSystem.Wait();
 #pragma endregion 
 
-		// Systems with dependencies, both getters and setters.
+		// These all get and set transforms, so they can't be threaded at the same time.
 		cecsar.Update<game::HandSystem>();
 		cecsar.Update<game::LegSystem>();
 		cecsar.Update<game::TransformSystem>();

@@ -13,14 +13,14 @@ void game::LegSystem::OnUpdate(
 {
 	const float deltaTime = _timeModule->GetDeltaTime();
 
-	const auto iterator = legs.GetDenseIterator();
-	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
+	const auto dense = legs.GetDenseRaw();
+	for (int32_t i = legs.GetCount() - 1; i >= 0; --i)
 	{
 		auto& leg = legs[i];
 		if (leg.parent == -1)
 			continue;
 
-		auto& transform = transforms.Get(iterator[i]);
+		auto& transform = transforms.Get(dense[i]);
 		auto& parentTransform = transforms.Get(leg.parent);
 		const auto& parentMovement = movements.Get(leg.parent);
 

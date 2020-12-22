@@ -23,6 +23,6 @@ namespace game
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<CameraFollowTarget>&, utils::SparseSet<Transform>&) override;
-		void UpdatePosition(utils::Vector3 target) const;
+		void UpdatePosition(const utils::Vector3& target) const;
 	};
 }

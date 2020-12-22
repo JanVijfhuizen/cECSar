@@ -34,12 +34,12 @@ void game::RenderSystem::OnUpdate(
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
-	const auto iterator = renderers.GetDenseIterator();
+	const auto dense = renderers.GetDenseRaw();
 	for (int32_t i = renderers.GetCount() - 1; i >= 0; --i)
 	{
 		const int32_t index = _sortableInfo[i].index;
 		auto& renderer = renderers[index];
-		auto& transform = transforms.Get(iterator[index]);
+		auto& transform = transforms.Get(dense[index]);
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
@@ -97,14 +97,14 @@ void game::RenderSystem::SortIndexes(
 	utils::SparseSet<Transform>& transforms) const
 {
 	const int32_t count = renderers.GetCount();
-	const auto iterator = renderers.GetDenseIterator();
+	const auto dense = renderers.GetDenseRaw();
 	const auto last = _sortableInfo + count - 1;
 
 	int32_t n = 0;
 	std::generate(_sortableInfo, last,
-		[&n, &iterator, &transforms]
+		[&n, dense, &transforms]
 		{
-			return RenderInfo(n++, transforms.Get(iterator[n]).posGlobal.z);
+			return RenderInfo(n++, transforms.Get(dense[n]).posGlobal.z);
 		});
 
 	std::sort(_sortableInfo, last,

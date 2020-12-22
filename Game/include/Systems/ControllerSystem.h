@@ -9,6 +9,7 @@ namespace game
 	class ControllerSystem final : public cecsar::ComponentSystem<Controller>
 	{
 	private:
+		Controller _playerController;
 		JobConverterModule* _jobConverter = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;

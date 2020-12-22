@@ -5,34 +5,12 @@
 namespace utils
 {
 	template <typename T>
-	class SparseSet;
-
-	template <typename T>
-	struct SparseIndexIterator final
-	{
-		friend SparseSet<T>;
-
-		constexpr int32_t operator[](int32_t denseIndex) const;
-		constexpr int32_t GetCount() const;
-
-		constexpr int32_t* begin() const;
-		constexpr int32_t* end() const;
-
-	private:
-		int32_t* _dense = nullptr;
-		int32_t _count = 0;
-
-		constexpr SparseIndexIterator(int32_t* dense, int32_t count);
-	};
-
-	template <typename T>
 	class SparseSet final
 	{
 	public:
 		typedef float (*Sorter)(const T& instance);
 		constexpr T& operator[](int32_t denseIndex) const;
 
-		constexpr SparseIndexIterator<T> GetDenseIterator();
 		constexpr int32_t* GetDenseRaw() const;
 
 		constexpr bool Contains(int32_t sparseIndex) const;
@@ -67,12 +45,6 @@ namespace utils
 	constexpr T& SparseSet<T>::operator[](const int32_t denseIndex) const
 	{
 		return _values[denseIndex];
-	}
-
-	template <typename T>
-	constexpr SparseIndexIterator<T> SparseSet<T>::GetDenseIterator()
-	{
-		return {_dense, _count};
 	}
 
 	template <typename T>
@@ -165,37 +137,6 @@ namespace utils
 		for (int32_t i = 0; i < _count; ++i)
 			_sparse[_dense[i]] = -1;
 		_count = 0;
-	}
-
-	template <typename T>
-	constexpr int32_t* SparseIndexIterator<T>::begin() const
-	{
-		return _dense;
-	}
-
-	template <typename T>
-	constexpr int32_t* SparseIndexIterator<T>::end() const
-	{
-		return &_dense[_count];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseIndexIterator<T>::operator[](const int32_t denseIndex) const
-	{
-		return _dense[denseIndex];
-	}
-
-	template <typename T>
-	constexpr int32_t SparseIndexIterator<T>::GetCount() const
-	{
-		return _count;
-	}
-
-	template <typename T>
-	constexpr SparseIndexIterator<T>::SparseIndexIterator(int32_t* dense, const int32_t count) :
-		_dense(dense), _count(count)
-	{
-
 	}
 
 	template <typename T>
