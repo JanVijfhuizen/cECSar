@@ -14,6 +14,7 @@
 #include "Systems/HandSystem.h"
 #include "Modules/JobSystemModule.h"
 #include <iostream>
+#include "Modules/BufferModule.h"
 
 void Job(int32_t x, int32_t y)
 {
@@ -37,6 +38,8 @@ int main(int argc, char* argv[])
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
+	// Buffers.
+	auto& transformBuffer = cecsar.GetModule<game::BufferModule<game::Transform>>();
 	jobSystem.Wait();
 
 	renderModule.zMod = .1;
@@ -71,12 +74,17 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
+		// Update Buffers.
+		transformBuffer.UpdateBuffer();
+
+		// Update transform dependent systems.
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::HandSystem>();
 		cecsar.Update<game::LegSystem>();
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
+		// Update rendersystems.
 		renderModule.PreRender();
 
 		cecsar.Update<game::CameraSystem>();
