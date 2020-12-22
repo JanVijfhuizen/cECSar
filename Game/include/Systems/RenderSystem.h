@@ -1,13 +1,14 @@
 #pragma once
 #include "ComponentSystem.h"
 #include <Components/Renderer.h>
-#include <Components/Transform.h>
+#include "Components/Transform.h"
+#include "Modules/BufferModule.h"
 
 namespace game
 {
 	class RenderModule;
 
-	class RenderSystem final : public cecsar::ComponentSystem<Renderer, Transform>
+	class RenderSystem final : public cecsar::ComponentSystem<Renderer>
 	{
 	public:
 		~RenderSystem();
@@ -24,9 +25,10 @@ namespace game
 
 		RenderModule* _module = nullptr;
 		RenderInfo* _sortableInfo = nullptr;
+		utils::SparseSet<Transform>* _transformBuffer = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnUpdate(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) override;
-		void SortIndexes(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) const;
+		void OnUpdate(utils::SparseSet<Renderer>&) override;
+		void SortIndexes(utils::SparseSet<Renderer>&) const;
 	};
 }

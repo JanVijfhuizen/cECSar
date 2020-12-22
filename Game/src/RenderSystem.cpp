@@ -3,6 +3,7 @@
 #include <algorithm>
 #include "Sorter.h"
 #include <iostream>
+#include "Modules/BufferModule.h"
 
 game::RenderSystem::~RenderSystem()
 {
@@ -21,13 +22,13 @@ void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
 	_sortableInfo = new RenderInfo[cecsar.info.setCapacity];
+
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
-void game::RenderSystem::OnUpdate(
-	utils::SparseSet<Renderer>& renderers, 
-	utils::SparseSet<Transform>& transforms)
+void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 {
-	SortIndexes(renderers, transforms);
+	SortIndexes(renderers);
 
 	Color c4Render;
 	const auto p4Camera = _module->cameraPos.v4;
@@ -39,7 +40,7 @@ void game::RenderSystem::OnUpdate(
 	{
 		const int32_t index = _sortableInfo[i].index;
 		auto& renderer = renderers[index];
-		auto& transform = transforms.Get(dense[index]);
+		auto& transform = _transformBuffer->Get(dense[index]);
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
@@ -92,9 +93,7 @@ void game::RenderSystem::OnUpdate(
 	}
 }
 
-void game::RenderSystem::SortIndexes(
-	utils::SparseSet<Renderer>& renderers, 
-	utils::SparseSet<Transform>& transforms) const
+void game::RenderSystem::SortIndexes(utils::SparseSet<Renderer>& renderers) const
 {
 	const int32_t count = renderers.GetCount();
 	const auto dense = renderers.GetDenseRaw();
@@ -102,9 +101,9 @@ void game::RenderSystem::SortIndexes(
 
 	int32_t n = 0;
 	std::generate(_sortableInfo, last,
-		[&n, dense, &transforms]
+		[this, &n, dense]
 		{
-			auto& transform = transforms.Get(dense[n]);
+			auto& transform = _transformBuffer->Get(dense[n]);
 			return RenderInfo(n++, transform.posGlobal.z);
 		});
 

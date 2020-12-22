@@ -14,7 +14,7 @@ namespace game
 	public:
 		typedef std::function<void()> Job;
 
-		~JobSystemModule();
+		inline ~JobSystemModule();
 		inline void Initialize(cecsar::Cecsar& cecsar) override;
 
 		inline void Enqueue(const Job& job);
@@ -47,7 +47,7 @@ namespace game
 	{
 		_threadNum = std::thread::hardware_concurrency();
 		for (int32_t i = _threadNum - 1; i >= 0; --i)
-			_threads.emplace_back([this]()
+			_threads.emplace_back(std::thread([this]()
 				{
 					while (true)
 					{
@@ -57,17 +57,15 @@ namespace game
 						{
 							job();
 
-							{
-								std::unique_lock<std::mutex> lk(_mutexJobPool);
-								_activeNum--;
-							}
+							std::unique_lock<std::mutex> lk(_mutexJobPool);
+							_activeNum--;
 							continue;
 						}
 
 						std::unique_lock<std::mutex> lock(_mutexJobRequest);
 						_cvJobRequest.wait(lock);
 					}
-				});
+				}));
 	}
 
 	inline void JobSystemModule::Enqueue(const Job& job)

@@ -13,7 +13,6 @@
 #include "Systems/LegSystem.h"
 #include "Systems/HandSystem.h"
 #include "Modules/JobSystemModule.h"
-#include <iostream>
 #include "Modules/BufferModule.h"
 
 void Job(int32_t x, int32_t y)
@@ -30,7 +29,7 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarInfo info;
-	info.setCapacity = 5000;
+	info.setCapacity = 5e3;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
@@ -43,6 +42,7 @@ int main(int argc, char* argv[])
 	auto& renderBuffer = cecsar.GetModule<game::BufferModule<game::Renderer>>();
 	auto& controllerBuffer = cecsar.GetModule<game::BufferModule<game::Controller>>();
 
+#pragma region Testing Nonsense
 	renderModule.zMod = .1;
 	renderModule.zColorFallof = .2f;
 
@@ -63,12 +63,31 @@ int main(int argc, char* argv[])
 		set.Get(others[i]).posLocal = 
 		{ float(rand() % 600) - 300, float(rand() % 600 - 300) };
 	}
+#pragma endregion
+
+#pragma region Render Thread
+	std::mutex mutexRenderer{};
+	std::condition_variable cv_renderer{};
+
+	std::thread renderThread([&mutexRenderer, &cv_renderer, &cecsar, &renderModule]()
+		{
+			while (true)
+			{
+				std::unique_lock<std::mutex> lock(mutexRenderer);
+				cv_renderer.wait(lock);
+
+				renderModule.PreRender();
+
+				cecsar.Update<game::CameraSystem>();
+				cecsar.Update<game::RenderSystem>();
+
+				renderModule.PostRender();
+			}
+		});
+#pragma endregion 
 
 	while(!quit)
 	{
-		set.Get(99).posLocal.x = sin(timeModule.GetTime()) * 256;
-		set.Get(99).posLocal.y = cos(timeModule.GetTime()) * 256;
-
 		timeModule.Update();
 
 		while (SDL_PollEvent(&event) != 0)
@@ -77,10 +96,13 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
-		// Update Buffers.
+#pragma region Updating Buffers
 		transformBuffer.UpdateBuffer();
 		renderBuffer.UpdateBuffer();
 		controllerBuffer.UpdateBuffer();
+#pragma endregion 
+
+		cv_renderer.notify_one();
 
 #pragma region Independent Threading
 		cecsar.Update<game::ControllerSystem>();
@@ -100,20 +122,7 @@ int main(int argc, char* argv[])
 		jobSystem.Wait();
 #pragma endregion
 
-		// I'm probably going to make rendering a special snowflake when it
-		// comes to threading. I'll probably make a separate system for it as well,
-		// As I want to render at the same time as litteraly the rest of the code.
-
-		// Update rendersystems.
-		renderModule.PreRender();
-
-		cecsar.Update<game::CameraSystem>();
-		cecsar.Update<game::RenderSystem>();
-
-		renderModule.PostRender();
-
-		// Wait for threads to join.
-		jobSystem.Wait();
+		std::unique_lock<std::mutex> lock(mutexRenderer);
 	}
 
 	SDL_Quit();
