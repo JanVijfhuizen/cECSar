@@ -1,4 +1,6 @@
 ﻿#include <Systems/TransformSystem.h>
+#include "Modules/BufferModule.h"
+#include "Modules/JobConverterModule.h"
 
 game::TransformSystem::~TransformSystem()
 {
@@ -8,53 +10,47 @@ game::TransformSystem::~TransformSystem()
 void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_cecsar = &cecsar;
+	_jobConverter = &_cecsar->GetModule<JobConverterModule>();
+
 	_sortableIndexes = new int32_t[_cecsar->info.setCapacity];
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
-	for (Transform& transform : transforms)
-	{
-		if (transform.parent == -1)
+	_jobConverter->ToLinearJobs(transforms.GetCount(),
+		[this, &transforms]
+	(const int32_t start, const int32_t stop)
 		{
-			transform.posGlobal = transform.posLocal;
-			transform.rotGlobal = transform.rotLocal;
-			continue;
-		}
-
-		utils::Vector3 worldPos = transform.posLocal;
-		float worldRot = transform.rotLocal;
-
-		Transform* current = &transform;
-		int32_t parentIndex = transform.parent;
-
-		while(parentIndex != -1)
-		{
-			if(!transforms.Contains(parentIndex))
+			for (int32_t i = start; i < stop; ++i)
 			{
-				worldPos -= current->posLocal;
-				worldRot -= current->rotLocal;
+				auto& transformBuffer = _transformBuffer->operator[](i);
+				auto& transform = transforms[i];
 
-				worldPos += current->posGlobal;
-				worldPos += current->rotGlobal;
+				if (transformBuffer.parent == -1)
+				{
+					transform.posGlobal = transformBuffer.posLocal;
+					transform.rotGlobal = transformBuffer.rotLocal;
+					continue;
+				}
 
-				current->posLocal = worldPos;
-				current->rotLocal = utils::Mathf::ConstrainAngle(worldRot);
+				utils::Vector3 worldPos = transformBuffer.posLocal;
+				float worldRot = transformBuffer.rotLocal;
 
-				current->parent = -1;
-				break;
+				int32_t parentIndex = transformBuffer.parent;
+
+				while (parentIndex != -1)
+				{
+					auto& parent = _transformBuffer->Get(parentIndex);
+
+					worldPos = parent.posLocal + worldPos.Rotate(parent.rotLocal);
+					worldRot += parent.rotLocal;
+
+					parentIndex = parent.parent;
+				}
+
+				transform.posGlobal = worldPos;
+				transform.rotGlobal = utils::Mathf::ConstrainAngle(worldRot);
 			}
-
-			auto& parent = transforms.Get(parentIndex);
-
-			worldPos = parent.posLocal + worldPos.Rotate(parent.rotLocal);
-			worldRot += parent.rotLocal;
-
-			parentIndex = parent.parent;
-			current = &parent;
-		}
-
-		transform.posGlobal = worldPos;
-		transform.rotGlobal = utils::Mathf::ConstrainAngle(worldRot);
-	}
+		});
 }

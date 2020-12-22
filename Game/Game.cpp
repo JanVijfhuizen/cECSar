@@ -81,19 +81,24 @@ int main(int argc, char* argv[])
 		controllerBuffer.UpdateBuffer();
 
 #pragma region Independently Threadable
-		// Sets Controllers.
 		cecsar.Update<game::ControllerSystem>();
-
-		// Sets Transforms.
-		cecsar.Update<game::MovementSystem>();
+		cecsar.Update<game::TransformSystem>();
 
 		jobSystem.Wait();
 #pragma endregion 
 
-		// These all get and set transforms, so they can't be threaded at the same time.
+		// Move the rendering above the non-threadable stuff so it happens at the same time.
+
+#pragma region Sequenced Threading
 		cecsar.Update<game::HandSystem>();
 		cecsar.Update<game::LegSystem>();
-		cecsar.Update<game::TransformSystem>();
+		cecsar.Update<game::MovementSystem>();
+
+		jobSystem.Wait();
+#pragma endregion
+
+		// Systems that can be threaded
+		
 
 		// Update rendersystems.
 		renderModule.PreRender();
