@@ -2,19 +2,24 @@
 #include "Modules/TimeModule.h"
 #include <iostream>
 #include "Modules/JobConverterModule.h"
+#include "Modules/BufferModule.h"
 
 void game::MovementSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_timeModule = &cecsar.GetModule<TimeModule>();
 	_jobConverter = &cecsar.GetModule<JobConverterModule>();
+
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
+	_controllerBuffer = cecsar.GetModule<BufferModule<Controller>>().buffer;
 }
 
-void game::MovementSystem::OnUpdate(
-	utils::SparseSet<Transform>& transforms, utils::SparseSet<Controller>& controllers,
-	utils::SparseSet<MovementComponent>& movementComponents)
+void game::MovementSystem::OnUpdate(utils::SparseSet<MovementComponent>& movementComponents)
 {
 	const auto deltaTime = _timeModule->GetDeltaTime();
 	const auto iterator = movementComponents.GetDenseIterator();
+
+	auto& transforms = *_transformBuffer;
+	auto& controllers = *_controllerBuffer;
 
 	_jobConverter->ToLinearJobs(iterator.GetCount(),
 		[deltaTime, &movementComponents, &controllers, &transforms, &iterator]
@@ -22,9 +27,11 @@ void game::MovementSystem::OnUpdate(
 		{
 			for (int32_t i = stop - 1; i >= start; --i)
 			{
+				const int32_t index = iterator[i];
+
 				auto& movementComponent = movementComponents[i];
-				auto& controller = controllers.Get(iterator[i]);
-				auto& transform = transforms.Get(iterator[i]);
+				auto& controller = controllers.Get(index);
+				auto& transform = transforms.Get(index);
 
 				const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
 				const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
@@ -39,9 +46,8 @@ void game::MovementSystem::OnUpdate(
 
 				const float delta = movementComponent.rotationSpeed * deltaTime;
 				const auto target = utils::Vector3(controller.xDir, controller.yDir);
-				transform.rotLocal = utils::Vector3::RotateTowards2d(transform.rotLocal, target, delta);
+				transform.rotLocal = utils::Vector3::RotateTowards2d(
+					transform.rotLocal, target, delta);
 			}
 		});
-
-	_jobConverter->Wait();
 }

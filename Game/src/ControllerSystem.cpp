@@ -34,6 +34,4 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 					controller = playerController;
 			}
 		});
-
-	_jobConverter->Wait();
 }

@@ -9,14 +9,16 @@ namespace game
 {
 	class TimeModule;
 
-	class MovementSystem final : public cecsar::ComponentSystem<Transform, Controller, MovementComponent>
+	class MovementSystem final : public cecsar::ComponentSystem<MovementComponent>
 	{
 	private:
 		TimeModule* _timeModule = nullptr;
 		JobConverterModule* _jobConverter = nullptr;
 
+		utils::SparseSet<Transform>* _transformBuffer = nullptr;
+		utils::SparseSet<Controller>* _controllerBuffer = nullptr;
+
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnUpdate(utils::SparseSet<Transform>&, utils::SparseSet<Controller>&,
-			utils::SparseSet<MovementComponent>&) override;
+		void OnUpdate(utils::SparseSet<MovementComponent>&) override;
 	};
 }

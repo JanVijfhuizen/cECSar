@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
 
 	// Buffers.
 	auto& transformBuffer = cecsar.GetModule<game::BufferModule<game::Transform>>();
-	jobSystem.Wait();
+	auto& renderBuffer = cecsar.GetModule<game::BufferModule<game::Renderer>>();
+	auto& controllerBuffer = cecsar.GetModule<game::BufferModule<game::Controller>>();
 
 	renderModule.zMod = .1;
 	renderModule.zColorFallof = .2f;
@@ -76,12 +77,22 @@ int main(int argc, char* argv[])
 
 		// Update Buffers.
 		transformBuffer.UpdateBuffer();
+		renderBuffer.UpdateBuffer();
+		controllerBuffer.UpdateBuffer();
 
-		// Update transform dependent systems.
+#pragma region Independently Threadable
+		// System without dependencies, no threading issues.
 		cecsar.Update<game::ControllerSystem>();
+
+		// System with getters, solved by using buffers.
+		cecsar.Update<game::MovementSystem>();
+
+		jobSystem.Wait();
+#pragma endregion 
+
+		// Systems with dependencies, both getters and setters.
 		cecsar.Update<game::HandSystem>();
 		cecsar.Update<game::LegSystem>();
-		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::TransformSystem>();
 
 		// Update rendersystems.
@@ -92,6 +103,7 @@ int main(int argc, char* argv[])
 
 		renderModule.PostRender();
 
+		// Wait for threads to join.
 		jobSystem.Wait();
 	}
 
