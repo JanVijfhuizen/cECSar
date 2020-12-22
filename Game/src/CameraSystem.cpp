@@ -2,15 +2,17 @@
 #include <algorithm>
 #include "Modules/RenderModule.h"
 #include "Modules/TimeModule.h"
+#include "Modules/BufferModule.h"
 
 void game::CameraSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_renderModule = &cecsar.GetModule<RenderModule>();
 	_timeModule = &cecsar.GetModule<TimeModule>();
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::CameraSystem::OnUpdate(
-	utils::SparseSet<CameraFollowTarget>& targets, utils::SparseSet<Transform>& transforms)
+	utils::SparseSet<CameraFollowTarget>& targets)
 {
 	if (!targets.GetCount())
 		return;
@@ -21,10 +23,10 @@ void game::CameraSystem::OnUpdate(
 	float yMin = std::numeric_limits<float>::max();
 	float yMax = std::numeric_limits<float>::min();
 
-	const auto iterator = targets.GetDenseIterator();
-	for (int32_t i : iterator)
+	const auto dense = targets.GetDenseRaw();
+	for (int32_t i = targets.GetCount() - 1; i >= 0; --i)
 	{
-		auto& transform = transforms.Get(i);
+		auto& transform = _transformBuffer->Get(dense[i]);
 		auto position = transform.posGlobal;
 
 		// Update bounds.
@@ -36,16 +38,16 @@ void game::CameraSystem::OnUpdate(
 		center.v4 = _mm_add_ps(center.v4, position.v4);
 	}
 
-	center.v4 = _mm_div_ps(center.v4, _mm_set_ps1(iterator.GetCount()));
+	center.v4 = _mm_div_ps(center.v4, _mm_set_ps1(targets.GetCount()));
 	center.x -= _renderModule->SCREEN_WIDTH / 2;
 	center.y -= _renderModule->SCREEN_HEIGHT / 2;
 
 	UpdatePosition(center);
 }
 
-void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
+void game::CameraSystem::UpdatePosition(const utils::Vector3& target) const
 {
-	auto& cameraPosition = _renderModule->cameraTransform.posLocal;
+	auto& cameraPosition = _renderModule->cameraPos;
 	const utils::Vector3 offset(
 		cameraPosition.x - target.x,
 		cameraPosition.y - target.y);
@@ -86,7 +88,8 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3 target) const
 	const float offsetMagn = offset.Magnitude();
 
 	const float magnLerp = offsetMagn / hardFollowMagn;
-	const float convLerp = std::max(.0f, magnLerp - _movementZoomThreshold) / (1.0f - _movementZoomThreshold);
+	const float convLerp = std::max(.0f, magnLerp - _movementZoomThreshold) / 
+		(1.0f - _movementZoomThreshold);
 	
 	_renderModule->zoom = 1 + convLerp * _movementZoomMultiplier;
 }

@@ -13,7 +13,7 @@ namespace game
 
 #pragma region Local
 		utils::Vector3 posLocal;
-		float rot = 0;
+		float rotLocal = 0;
 #pragma endregion
 
 #pragma region Global Readonly

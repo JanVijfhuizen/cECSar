@@ -2,37 +2,45 @@
 #include "Modules/RenderModule.h"
 #include <algorithm>
 #include "Sorter.h"
-#include "Utils/Utils.h"
 #include <iostream>
+#include "Modules/BufferModule.h"
 
 game::RenderSystem::~RenderSystem()
 {
-	delete[] _sortableIndexes;
+	delete[] _sortableInfo;
+}
+
+game::RenderSystem::RenderInfo::RenderInfo() = default;
+
+game::RenderSystem::RenderInfo::RenderInfo(const int32_t index, const float order) : 
+	index(index), order(order)
+{
+
 }
 
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
-	_sortableIndexes = new int32_t[cecsar.info.setCapacity];
+	_sortableInfo = new RenderInfo[cecsar.info.setCapacity];
+
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
-void game::RenderSystem::OnUpdate(
-	utils::SparseSet<Renderer>& renderers, 
-	utils::SparseSet<Transform>& transforms)
+void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 {
-	SortIndexes(renderers, transforms);
+	SortIndexes(renderers);
 
 	Color c4Render;
-	const auto p4Camera = _module->cameraTransform.posLocal.v4;
+	const auto p4Camera = _module->cameraPos.v4;
 	auto& screenRenderer = _module->GetRenderer();
 	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
-	const auto iterator = renderers.GetDenseIterator();
+	const auto dense = renderers.GetDenseRaw();
 	for (int32_t i = renderers.GetCount() - 1; i >= 0; --i)
 	{
-		const int32_t index = _sortableIndexes[i];
+		const int32_t index = _sortableInfo[i].index;
 		auto& renderer = renderers[index];
-		auto& transform = transforms.Get(iterator[index]);
+		auto& transform = _transformBuffer->Get(dense[index]);
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
@@ -85,34 +93,23 @@ void game::RenderSystem::OnUpdate(
 	}
 }
 
-void game::RenderSystem::SortIndexes(
-	utils::SparseSet<Renderer>& renderers, 
-	utils::SparseSet<Transform>& transforms) const
+void game::RenderSystem::SortIndexes(utils::SparseSet<Renderer>& renderers) const
 {
-	// Fill indexes cache with ordered indexes.
-	const auto fillMethod = [](const int32_t index)
-	{
-		return index;
-	};
-	utils::Utils<int32_t>::Fill(_sortableIndexes, 0, 
-		renderers.GetCount(), fillMethod);
+	const int32_t count = renderers.GetCount();
+	const auto dense = renderers.GetDenseRaw();
+	const auto last = _sortableInfo + count;
 
-	// Set the renderpriority based on a number of factors.
-	// Currently it only really factors the z axis.
-	const auto iterator = renderers.GetDenseIterator();
-	for (int32_t i = iterator.GetCount() - 1; i >= 0; --i)
-	{
-		auto& renderer = renderers[i];
-		auto& transform = transforms.Get(iterator[i]);
+	int32_t n = 0;
+	std::generate(_sortableInfo, last,
+		[this, &n, dense]
+		{
+			auto& transform = _transformBuffer->Get(dense[n]);
+			return RenderInfo(n++, transform.posGlobal.z);
+		});
 
-		renderer._renderPriority = -transform.posGlobal.z;
-	}
-
-	// Order renderers based on the chosen factors.
-	const auto sortingMethod = [&renderers](const int32_t index)
-	{
-		return renderers[index]._renderPriority;
-	};
-	utils::Sorter<int32_t>::InsertionSort(_sortableIndexes, 0, 
-		renderers.GetCount(), sortingMethod);
+	std::sort(_sortableInfo, last,
+		[](RenderInfo& a, RenderInfo& b)
+		{
+			return a.order > b.order;
+		});
 }
