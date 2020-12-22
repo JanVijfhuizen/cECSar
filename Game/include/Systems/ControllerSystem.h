@@ -4,9 +4,14 @@
 
 namespace game
 {
+	class JobConverterModule;
+
 	class ControllerSystem final : public cecsar::ComponentSystem<Controller>
 	{
 	private:
+		JobConverterModule* _jobConverter = nullptr;
+
+		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Controller>&) override;
 	};
 }

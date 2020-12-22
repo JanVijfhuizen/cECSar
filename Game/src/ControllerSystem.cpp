@@ -1,5 +1,11 @@
 ﻿#include <Systems/ControllerSystem.h>
 #include <SDL.h>
+#include "Modules/JobConverterModule.h"
+
+void game::ControllerSystem::Initialize(cecsar::Cecsar& cecsar)
+{
+	_jobConverter = &cecsar.GetModule<JobConverterModule>();
+}
 
 void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 {
@@ -17,7 +23,17 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 
 	playerController.space = state[SDL_SCANCODE_SPACE];
 
-	for (auto& controller : controllers)
-		if (controller.type == ControllerType::player)
-			controller = playerController;
+	_jobConverter->ToLinearJobs(controllers.GetCount(), 
+		[&controllers, &playerController]
+		(const int32_t start, const int32_t stop)
+		{
+			for (int32_t i = start; i < stop; ++i)
+			{
+				auto& controller = controllers[i];
+				if (controller.type == ControllerType::player)
+					controller = playerController;
+			}
+		});
+
+	_jobConverter->Wait();
 }
