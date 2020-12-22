@@ -98,7 +98,7 @@ void game::RenderSystem::SortIndexes(
 {
 	const int32_t count = renderers.GetCount();
 	const auto dense = renderers.GetDenseRaw();
-	const auto last = _sortableInfo + count - 1;
+	const auto last = _sortableInfo + count;
 
 	int32_t n = 0;
 	std::generate(_sortableInfo, last,
