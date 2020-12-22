@@ -4,12 +4,8 @@
 
 namespace game
 {
-	class RenderSystem;
-
 	struct Renderer final
 	{
-		friend RenderSystem;
-
 		SDL_Texture* texture = nullptr;
 		Color color{};
 
@@ -23,8 +19,5 @@ namespace game
 		int32_t count = 1;
 
 		SDL_RendererFlip flip = SDL_FLIP_NONE;
-
-	private:
-		float _renderPriority = 0;
 	};
 }

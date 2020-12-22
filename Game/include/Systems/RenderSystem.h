@@ -13,8 +13,17 @@ namespace game
 		~RenderSystem();
 
 	private:
+		struct RenderInfo final
+		{
+			int32_t index = 0;
+			float order = 0;
+
+			RenderInfo();
+			RenderInfo(int32_t index, float order);
+		};
+
 		RenderModule* _module = nullptr;
-		int32_t* _sortableIndexes = nullptr;
+		RenderInfo* _sortableInfo = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) override;

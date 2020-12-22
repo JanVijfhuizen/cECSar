@@ -32,18 +32,11 @@ void game::LegSystem::OnUpdate(
 		// Calculate offset.
 		const float magnitude = offset.Magnitude2d();
 
-		// Teleport if too far away.
-		if (magnitude > leg.teleportThreshold)
-		{
-			transform.posLocal = parentTransform.posGlobal;
-			continue;
-		}
-
 		// Move if it's too far away and the linked bodypart isn't moving either.
 		if(!leg.moving)
-			if (magnitude > leg.moveThreshold)
+			if (magnitude > leg.softMoveThreshold)
 			{
-				if (leg.other == -1)
+				if (leg.other == -1 || magnitude > leg.hardMoveThreshold)
 					leg.moving = true;
 				else if(!legs.Get(leg.other).moving)
 					leg.moving = true;

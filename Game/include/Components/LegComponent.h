@@ -6,8 +6,8 @@ namespace game
 {
 	struct LegComponent final
 	{
-		float moveThreshold = 32;
-		float teleportThreshold = 128;
+		float softMoveThreshold = 32;
+		float hardMoveThreshold = 64;
 
 		float stoppingDistance = 5;
 		float speedMultiplier = 2.5f;
