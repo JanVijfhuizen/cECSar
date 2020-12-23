@@ -92,6 +92,7 @@ int main(int argc, char* argv[])
 
 #pragma region Pre Buffers
 		cecsar.Update<game::TransformSystem>();
+		jobSystem.Wait();
 #pragma endregion
 
 #pragma region Updating Buffers
