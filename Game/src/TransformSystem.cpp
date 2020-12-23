@@ -1,5 +1,4 @@
 ﻿#include <Systems/TransformSystem.h>
-#include "Modules/BufferModule.h"
 #include "Modules/JobConverterModule.h"
 
 game::TransformSystem::~TransformSystem()
@@ -12,40 +11,37 @@ void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 	JobSystem<Transform>::Initialize(cecsar);
 
 	_sortableIndexes = new int32_t[cecsar.info.setCapacity];
-	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 {
-	GetJobModule().ToLinearJobs(transforms.GetCount(),
-		[this, &transforms]
+	GetJobModule().ToLinearJobs(transforms.GetCount(),[&transforms]
 	(const int32_t start, const int32_t stop)
 		{
 			for (int32_t i = start; i < stop; ++i)
 			{
-				auto& transformBuffer = _transformBuffer->operator[](i);
 				auto& transform = transforms[i];
 
-				if (transformBuffer.parent == -1)
+				if (transform._parent == -1)
 				{
-					transform.posGlobal = transformBuffer.posLocal;
-					transform.rotGlobal = transformBuffer.rotLocal;
+					transform.posGlobal = transform.posLocal;
+					transform.rotGlobal = transform.rotLocal;
 					continue;
 				}
 
-				utils::Vector3 worldPos = transformBuffer.posLocal;
-				float worldRot = transformBuffer.rotLocal;
+				utils::Vector3 worldPos = transform.posLocal;
+				float worldRot = transform.rotLocal;
 
-				int32_t parentIndex = transformBuffer.parent;
+				int32_t parentIndex = transform._parent;
 
 				while (parentIndex != -1)
 				{
-					auto& parent = _transformBuffer->Get(parentIndex);
+					auto& parent = transforms.Get(parentIndex);
 
 					worldPos = parent.posLocal + worldPos.Rotate(parent.rotLocal);
 					worldRot += parent.rotLocal;
 
-					parentIndex = parent.parent;
+					parentIndex = parent._parent;
 				}
 
 				transform.posGlobal = worldPos;

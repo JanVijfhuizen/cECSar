@@ -22,6 +22,6 @@ namespace game
 #pragma endregion
 
 	private:
-		int32_t parent = -1;
+		int32_t _parent = -1;
 	};
 }

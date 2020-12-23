@@ -5,6 +5,8 @@
 void game::HandSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	JobSystem<HandComponent, Transform>::Initialize(cecsar);
+
+	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands, 
@@ -13,7 +15,7 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 	const auto dense = hands.GetDenseRaw();
 
 	GetJobModule().ToLinearJobs(hands.GetCount(),
-		[&hands, &transforms, dense]
+		[this, &hands, &transforms, dense]
 	(const int32_t start, const int32_t stop)
 		{
 			for (int32_t i = start; i < stop; ++i)
@@ -24,8 +26,8 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 
 				const int32_t index = dense[i];
 
-				auto& transform = transforms.Get(index);
-				auto& targetTransform = transforms.Get(hand.target);
+				auto& transform = _transformBuffer->Get(index);
+				auto& targetTransform = _transformBuffer->Get(hand.target);
 
 				const auto rootPos = TransformHelper::ToWorld(transform, hand.offset);
 				const auto offset = targetTransform.posGlobal - rootPos;
@@ -36,7 +38,7 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 				dir *= std::min(distance, hand.maxDistance);
 
 				const auto posLocal = hand.offset + dir.Rotate(-transform.rotGlobal);
-				transform.posLocal = posLocal;
+				transforms.Get(index).posLocal = posLocal;
 			}
 		});
 }

@@ -90,6 +90,10 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
+#pragma region Pre Buffers
+		cecsar.Update<game::TransformSystem>();
+#pragma endregion
+
 #pragma region Updating Buffers
 		transformBuffer.UpdateBuffer();
 		renderBuffer.UpdateBuffer();
@@ -98,14 +102,12 @@ int main(int argc, char* argv[])
 
 		cv_renderer.notify_one();
 
-#pragma region Independent Threading
+#pragma region No Dependencies
 		cecsar.Update<game::ControllerSystem>();
-		cecsar.Update<game::TransformSystem>();
-
 		jobSystem.Wait();
 #pragma endregion 
 
-#pragma region Sequenced Threading
+#pragma region Have Dependencies
 		cecsar.Update<game::HandSystem>();
 		jobSystem.Wait();
 
