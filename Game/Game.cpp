@@ -106,13 +106,13 @@ int main(int argc, char* argv[])
 #pragma endregion 
 
 #pragma region Sequenced Threading
-		cecsar.Update<game::MovementSystem>();
-		jobSystem.Wait();
-
 		cecsar.Update<game::HandSystem>();
 		jobSystem.Wait();
 
 		cecsar.Update<game::LegSystem>();
+		jobSystem.Wait();
+
+		cecsar.Update<game::MovementSystem>();
 		jobSystem.Wait();
 #pragma endregion
 
