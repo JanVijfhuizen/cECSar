@@ -23,6 +23,5 @@ namespace game
 
 	private:
 		int32_t parent = -1;
-		int32_t rDepth = 0;
 	};
 }

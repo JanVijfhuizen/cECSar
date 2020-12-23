@@ -23,7 +23,7 @@ void game::MovementSystem::OnUpdate(
 		[this, deltaTime, dense, &movementComponents, &transforms]
 		(const int32_t start, const int32_t stop)
 		{
-			for (int32_t i = stop - 1; i >= start; --i)
+			for (int32_t i = start; i < stop; ++i)
 			{
 				const int32_t index = dense[i];
 
@@ -46,6 +46,7 @@ void game::MovementSystem::OnUpdate(
 				const auto target = utils::Vector3(controller.xDir, controller.yDir);
 				transform.rotLocal = utils::Vector3::RotateTowards2d(
 					transform.rotLocal, target, delta);
+
 			}
 		});
 }

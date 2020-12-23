@@ -57,12 +57,6 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	bool quit = false;
 
-	const auto others = cecsar.AddEntity<game::PlayerFactory>(800);
-	for (int i = 0; i < 800; ++i)
-	{
-		set.Get(others[i]).posLocal = 
-		{ float(rand() % 600) - 300, float(rand() % 600 - 300) };
-	}
 #pragma endregion
 
 #pragma region Render Thread

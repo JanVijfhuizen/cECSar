@@ -70,6 +70,7 @@ namespace game
 		// Gun. For testing purposes.
 		const auto gun = _cecsar->AddEntity<GunFactory>();
 		TransformHelper::SetParent(*_transforms, gun[0], index);
+		(*_transforms)[gun[0]].posLocal = { 0, 28, 0 };
 
 		// Hands.
 		const auto hands = _cecsar->AddEntity<HandFactory>(2);
