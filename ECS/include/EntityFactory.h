@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include <IEntityFactory.h>
-#include <cecsar.h>
+#include <Cecsar.h>
 
 namespace cecsar
 {

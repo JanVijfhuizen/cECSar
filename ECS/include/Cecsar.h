@@ -10,49 +10,137 @@
 
 namespace cecsar
 {
-	struct CecsarInfo final
+	/*
+	Settings for the ECS framework.
+	Cecsar uses the default values if no settings are overloaded during construction.
+	*/
+	struct CecsarSettings final
 	{
+		/*
+		The capacity of each sparse set.
+		Setting this high doesn't directly affect performance, but it drastically affects
+		startup times.
+
+		Take note that this system uses lazy initialization and that not everything might be
+		set up in the first frame.
+
+		To force initialization, you can just use GetSet on every set you want initialized.
+		*/
 		int32_t setCapacity = 256;
 	};
 
+	/*
+	ECS framework.
+	Manages everything that is related to ECS.
+	Uses lazy initialization for everything.
+	*/
 	class Cecsar final
 	{
 	public:
-		const CecsarInfo info;
+		const CecsarSettings info;
 
-		explicit inline Cecsar(CecsarInfo info = CecsarInfo());
+		explicit inline Cecsar(CecsarSettings info = CecsarSettings());
 		~Cecsar();
 
 #pragma region System Management
+		/*
+		Updates target system.
+		Systems manage one or more components.
+		A TransformSystem would, for instance, modify the Transform components in some way.
+
+		Inherit your custom system from ComponentSystem to make use of this feature.
+		*/
 		template <typename System>
 		void Update();
 
+		/*
+		Gets target system.
+		Read the update comment for more info on systems.
+		Sometimes systems have specific functionality (ie TransformSystem: SetParent),
+		so just having an update function is not enough.
+		*/
 		template <typename System>
 		System& GetSystem();
 #pragma endregion 
 
 #pragma region Entity Management
+		/*
+		Adds N entities and returns its indexes as a shared pointer.
+		The index can be used as an overload to add/remove components.
+		A factory type can be given, but is not required.
+
+		Read the GetFactory description for more info.
+		*/
 		template <typename Factory = IEntityFactory>
 		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
 
+		/*
+		Removes an entity from the game.
+		This also removes all attached components.
+		*/
 		void RemoveEntity(int32_t index);
 #pragma endregion 
 
 #pragma region Component Management
+		/*
+		Add a component to a target entity.
+		*/
 		template <typename Component>
 		Component& AddComponent(int32_t index);
 
+		/*
+		Removes a component from a target entity.
+		*/
 		template <typename Component>
 		void RemoveComponent(int32_t index);
 #pragma endregion 
 
 #pragma region Other Getters
+		/*
+		Get the sparse set of components of type "Component".
+		A sparse set is not the most common type of data structure,
+		so you might want to read up on it a bit.
+
+		Essentially you can iterate over it, but you can also it as a hashset/map.
+		Example:
+
+		for(auto& component : components)
+			component.x++;
+
+		OR
+
+		const int32_t count = components.GetCount();
+		for(int32_t i = 0; i < count; ++i)
+			components[i].x++;
+
+		OR
+
+		const int32_t targetEntity = 25;
+		components.Get(targetEntity).x++;
+
+		*/
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
+		/*
+		Gets target module.
+		A module can be anything at all, as long as it inherits from the IModule interface.
+
+		This is useful for when you want to have a class that manages something that doesn't
+		immediately relate to ECS, but you still want to have access to it.
+
+		Example:
+		JobSystem, TimeModule, RenderModule, TextureLib etc.
+		*/
 		template <typename Module>
 		constexpr Module& GetModule();
 
+		/*
+		Gets target factory.
+
+		You can use a factory to streamline object creation,
+		by predefining what components need to be created with what values.
+		*/
 		template <typename Factory>
 		IEntityFactory& GetFactory();
 #pragma endregion
@@ -114,7 +202,7 @@ namespace cecsar
 		return _modules.Get<Module>(*this);
 	}
 
-	inline Cecsar::Cecsar(const CecsarInfo info) : 
+	inline Cecsar::Cecsar(const CecsarSettings info) : 
 		info(info), _entities(info.setCapacity)
 	{
 		

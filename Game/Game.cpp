@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	// The interesting stuff happens in the ComponentSystems.
 
 	// Setup cecsar.
-	cecsar::CecsarInfo info;
+	cecsar::CecsarSettings info;
 	info.setCapacity = 5e3;
 	cecsar::Cecsar cecsar{ info };
 
@@ -90,7 +90,8 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
-		set.Get(97).posLocal = { sin(timeModule.GetTime() * 2), 32, .1f };
+		set.Get(97).posLocal = { sin(timeModule.GetTime() * 2), 
+			cos(timeModule.GetTime() * 8) * 4 + 32, .1f };
 		set.Get(97).rotLocal = cos(timeModule.GetTime() * 2) * 45;
 
 		set.Get(100).posLocal = { sin
