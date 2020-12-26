@@ -1,7 +1,6 @@
 #include "Cecsar.h"
 #include "SDL.h"
 #include "Modules/RenderModule.h"
-#include "Systems/TransformSystem.h"
 #include "Systems/RenderSystem.h"
 #include "Factories/BlockFactory.h"
 #include "Systems/MovementSystem.h"
@@ -14,6 +13,7 @@
 #include "Systems/HandSystem.h"
 #include "Modules/JobSystemModule.h"
 #include "Modules/BufferModule.h"
+#include "Systems/ChildSystem.h"
 
 void Job(int32_t x, int32_t y)
 {
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 			(timeModule.GetTime() * 4) * 64, cos(timeModule.GetTime() * 4) * 64 + 128 };
 
 #pragma region Pre Buffers
-		cecsar.Update<game::TransformSystem>();
+		cecsar.Update<game::ChildSystem>();
 		jobSystem.Wait();
 #pragma endregion
 

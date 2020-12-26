@@ -1,7 +1,6 @@
 ﻿#include "Systems/LegSystem.h"
 #include "Modules/TimeModule.h"
 #include <algorithm>
-#include "Systems/TransformSystem.h"
 
 void game::LegSystem::Initialize(cecsar::Cecsar& cecsar)
 {

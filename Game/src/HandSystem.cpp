@@ -1,6 +1,5 @@
 ﻿#include <Systems/HandSystem.h>
 #include <algorithm>
-#include "Systems/TransformSystem.h"
 
 void game::HandSystem::Initialize(cecsar::Cecsar& cecsar)
 {
