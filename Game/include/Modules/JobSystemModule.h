@@ -74,6 +74,7 @@ namespace game
 		_jobPool.push(job);
 		_inactiveNum++;
 
+		std::unique_lock<std::mutex> lock(_mutexJobRequest);
 		_cvJobRequest.notify_one();
 	}
 

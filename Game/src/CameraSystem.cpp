@@ -3,6 +3,7 @@
 #include "Modules/RenderModule.h"
 #include "Modules/TimeModule.h"
 #include "Modules/BufferModule.h"
+#include <iostream>
 
 void game::CameraSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -83,13 +84,4 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3& target) const
 			const float diff = abs(abs(offset.y) - _hardFollowThreshold.y);
 			cameraPosition.y -= diff * (offset.y > 0 ? 1 : -1);
 		}
-
-	const float hardFollowMagn = _hardFollowThreshold.Magnitude();
-	const float offsetMagn = offset.Magnitude();
-
-	const float magnLerp = offsetMagn / hardFollowMagn;
-	const float convLerp = std::max(.0f, magnLerp - _movementZoomThreshold) / 
-		(1.0f - _movementZoomThreshold);
-	
-	_renderModule->zoom = 1 + convLerp * _movementZoomMultiplier;
 }
