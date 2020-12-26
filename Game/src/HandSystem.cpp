@@ -1,7 +1,6 @@
 ﻿#include <Systems/HandSystem.h>
 #include <algorithm>
-#include "Helpers/TransformHelper.h"
-#include "Modules/BufferModule.h"
+#include "Systems/TransformSystem.h"
 
 void game::HandSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -30,16 +29,17 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 				auto& transform = _transformBuffer->Get(index);
 				auto& targetTransform = _transformBuffer->Get(hand.target);
 
-				const auto rootPos = TransformHelper::ToWorld(transform, hand.offset);
-				const auto offset = targetTransform.posGlobal - rootPos;
+				const auto rootPos = TransformSystem::ToWorld(transform, hand.offset);
+				const auto offset = TransformSystem::GetWorldPosition(targetTransform) - rootPos;
 
 				auto dir = offset.Normalized2d();
 				const float distance = offset.Magnitude2d();
 
 				dir *= std::min(distance, hand.maxDistance);
 
-				const auto posLocal = hand.offset + dir.Rotate(-transform.rotGlobal);
-				transforms.Get(index).posLocal = posLocal;
+				const auto posLocal = hand.offset + dir.Rotate(
+					-TransformSystem::GetWorldRotation(transform));
+				transforms.Get(index).position = posLocal;
 			}
 		});
 }

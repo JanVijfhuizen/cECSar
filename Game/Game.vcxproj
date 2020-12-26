@@ -180,7 +180,6 @@
     <ClInclude Include="include\Factories\LegFactory.h" />
     <ClInclude Include="include\Factories\HandFactory.h" />
     <ClInclude Include="include\Factories\PlayerFactory.h" />
-    <ClInclude Include="include\Helpers\TransformHelper.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />

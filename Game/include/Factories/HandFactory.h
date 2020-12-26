@@ -25,6 +25,10 @@ namespace game
 	{
 		cecsar.AddComponent<HandComponent>(index);
 		cecsar.AddComponent<Transform>(index);
-		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Hand.png");
+
+		auto& renderer = cecsar.AddComponent<Renderer>(index);
+		renderer.texture = _renderModule->GetTexture("Art/Oni.png");
+		renderer.count = 6;
+		renderer.index = 2;
 	}
 }

@@ -16,8 +16,7 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 
 	_playerController.space = state[SDL_SCANCODE_SPACE];
 
-	GetJobModule().ToLinearJobs(controllers.GetCount(), 
-		[&controllers, this]
+	GetJobModule().ToLinearJobs(controllers.GetCount(), [&controllers, this]
 		(const int32_t start, const int32_t stop)
 		{
 			for (int32_t i = start; i < stop; ++i)

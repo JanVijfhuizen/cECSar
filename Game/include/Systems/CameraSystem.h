@@ -16,9 +16,6 @@ namespace game
 
 		float _followSpeed = 100;
 
-		float _movementZoomMultiplier = .2f;
-		float _movementZoomThreshold = .2f;
-
 		RenderModule* _renderModule = nullptr;
 		TimeModule* _timeModule = nullptr;
 		utils::SparseSet<Transform>* _transformBuffer = nullptr;

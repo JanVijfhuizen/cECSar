@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 	// The interesting stuff happens in the ComponentSystems.
 
 	// Setup cecsar.
-	cecsar::CecsarInfo info;
+	cecsar::CecsarSettings info;
 	info.setCapacity = 5e3;
 	cecsar::Cecsar cecsar{ info };
 
@@ -57,12 +57,6 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	bool quit = false;
 
-	const auto others = cecsar.AddEntity<game::PlayerFactory>(800);
-	for (int i = 0; i < 800; ++i)
-	{
-		set.Get(others[i]).posLocal = 
-		{ float(rand() % 600) - 300, float(rand() % 600 - 300) };
-	}
 #pragma endregion
 
 #pragma region Render Thread
@@ -96,6 +90,18 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
+		set.Get(97).position = { sin(timeModule.GetTime() * 2), 
+			cos(timeModule.GetTime() * 8) * 4 + 32, .1f };
+		set.Get(97).rotation = cos(timeModule.GetTime() * 2) * 45;
+
+		set.Get(100).position = { sin
+			(timeModule.GetTime() * 4) * 64, cos(timeModule.GetTime() * 4) * 64 + 128 };
+
+#pragma region Pre Buffers
+		cecsar.Update<game::TransformSystem>();
+		jobSystem.Wait();
+#pragma endregion
+
 #pragma region Updating Buffers
 		transformBuffer.UpdateBuffer();
 		renderBuffer.UpdateBuffer();
@@ -104,21 +110,19 @@ int main(int argc, char* argv[])
 
 		cv_renderer.notify_one();
 
-#pragma region Independent Threading
+#pragma region No Dependencies
 		cecsar.Update<game::ControllerSystem>();
-		cecsar.Update<game::TransformSystem>();
-
 		jobSystem.Wait();
 #pragma endregion 
 
-#pragma region Sequenced Threading
-		cecsar.Update<game::MovementSystem>();
-		jobSystem.Wait();
-
+#pragma region Have Dependencies
 		cecsar.Update<game::HandSystem>();
 		jobSystem.Wait();
 
 		cecsar.Update<game::LegSystem>();
+		jobSystem.Wait();
+
+		cecsar.Update<game::MovementSystem>();
 		jobSystem.Wait();
 #pragma endregion
 

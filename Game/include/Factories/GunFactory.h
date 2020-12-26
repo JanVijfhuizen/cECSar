@@ -23,7 +23,11 @@ namespace game
 	inline void GunFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
 		cecsar.AddComponent<Transform>(index);
-		cecsar.AddComponent<Renderer>(index).texture = _renderModule->GetTexture("Art/Gun.png");
+		auto& renderer = cecsar.AddComponent<Renderer>(index);
+		renderer.texture = _renderModule->GetTexture("Art/Oni.png");
+		renderer.count = 6;
+		renderer.index = 5;
+
 		cecsar.AddComponent<CameraFollowTarget>(index);
 	}
 }

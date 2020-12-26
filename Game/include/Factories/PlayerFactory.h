@@ -9,7 +9,6 @@
 #include "Components/LegComponent.h"
 #include "Components/HandComponent.h"
 #include "HandFactory.h"
-#include "Helpers/TransformHelper.h"
 #include "GunFactory.h"
 
 namespace game
@@ -19,6 +18,9 @@ namespace game
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
 		RenderModule* _renderModule = nullptr;
+
+		TransformSystem* _transformSystem = nullptr;
+
 		utils::SparseSet<LegComponent>* _legs = nullptr;
 		utils::SparseSet<HandComponent>* _hands = nullptr;
 		utils::SparseSet<Transform>* _transforms = nullptr;
@@ -34,6 +36,8 @@ namespace game
 		_cecsar = &cecsar;
 		_renderModule = &cecsar.GetModule<RenderModule>();
 
+		_transformSystem = &cecsar.GetSystem<TransformSystem>();
+
 		_legs = &cecsar.GetSet<LegComponent>();
 		_hands = &cecsar.GetSet<HandComponent>();
 		_transforms = &cecsar.GetSet<Transform>();
@@ -43,11 +47,24 @@ namespace game
 	inline void PlayerFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
 		cecsar.AddComponent<Transform>(index);
-		cecsar.AddComponent<Renderer>(index).texture = 
-			_renderModule->GetTexture("Art/Player.png");
+		auto& renderer = cecsar.AddComponent<Renderer>(index);
+		renderer.texture =_renderModule->GetTexture("Art/Oni.png");
+		renderer.count = 6;
+		renderer.index = 1;
+
 		cecsar.AddComponent<Controller>(index).type = ControllerType::player;
 		cecsar.AddComponent<MovementComponent>(index);
 		cecsar.AddComponent<CameraFollowTarget>(index);
+
+		const int32_t head = cecsar.AddEntity()[0];
+		auto& headTransform = cecsar.AddComponent<Transform>(head);
+		headTransform.position = { 0, 32, 0.1f };
+
+		_transformSystem->SetParent(head, index);
+		auto& headRenderer =cecsar.AddComponent<Renderer>(head);
+		headRenderer.texture = _renderModule->GetTexture("Art/Oni.png");
+		headRenderer.count = 6;
+		headRenderer.index = 0;
 
 		SpawnBodyParts(index);
 	}
@@ -61,15 +78,16 @@ namespace game
 			auto& leg = _legs->Get(feet[i]);
 			leg.parent = index;
 
-			leg.offset.y = 16;
-			leg.offset.x = 24 * (i * 2 - 1);
+			leg.offset.y = 32;
+			leg.offset.x = 48 * (i * 2 - 1);
 			leg.offset.z = -.05f;
 			leg.other = feet[1 - i];
 		}
 
 		// Gun. For testing purposes.
 		const auto gun = _cecsar->AddEntity<GunFactory>();
-		TransformHelper::SetParent(*_transforms, gun[0], index);
+		_transformSystem->SetParent(gun[0], index);
+		(*_transforms)[gun[0]].position = { 0, 28, 0 };
 
 		// Hands.
 		const auto hands = _cecsar->AddEntity<HandFactory>(2);
@@ -80,10 +98,10 @@ namespace game
 			const auto flip = i ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
 			_renderers->Get(hands[i]).flip = flip;
 
-			TransformHelper::SetParent(*_transforms, hands[i], index);
+			_transformSystem->SetParent(hands[i], index);
 
-			hand.offset.y = 32;
-			hand.offset.x = 24 * (i * 2 - 1);
+			hand.offset.y = 64;
+			hand.offset.x = 48 * (i * 2 - 1);
 			hand.offset.z = .05f;
 
 			hand.target = gun[0];
