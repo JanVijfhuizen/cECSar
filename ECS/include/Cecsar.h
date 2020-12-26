@@ -26,6 +26,9 @@ namespace cecsar
 		template <typename System>
 		void Update();
 
+		template <typename System>
+		System& GetSystem();
+
 #pragma region Entity Management
 		template <typename Factory = IEntityFactory>
 		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
@@ -130,6 +133,13 @@ namespace cecsar
 	template <typename System>
 	void Cecsar::Update()
 	{
+		auto& sys = GetSystem<System>();
+		static_cast<IComponentSystem*>(&sys)->Update(*this);
+	}
+
+	template <typename System>
+	System& Cecsar::GetSystem()
+	{
 		if (_systems.count(typeid(System)) == 0)
 		{
 			auto sys = new System();
@@ -138,7 +148,7 @@ namespace cecsar
 		}
 
 		const auto sys = _systems[typeid(System)];
-		sys->Update(*this);
+		return *static_cast<System*>(sys);
 	}
 
 	template <typename Factory>

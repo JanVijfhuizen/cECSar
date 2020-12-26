@@ -9,7 +9,6 @@
 #include "Components/LegComponent.h"
 #include "Components/HandComponent.h"
 #include "HandFactory.h"
-#include "Helpers/TransformHelper.h"
 #include "GunFactory.h"
 
 namespace game
@@ -19,6 +18,9 @@ namespace game
 	protected:
 		cecsar::Cecsar* _cecsar = nullptr;
 		RenderModule* _renderModule = nullptr;
+
+		TransformSystem* _transformSystem = nullptr;
+
 		utils::SparseSet<LegComponent>* _legs = nullptr;
 		utils::SparseSet<HandComponent>* _hands = nullptr;
 		utils::SparseSet<Transform>* _transforms = nullptr;
@@ -33,6 +35,8 @@ namespace game
 	{
 		_cecsar = &cecsar;
 		_renderModule = &cecsar.GetModule<RenderModule>();
+
+		_transformSystem = &cecsar.GetSystem<TransformSystem>();
 
 		_legs = &cecsar.GetSet<LegComponent>();
 		_hands = &cecsar.GetSet<HandComponent>();
@@ -56,7 +60,7 @@ namespace game
 		auto& headTransform = cecsar.AddComponent<Transform>(head);
 		headTransform.posLocal = { 0, 32, 0.1f };
 
-		TransformHelper::SetParent(*_transforms, head, index);
+		_transformSystem->SetParent(head, index);
 		auto& headRenderer =cecsar.AddComponent<Renderer>(head);
 		headRenderer.texture = _renderModule->GetTexture("Art/Oni.png");
 		headRenderer.count = 6;
@@ -82,7 +86,7 @@ namespace game
 
 		// Gun. For testing purposes.
 		const auto gun = _cecsar->AddEntity<GunFactory>();
-		TransformHelper::SetParent(*_transforms, gun[0], index);
+		_transformSystem->SetParent(gun[0], index);
 		(*_transforms)[gun[0]].posLocal = { 0, 28, 0 };
 
 		// Hands.
@@ -94,7 +98,7 @@ namespace game
 			const auto flip = i ? SDL_FLIP_NONE : SDL_FLIP_HORIZONTAL;
 			_renderers->Get(hands[i]).flip = flip;
 
-			TransformHelper::SetParent(*_transforms, hands[i], index);
+			_transformSystem->SetParent(hands[i], index);
 
 			hand.offset.y = 64;
 			hand.offset.x = 48 * (i * 2 - 1);

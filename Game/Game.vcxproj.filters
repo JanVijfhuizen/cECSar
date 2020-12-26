@@ -68,9 +68,6 @@
     <ClInclude Include="include\Utils\Stack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Helpers\TransformHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Utils\Color.h">
       <Filter>Header Files</Filter>
     </ClInclude>

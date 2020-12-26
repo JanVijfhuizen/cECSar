@@ -11,6 +11,7 @@ void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 	JobSystem<Transform>::Initialize(cecsar);
 
 	_sortableIndexes = new int32_t[cecsar.info.setCapacity];
+	_transforms = &cecsar.GetSet<Transform>();
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)

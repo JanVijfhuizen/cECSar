@@ -4,12 +4,10 @@
 namespace game
 {
 	class TransformSystem;
-	struct TransformHelper;
 
 	struct Transform final
 	{
 		friend TransformSystem;
-		friend TransformHelper;
 
 #pragma region Local
 		utils::Vector3 posLocal;
