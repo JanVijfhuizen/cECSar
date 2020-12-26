@@ -28,4 +28,5 @@ void game::ChildSystem::OnUpdate(
 	// Remove all child components from objects that don't have parents anymore.
 	for (auto index : _removables)
 		children.RemoveAt(index);
+	children.Clear();
 }

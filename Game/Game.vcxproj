@@ -162,12 +162,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\StandardFactory.cpp" />
+    <ClCompile Include="src\HumanoidFactory.cpp" />
     <ClCompile Include="src\ChildSystem.cpp" />
     <ClCompile Include="src\CameraSystem.cpp" />
     <ClCompile Include="src\ControllerSystem.cpp" />
     <ClCompile Include="src\MovementSystem.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
     <ClCompile Include="src\RenderSystem.cpp" />
+    <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\ChildComponent.h" />
@@ -178,6 +181,11 @@
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
+    <ClInclude Include="include\Factories\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\IFactoryImp.h" />
+    <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
+    <ClInclude Include="include\Factories\OniFactory.h" />
+    <ClInclude Include="include\Factories\StandardFactory.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />
     <ClInclude Include="include\Modules\JobSystemModule.h" />

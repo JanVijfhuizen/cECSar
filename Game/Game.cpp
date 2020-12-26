@@ -9,6 +9,7 @@
 #include "Modules/JobSystemModule.h"
 #include "Modules/BufferModule.h"
 #include "Systems/ChildSystem.h"
+#include "Factories/OniFactory.h"
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +24,6 @@ int main(int argc, char* argv[])
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
-	auto& jobSystem = cecsar.GetModule<game::JobSystemModule>();
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
 
 	SDL_Event event;
 	bool quit = false;
+
+	cecsar.AddEntity<game::OniFactory>();
 
 #pragma endregion
 
