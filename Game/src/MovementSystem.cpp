@@ -19,7 +19,9 @@ void game::MovementSystem::OnUpdate(
 	const auto deltaTime = _timeModule->GetDeltaTime();
 	const auto dense = movementComponents.GetDenseRaw();
 
-	GetJobModule().ToLinearJobs(movementComponents.GetCount(),
+	auto& jobModule = GetJobModule();
+
+	jobModule.ToLinearJobs(movementComponents.GetCount(),
 		[this, deltaTime, dense, &movementComponents, &transforms]
 		(const int32_t start, const int32_t stop)
 		{
@@ -31,6 +33,7 @@ void game::MovementSystem::OnUpdate(
 				auto& controller = _controllerBuffer->Get(index);
 				auto& transform = transforms.Get(index);
 
+				// Move smoothly based on delta and controller input.
 				const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
 				const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
 				const auto normalized = input.Normalized() * deltaSpeed;
@@ -38,6 +41,7 @@ void game::MovementSystem::OnUpdate(
 				transform.position.x += normalized.x;
 				transform.position.y += normalized.y;
 
+				// Rotate towards moving direction.
 				const bool rotate = abs(normalized.x) > 0 || abs(normalized.y) > 0;
 				if (!rotate)
 					continue;
@@ -49,4 +53,6 @@ void game::MovementSystem::OnUpdate(
 
 			}
 		});
+
+	jobModule.Wait();
 }
