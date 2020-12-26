@@ -9,11 +9,14 @@ namespace game
 	public:
 		~TransformSystem();
 
-		static inline int32_t GetParent(Transform& t);
+		static constexpr int32_t GetParent(const Transform& t);
 		constexpr void SetParent(const int32_t& child, const int32_t& parent) const;
 
-		static inline utils::Vector3 ToWorld(Transform& t, const utils::Vector3& local);
-		static inline utils::Vector3 ToLocal(Transform& t, const utils::Vector3& global);
+		static inline utils::Vector3 ToWorld(const Transform& t, const utils::Vector3& local);
+		static inline utils::Vector3 ToLocal(const Transform& t, const utils::Vector3& global);
+
+		static inline utils::Vector3 GetWorldPosition(const Transform& t);
+		static inline float GetWorldRotation(const Transform& t);
 
 	private:
 		int32_t* _sortableIndexes = nullptr;
@@ -23,24 +26,37 @@ namespace game
 		void OnUpdate(utils::SparseSet<Transform>& transforms) override;
 	};
 
-	int32_t TransformSystem::GetParent(Transform& t)
+	constexpr int32_t TransformSystem::GetParent(const Transform& t)
 	{
 		return t._parent;
 	}
 
-	constexpr void TransformSystem::SetParent(const int32_t& child, const int32_t& parent) const
+	constexpr void TransformSystem::SetParent(
+		const int32_t& child, const int32_t& parent) const
 	{
 		auto& childTransform = _transforms->Get(child);
 		childTransform._parent = parent;
 	}
 
-	utils::Vector3 TransformSystem::ToWorld(Transform& t, const utils::Vector3& local)
+	inline utils::Vector3 TransformSystem::ToWorld(
+		const Transform& t, const utils::Vector3& local)
 	{
-		return t.posGlobal - (t.posLocal - local).Rotate(t.rotGlobal);
+		return t.positionWorld - (t.position - local).Rotate(t.rotationWorld);
 	}
 
-	utils::Vector3 TransformSystem::ToLocal(Transform& t, const utils::Vector3& global)
+	inline utils::Vector3 TransformSystem::ToLocal(
+		const Transform& t, const utils::Vector3& global)
 	{
-		return (global - t.posGlobal).Rotate(-t.rotGlobal);
+		return (global - t.positionWorld).Rotate(-t.rotationWorld);
+	}
+
+	inline utils::Vector3 TransformSystem::GetWorldPosition(const Transform& t)
+	{
+		return t.positionWorld;
+	}
+
+	inline float TransformSystem::GetWorldRotation(const Transform& t)
+	{
+		return t.rotationWorld;
 	}
 }

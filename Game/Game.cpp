@@ -90,11 +90,11 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
-		set.Get(97).posLocal = { sin(timeModule.GetTime() * 2), 
+		set.Get(97).position = { sin(timeModule.GetTime() * 2), 
 			cos(timeModule.GetTime() * 8) * 4 + 32, .1f };
-		set.Get(97).rotLocal = cos(timeModule.GetTime() * 2) * 45;
+		set.Get(97).rotation = cos(timeModule.GetTime() * 2) * 45;
 
-		set.Get(100).posLocal = { sin
+		set.Get(100).position = { sin
 			(timeModule.GetTime() * 4) * 64, cos(timeModule.GetTime() * 4) * 64 + 128 };
 
 #pragma region Pre Buffers

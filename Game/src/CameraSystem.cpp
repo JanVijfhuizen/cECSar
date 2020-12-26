@@ -4,6 +4,7 @@
 #include "Modules/TimeModule.h"
 #include "Modules/BufferModule.h"
 #include <iostream>
+#include "Systems/TransformSystem.h"
 
 void game::CameraSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -28,7 +29,7 @@ void game::CameraSystem::OnUpdate(
 	for (int32_t i = targets.GetCount() - 1; i >= 0; --i)
 	{
 		auto& transform = _transformBuffer->Get(dense[i]);
-		auto position = transform.posGlobal;
+		auto position = TransformSystem::GetWorldPosition(transform);
 
 		// Update bounds.
 		xMin = std::min(xMin, position.x);

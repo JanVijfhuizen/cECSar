@@ -30,15 +30,16 @@ void game::HandSystem::OnUpdate(utils::SparseSet<HandComponent>& hands,
 				auto& targetTransform = _transformBuffer->Get(hand.target);
 
 				const auto rootPos = TransformSystem::ToWorld(transform, hand.offset);
-				const auto offset = targetTransform.posGlobal - rootPos;
+				const auto offset = TransformSystem::GetWorldPosition(targetTransform) - rootPos;
 
 				auto dir = offset.Normalized2d();
 				const float distance = offset.Magnitude2d();
 
 				dir *= std::min(distance, hand.maxDistance);
 
-				const auto posLocal = hand.offset + dir.Rotate(-transform.rotGlobal);
-				transforms.Get(index).posLocal = posLocal;
+				const auto posLocal = hand.offset + dir.Rotate(
+					-TransformSystem::GetWorldRotation(transform));
+				transforms.Get(index).position = posLocal;
 			}
 		});
 }

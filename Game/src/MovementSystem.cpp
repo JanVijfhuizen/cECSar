@@ -35,8 +35,8 @@ void game::MovementSystem::OnUpdate(
 				const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
 				const auto normalized = input.Normalized() * deltaSpeed;
 
-				transform.posLocal.x += normalized.x;
-				transform.posLocal.y += normalized.y;
+				transform.position.x += normalized.x;
+				transform.position.y += normalized.y;
 
 				const bool rotate = abs(normalized.x) > 0 || abs(normalized.y) > 0;
 				if (!rotate)
@@ -44,8 +44,8 @@ void game::MovementSystem::OnUpdate(
 
 				const float delta = movementComponent.rotationSpeed * deltaTime;
 				const auto target = utils::Vector3(controller.xDir, controller.yDir);
-				transform.rotLocal = utils::Vector3::RotateTowards2d(
-					transform.rotLocal, target, delta);
+				transform.rotation = utils::Vector3::RotateTowards2d(
+					transform.rotation, target, delta);
 
 			}
 		});

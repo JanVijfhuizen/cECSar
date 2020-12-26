@@ -45,14 +45,14 @@ namespace game
 				const int32_t* index = row + x;
 				auto& transform = transforms[*index];
 
-				transform.posLocal.x = x * posMod + x * padding;
-				transform.posLocal.y = y * posMod + y * padding;
-				transform.posLocal.z = -.1f;
+				transform.position.x = x * posMod + x * padding;
+				transform.position.y = y * posMod + y * padding;
+				transform.position.z = -.1f;
 
 				auto& renderer = renderers[*index];
 				renderer.color.r = x * 10;
 				renderer.color.g = y * 10;
-				renderer.color.b = abs(transform.posLocal.z) * 10;
+				renderer.color.b = abs(transform.position.z) * 10;
 			}
 		}
 

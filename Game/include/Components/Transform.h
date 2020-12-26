@@ -9,17 +9,13 @@ namespace game
 	{
 		friend TransformSystem;
 
-#pragma region Local
-		utils::Vector3 posLocal;
-		float rotLocal = 0;
-#pragma endregion
-
-#pragma region Global Readonly
-		utils::Vector3 posGlobal;
-		float rotGlobal = 0;
-#pragma endregion
+		utils::Vector3 position;
+		float rotation = 0;
 
 	private:
 		int32_t _parent = -1;
+
+		utils::Vector3 positionWorld;
+		float rotationWorld = 0;
 	};
 }

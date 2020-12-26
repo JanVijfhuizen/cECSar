@@ -4,6 +4,7 @@
 #include "Sorter.h"
 #include <iostream>
 #include "Modules/BufferModule.h"
+#include "Systems/TransformSystem.h"
 
 game::RenderSystem::~RenderSystem()
 {
@@ -44,7 +45,8 @@ void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
-		screenSpace.v4 = _mm_sub_ps(transform.posGlobal.v4, p4Camera);
+		const auto worldPosition = TransformSystem::GetWorldPosition(transform);
+		screenSpace.v4 = _mm_sub_ps(worldPosition.v4, p4Camera);
 
 		SDL_Rect srcRect;
 		srcRect.x = imageSize * renderer.index;
@@ -86,7 +88,7 @@ void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 		SDL_SetTextureColorMod(renderer.texture, 
 			c4Render.r, c4Render.g, c4Render.b);
 
-		const float rotation = renderer.rotation + transform.rotGlobal;
+		const float rotation = renderer.rotation + TransformSystem::GetWorldRotation(transform);
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);
@@ -104,7 +106,7 @@ void game::RenderSystem::SortIndexes(utils::SparseSet<Renderer>& renderers) cons
 		[this, &n, dense]
 		{
 			auto& transform = _transformBuffer->Get(dense[n]);
-			return RenderInfo(n++, transform.posGlobal.z);
+			return RenderInfo(n++, TransformSystem::GetWorldPosition(transform).z);
 		});
 
 	std::sort(_sortableInfo, last,

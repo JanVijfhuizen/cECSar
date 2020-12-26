@@ -25,13 +25,13 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 
 				if (transform._parent == -1)
 				{
-					transform.posGlobal = transform.posLocal;
-					transform.rotGlobal = transform.rotLocal;
+					transform.positionWorld = transform.position;
+					transform.rotationWorld = transform.rotation;
 					continue;
 				}
 
-				utils::Vector3 worldPos = transform.posLocal;
-				float worldRot = transform.rotLocal;
+				utils::Vector3 worldPos = transform.position;
+				float worldRot = transform.rotation;
 
 				int32_t parentIndex = transform._parent;
 
@@ -39,14 +39,14 @@ void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>& transforms)
 				{
 					auto& parent = transforms.Get(parentIndex);
 
-					worldPos = parent.posLocal + worldPos.Rotate(parent.rotLocal);
-					worldRot += parent.rotLocal;
+					worldPos = parent.position + worldPos.Rotate(parent.rotation);
+					worldRot += parent.rotation;
 
 					parentIndex = parent._parent;
 				}
 
-				transform.posGlobal = worldPos;
-				transform.rotGlobal = utils::Mathf::ConstrainAngle(worldRot);
+				transform.positionWorld = worldPos;
+				transform.rotationWorld = utils::Mathf::ConstrainAngle(worldRot);
 			}
 		});
 }

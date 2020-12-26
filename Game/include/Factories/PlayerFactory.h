@@ -58,7 +58,7 @@ namespace game
 
 		const int32_t head = cecsar.AddEntity()[0];
 		auto& headTransform = cecsar.AddComponent<Transform>(head);
-		headTransform.posLocal = { 0, 32, 0.1f };
+		headTransform.position = { 0, 32, 0.1f };
 
 		_transformSystem->SetParent(head, index);
 		auto& headRenderer =cecsar.AddComponent<Renderer>(head);
@@ -87,7 +87,7 @@ namespace game
 		// Gun. For testing purposes.
 		const auto gun = _cecsar->AddEntity<GunFactory>();
 		_transformSystem->SetParent(gun[0], index);
-		(*_transforms)[gun[0]].posLocal = { 0, 28, 0 };
+		(*_transforms)[gun[0]].position = { 0, 28, 0 };
 
 		// Hands.
 		const auto hands = _cecsar->AddEntity<HandFactory>(2);

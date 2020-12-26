@@ -1,6 +1,7 @@
 ﻿#include "Systems/LegSystem.h"
 #include "Modules/TimeModule.h"
 #include <algorithm>
+#include "Systems/TransformSystem.h"
 
 void game::LegSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -30,10 +31,14 @@ void game::LegSystem::OnUpdate(
 				auto& parentTransform = transforms.Get(leg.parent);
 				const auto& parentMovement = movements.Get(leg.parent);
 
+				const auto worldPosition = TransformSystem::GetWorldPosition(transform);
+				const auto parentWorldPosition = TransformSystem::GetWorldPosition(parentTransform);
+				const auto parentWorldRotation = TransformSystem::GetWorldRotation(parentTransform);
+
 				// Calculate target position.
-				const auto rotatedTargetOffset = leg.offset.Rotate(parentTransform.rotGlobal);
-				auto targetPosition = parentTransform.posGlobal + rotatedTargetOffset;
-				const utils::Vector3 offset = targetPosition - transform.posGlobal;
+				const auto rotatedTargetOffset = leg.offset.Rotate(parentWorldRotation);
+				auto targetPosition = parentWorldPosition + rotatedTargetOffset;
+				const utils::Vector3 offset = targetPosition - worldPosition;
 
 				// Calculate offset.
 				const float magnitude = offset.Magnitude2d();
@@ -62,12 +67,12 @@ void game::LegSystem::OnUpdate(
 					const float&& delta = parentMovement.movementSpeed * 
 						leg.speedMultiplier * deltaTime;
 
-					transform.posLocal += offsetNormalized * 
+					transform.position += offsetNormalized * 
 						std::min(delta, magnitude);
-					transform.rotLocal = parentTransform.rotGlobal;
+					transform.rotation = parentWorldRotation;
 				}
 
-				transform.posLocal.z = parentTransform.posGlobal.z - .05f;
+				transform.position.z = parentWorldPosition.z - .05f;
 			}
 		});
 }

@@ -148,7 +148,7 @@ namespace cecsar
 	private:
 #pragma region Structs
 		template <typename I>
-		struct IMap
+		struct IMap final
 		{
 			~IMap();
 
@@ -166,7 +166,7 @@ namespace cecsar
 		};
 
 		template <typename Block>
-		struct SetContainer : ISetContainer
+		struct SetContainer final : ISetContainer
 		{
 			utils::SparseSet<Block> set;
 
