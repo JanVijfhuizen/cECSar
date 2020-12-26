@@ -23,11 +23,13 @@ namespace cecsar
 		explicit inline Cecsar(CecsarInfo info = CecsarInfo());
 		~Cecsar();
 
+#pragma region System Management
 		template <typename System>
 		void Update();
 
 		template <typename System>
 		System& GetSystem();
+#pragma endregion 
 
 #pragma region Entity Management
 		template <typename Factory = IEntityFactory>
@@ -44,16 +46,31 @@ namespace cecsar
 		void RemoveComponent(int32_t index);
 #pragma endregion 
 
-#pragma region Getters
+#pragma region Other Getters
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
 		template <typename Module>
 		constexpr Module& GetModule();
+
+		template <typename Factory>
+		IEntityFactory& GetFactory();
 #pragma endregion
 
 	private:
 #pragma region Structs
+		template <typename I>
+		struct IMap
+		{
+			~IMap();
+
+			template <typename T>
+			T& Get(Cecsar& cecsar);
+
+		private:
+			std::unordered_map<std::type_index, I*> _map;
+		};
+
 		struct ISetContainer
 		{
 			virtual ~ISetContainer();
@@ -71,18 +88,11 @@ namespace cecsar
 #pragma endregion 
 
 		utils::SparseSet<void*> _entities;
+		std::unordered_map<std::type_index, ISetContainer*> _sets;
 
-#define INDEX_MAP(type) std::unordered_map<std::type_index, type*>
-
-		INDEX_MAP(ISetContainer) _sets;
-		INDEX_MAP(IComponentSystem) _systems;
-		INDEX_MAP(IModule) _modules;
-		INDEX_MAP(IEntityFactory) _factories;
-
-#pragma region Getters
-		template <typename Factory>
-		IEntityFactory& GetFactory();
-#pragma endregion 
+		IMap<IComponentSystem> _systems;
+		IMap<IModule> _modules;
+		IMap<IEntityFactory> _factories;
 	};
 
 	template <typename Component>
@@ -101,15 +111,7 @@ namespace cecsar
 	template <typename Module>
 	constexpr Module& Cecsar::GetModule()
 	{
-		if (_modules.count(typeid(Module)) == 0)
-		{
-			auto module = new Module();
-			static_cast<IModule*>(module)->Initialize(*this);
-			_modules[typeid(Module)] = module;
-		}
-
-		const auto set = _modules[typeid(Module)];
-		return *static_cast<Module*>(set);
+		return _modules.Get<Module>(*this);
 	}
 
 	inline Cecsar::Cecsar(const CecsarInfo info) : 
@@ -122,12 +124,6 @@ namespace cecsar
 	{
 		for (auto set : _sets)
 			delete set.second;
-		for (auto system : _systems)
-			delete system.second;
-		for (auto module : _modules)
-			delete module.second;
-		for (auto factory : _factories)
-			delete factory.second;
 	}
 
 	template <typename System>
@@ -140,15 +136,7 @@ namespace cecsar
 	template <typename System>
 	System& Cecsar::GetSystem()
 	{
-		if (_systems.count(typeid(System)) == 0)
-		{
-			auto sys = new System();
-			static_cast<IComponentSystem*>(sys)->Initialize(*this);
-			_systems[typeid(System)] = sys;
-		}
-
-		const auto sys = _systems[typeid(System)];
-		return *static_cast<System*>(sys);
+		return _systems.Get<System>(*this);
 	}
 
 	template <typename Factory>
@@ -184,15 +172,7 @@ namespace cecsar
 	template <typename Factory>
 	IEntityFactory& Cecsar::GetFactory()
 	{
-		if (_factories.count(typeid(Factory)) == 0)
-		{
-			auto factory = new Factory();
-			static_cast<IEntityFactory*>(factory)->Initialize(*this);
-			_factories[typeid(Factory)] = factory;
-		}
-
-		const auto factory = _factories[typeid(Factory)];
-		return *factory;
+		return _factories.Get<Factory>(*this);
 	}
 
 	template <typename Component>
@@ -205,6 +185,28 @@ namespace cecsar
 	void Cecsar::RemoveComponent(const int32_t index)
 	{
 		GetSet<Component>().RemoveAt(index);
+	}
+
+	template <typename I>
+	Cecsar::IMap<I>::~IMap()
+	{
+		for (auto set : _map)
+			delete set.second;
+	}
+
+	template <typename I>
+	template <typename T>
+	T& Cecsar::IMap<I>::Get(Cecsar& cecsar)
+	{
+		if (_map.count(typeid(T)) == 0)
+		{
+			auto t = new T();
+			static_cast<I*>(t)->Initialize(cecsar);
+			_map[typeid(T)] = t;
+		}
+
+		const auto t = _map[typeid(T)];
+		return *static_cast<T*>(t);
 	}
 
 	template <typename Component>
