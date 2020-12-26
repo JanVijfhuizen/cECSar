@@ -6,10 +6,10 @@ namespace game
 {
 	struct LegComponent final
 	{
-		float softMoveThreshold = 32;
-		float hardMoveThreshold = 64;
+		float softMoveThreshold = 64;
+		float hardMoveThreshold = 128;
 
-		float stoppingDistance = 5;
+		float stoppingDistance = 10;
 		float speedMultiplier = 2.5f;
 
 		int32_t other = -1;

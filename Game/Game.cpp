@@ -90,6 +90,12 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
+		set.Get(97).posLocal = { sin(timeModule.GetTime() * 2), 32, .1f };
+		set.Get(97).rotLocal = cos(timeModule.GetTime() * 2) * 45;
+
+		set.Get(100).posLocal = { sin
+			(timeModule.GetTime() * 4) * 64, cos(timeModule.GetTime() * 4) * 64 + 128 };
+
 #pragma region Pre Buffers
 		cecsar.Update<game::TransformSystem>();
 		jobSystem.Wait();

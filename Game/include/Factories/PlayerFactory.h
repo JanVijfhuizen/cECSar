@@ -43,11 +43,24 @@ namespace game
 	inline void PlayerFactory::OnConstruction(cecsar::Cecsar& cecsar, const int32_t index)
 	{
 		cecsar.AddComponent<Transform>(index);
-		cecsar.AddComponent<Renderer>(index).texture = 
-			_renderModule->GetTexture("Art/Player.png");
+		auto& renderer = cecsar.AddComponent<Renderer>(index);
+		renderer.texture =_renderModule->GetTexture("Art/Oni.png");
+		renderer.count = 6;
+		renderer.index = 1;
+
 		cecsar.AddComponent<Controller>(index).type = ControllerType::player;
 		cecsar.AddComponent<MovementComponent>(index);
 		cecsar.AddComponent<CameraFollowTarget>(index);
+
+		const int32_t head = cecsar.AddEntity()[0];
+		auto& headTransform = cecsar.AddComponent<Transform>(head);
+		headTransform.posLocal = { 0, 32, 0.1f };
+
+		TransformHelper::SetParent(*_transforms, head, index);
+		auto& headRenderer =cecsar.AddComponent<Renderer>(head);
+		headRenderer.texture = _renderModule->GetTexture("Art/Oni.png");
+		headRenderer.count = 6;
+		headRenderer.index = 0;
 
 		SpawnBodyParts(index);
 	}
@@ -61,8 +74,8 @@ namespace game
 			auto& leg = _legs->Get(feet[i]);
 			leg.parent = index;
 
-			leg.offset.y = 16;
-			leg.offset.x = 24 * (i * 2 - 1);
+			leg.offset.y = 32;
+			leg.offset.x = 48 * (i * 2 - 1);
 			leg.offset.z = -.05f;
 			leg.other = feet[1 - i];
 		}
@@ -83,8 +96,8 @@ namespace game
 
 			TransformHelper::SetParent(*_transforms, hands[i], index);
 
-			hand.offset.y = 32;
-			hand.offset.x = 24 * (i * 2 - 1);
+			hand.offset.y = 64;
+			hand.offset.x = 48 * (i * 2 - 1);
 			hand.offset.z = .05f;
 
 			hand.target = gun[0];

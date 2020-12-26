@@ -9,8 +9,8 @@ namespace game
 	class RenderModule final : public cecsar::IModule
 	{
 	public:
-		const int32_t DEFAULT_IMAGE_SIZE = 8;
-		const int32_t DEFAULT_IMAGE_UPSCALING = 10;
+		const int32_t DEFAULT_IMAGE_SIZE = 16;
+		const int32_t DEFAULT_IMAGE_UPSCALING = 5;
 
 		const char* WINDOW_TITLE = "Game Prototype";
 		const int32_t SCREEN_WIDTH = 800, SCREEN_HEIGHT = 600;
