@@ -11,6 +11,8 @@ namespace game
 		inline void UpdateManually(const int32_t& index);
 
 	private:
+		cecsar::Cecsar* _cecsar = nullptr;
+
 		utils::SparseSet<ChildComponent>* _children = nullptr;
 		utils::SparseSet<Transform>* _transforms = nullptr;
 		std::vector<int32_t> _removables{};
@@ -27,6 +29,17 @@ namespace game
 
 		// Check if the parent is still there.
 		if (!_transforms->Contains(child.parent))
+		{
+			_removables.push_back(index);
+			return;
+		}
+
+		// Set parent index.
+		if (child._parentId == -1)
+			child._parentId = _cecsar->GetEntityId(child.parent);
+
+		// Check if it's still the same entity.
+		if(_cecsar->GetEntityId(child.parent) == child._parentId)
 		{
 			_removables.push_back(index);
 			return;

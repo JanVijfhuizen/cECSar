@@ -10,6 +10,15 @@
 
 namespace cecsar
 {
+	struct EntityInfo
+	{
+		int32_t index = -1;
+		int32_t globalId = -1;
+
+		EntityInfo();
+		EntityInfo(int32_t index, int32_t globalId);
+	};
+
 	/*
 	Settings for the ECS framework.
 	Cecsar uses the default values if no settings are overloaded during construction.
@@ -72,7 +81,7 @@ namespace cecsar
 		Read the GetFactory description for more info.
 		*/
 		template <typename Factory = IEntityFactory>
-		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
+		std::shared_ptr<EntityInfo[]> AddEntity(int32_t count = 1);
 
 		/*
 		Removes an entity from the game.
@@ -143,6 +152,13 @@ namespace cecsar
 		*/
 		template <typename Factory>
 		IEntityFactory& GetFactory();
+
+		/*
+		Gets uniquely defined ID for entity with target index.
+		Since entities can be created/destroyed, using an index to check if something
+		is still there isn't reccomended.
+		*/
+		constexpr int32_t GetEntityId(int32_t index);
 #pragma endregion
 
 	private:
@@ -175,13 +191,20 @@ namespace cecsar
 		};
 #pragma endregion 
 
-		utils::SparseSet<void*> _entities;
+		utils::SparseSet<int32_t> _entities;
+		int32_t _globalEntityCount = 0;
+
 		std::unordered_map<std::type_index, ISetContainer*> _sets;
 
 		IMap<IComponentSystem> _systems;
 		IMap<IModule> _modules;
 		IMap<IEntityFactory> _factories;
 	};
+
+	constexpr int32_t Cecsar::GetEntityId(const int32_t index)
+	{
+		return _entities.Get(index);
+	}
 
 	template <typename Component>
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
@@ -200,6 +223,14 @@ namespace cecsar
 	constexpr Module& Cecsar::GetModule()
 	{
 		return _modules.Get<Module>(*this);
+	}
+
+	inline EntityInfo::EntityInfo() = default;
+
+	inline EntityInfo::EntityInfo(const int32_t index, const int32_t globalId) :
+		index(index), globalId(globalId)
+	{
+
 	}
 
 	inline Cecsar::Cecsar(const CecsarSettings info) : 
@@ -228,21 +259,21 @@ namespace cecsar
 	}
 
 	template <typename Factory>
-	std::shared_ptr<int32_t[]> Cecsar::AddEntity(const int32_t count)
+	std::shared_ptr<EntityInfo[]> Cecsar::AddEntity(const int32_t count)
 	{
-		std::shared_ptr<int32_t[]> ptr(new int32_t[count]);
+		std::shared_ptr<EntityInfo[]> ptr(new EntityInfo[count]);
 
 		for (int32_t i = 0; i < count; ++i)
 		{
-			const int32_t index = _entities.Add();
-			ptr[i] = index;
+			const int32_t index = _entities.Add(_globalEntityCount);
+			ptr[i] = { index, _globalEntityCount++ };
 		}
 
 		if (typeid(Factory) != typeid(IEntityFactory)) 
 		{
 			auto& factory = GetFactory<Factory>();
 			for (int32_t i = 0; i < count; ++i)
-				factory.Construct(*this, ptr[i]);
+				factory.Construct(*this, ptr[i].index);
 		}
 
 		return ptr;

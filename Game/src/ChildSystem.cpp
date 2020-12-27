@@ -4,6 +4,7 @@ void game::ChildSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	JobSystem<ChildComponent, Transform>::Initialize(cecsar);
 
+	_cecsar = &cecsar;
 	_children = &cecsar.GetSet<ChildComponent>();
 	_transforms = &cecsar.GetSet<Transform>();
 }
