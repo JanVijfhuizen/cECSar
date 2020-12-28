@@ -7,7 +7,7 @@ namespace game
 	class IFactoryImp
 	{
 	public:
-		T blueprint;
+		T prototype;
 
 		virtual ~IFactoryImp();
 
@@ -28,6 +28,6 @@ namespace game
 	template <typename T>
 	void IFactoryImp<T>::OnConstruction(cecsar::Cecsar&, T& component, const int32_t)
 	{
-		component = blueprint;
+		component = prototype;
 	}
 }

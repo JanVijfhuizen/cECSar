@@ -8,6 +8,7 @@ void game::StandardRendererImp::Initialize(cecsar::Cecsar& cecsar)
 void game::StandardRendererImp::OnConstruction(
 	cecsar::Cecsar&, Renderer& component, int32_t)
 {
+	component = prototype;
 	component.texture = _renderModule->GetTexture(path);
 }
 

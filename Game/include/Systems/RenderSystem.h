@@ -3,6 +3,7 @@
 #include <Components/Renderer.h>
 #include "Components/Transform.h"
 #include "Modules/BufferModule.h"
+#include "TransformSystem.h"
 
 namespace game
 {
@@ -25,6 +26,7 @@ namespace game
 
 		RenderModule* _module = nullptr;
 		RenderInfo* _sortableInfo = nullptr;
+		TransformSystem* _transformSystem = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnUpdate(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) override;

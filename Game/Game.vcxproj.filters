@@ -42,6 +42,9 @@
     <ClCompile Include="src\StandardRendererImp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\TransformSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Modules\RenderModule.h">
@@ -122,9 +125,6 @@
     <ClInclude Include="include\Systems\JobConverterModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Modules\TransformModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Factories\Environment\EnvironmentFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -138,6 +138,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Systems\TransformSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
