@@ -9,6 +9,7 @@
 #include "Modules/JobSystemModule.h"
 #include "Modules/BufferModule.h"
 #include "Factories/OniFactory.h"
+#include "Modules/TransformModule.h"
 
 int main(int argc, char* argv[])
 {
@@ -34,7 +35,9 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	bool quit = false;
 
-	cecsar.AddEntity<game::OniFactory>();
+	const auto onis = cecsar.AddEntity<game::OniFactory>(2);
+	game::Transform& oniA = cecsar.GetSet<game::Transform>()[onis[0].index];
+	game::Transform& oniB = cecsar.GetSet<game::Transform>()[onis[1].index];
 
 #pragma endregion
 
@@ -71,6 +74,11 @@ int main(int argc, char* argv[])
 		}
 
 #pragma region Pre Buffers
+		oniB.position = { 100, 100, 0 };
+		oniB.rotation = sin(timeModule.GetTime()) * 360;
+		oniA.position =
+			game::TransformModule::ToWorldSpace(oniB, { 100, 0, 0 });
+		oniA.rotation = oniB.rotation;
 		
 #pragma endregion
 
