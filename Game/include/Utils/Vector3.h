@@ -43,12 +43,16 @@ namespace utils
 		inline Vector3& operator =(const Vector3& other);
 
 		inline Vector3 operator +(const Vector3& other) const;
-		inline Vector3 operator -(const Vector3& other) const;
 		inline Vector3& operator+=(const Vector3& vector3);
+
+		inline Vector3 operator -(const Vector3& other) const;
 		inline Vector3& operator-=(const Vector3& vector3);
 
 		inline Vector3 operator *(const float& f) const;
 		inline Vector3& operator*=(const float& f);
+
+		inline Vector3 operator /(const float& f) const;
+		inline Vector3& operator/=(const float& f);
 
 #pragma region Statics
 		inline static float RotateTowards2d(const float& f, const Vector3& to, const float& delta);
@@ -165,6 +169,17 @@ namespace utils
 	inline Vector3& Vector3::operator*=(const float& f)
 	{
 		v4 = _mm_mul_ps(v4, _mm_set_ps1(f));
+		return *this;
+	}
+
+	inline Vector3 Vector3::operator/(const float& f) const
+	{
+		return { _mm_div_ps(v4, _mm_set_ps1(f)) };
+	}
+
+	inline Vector3& Vector3::operator/=(const float& f)
+	{
+		v4 = _mm_div_ps(v4, _mm_set_ps1(f));
 		return *this;
 	}
 

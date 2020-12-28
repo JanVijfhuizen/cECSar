@@ -6,21 +6,22 @@
 
 void game::MovementSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	JobSystem<MovementComponent, Transform>::Initialize(cecsar);
-
+	JobSystem<MovementComponent, Transform, Controller>::Initialize(cecsar);
 	_timeModule = &cecsar.GetModule<TimeModule>();
-	_controllerBuffer = cecsar.GetModule<BufferModule<Controller>>().buffer;
 }
 
 void game::MovementSystem::OnUpdate(
 	utils::SparseSet<MovementComponent>& movementComponents, 
-	utils::SparseSet<Transform>& transforms)
+	utils::SparseSet<Transform>& transforms,
+	utils::SparseSet<Controller>& controllers)
 {
 	const auto deltaTime = _timeModule->GetDeltaTime();
 	const auto dense = movementComponents.GetDenseRaw();
 
-	GetJobModule().ToLinearJobs(movementComponents.GetCount(),
-		[this, deltaTime, dense, &movementComponents, &transforms]
+	auto& jobModule = GetJobModule();
+
+	jobModule.ToLinearJobs(movementComponents.GetCount(),
+		[deltaTime, dense, &movementComponents, &transforms, &controllers]
 		(const int32_t start, const int32_t stop)
 		{
 			for (int32_t i = start; i < stop; ++i)
@@ -28,9 +29,10 @@ void game::MovementSystem::OnUpdate(
 				const int32_t index = dense[i];
 
 				auto& movementComponent = movementComponents[i];
-				auto& controller = _controllerBuffer->Get(index);
+				auto& controller = controllers.Get(index);
 				auto& transform = transforms.Get(index);
 
+				// Move smoothly based on delta and controller input.
 				const float deltaSpeed = movementComponent.movementSpeed * deltaTime;
 				const auto input = utils::Vector3(controller.xDir, controller.yDir, 1);
 				const auto normalized = input.Normalized() * deltaSpeed;
@@ -38,6 +40,7 @@ void game::MovementSystem::OnUpdate(
 				transform.position.x += normalized.x;
 				transform.position.y += normalized.y;
 
+				// Rotate towards moving direction.
 				const bool rotate = abs(normalized.x) > 0 || abs(normalized.y) > 0;
 				if (!rotate)
 					continue;
@@ -49,4 +52,6 @@ void game::MovementSystem::OnUpdate(
 
 			}
 		});
+
+	jobModule.Wait();
 }
