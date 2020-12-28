@@ -4,6 +4,7 @@
 #include "Sorter.h"
 #include <iostream>
 #include "Modules/BufferModule.h"
+#include "Systems/TransformSystem.h"
 
 game::RenderSystem::~RenderSystem()
 {
@@ -21,6 +22,7 @@ game::RenderSystem::RenderInfo::RenderInfo(const int32_t index, const float orde
 void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
+	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 	_sortableInfo = new RenderInfo[cecsar.info.setCapacity];
 }
 
@@ -29,8 +31,8 @@ void game::RenderSystem::OnUpdate(
 {
 	SortIndexes(renderers, transforms);
 
-	Color c4Render;
-	const auto p4Camera = _module->cameraPos.v4;
+	Color colorRender;
+	const auto cameraPosition = _module->cameraPos;
 	auto& screenRenderer = _module->GetRenderer();
 
 	const auto dense = renderers.GetDenseRaw();
@@ -40,10 +42,8 @@ void game::RenderSystem::OnUpdate(
 		auto& renderer = renderers[index];
 		auto& transform = transforms.Get(dense[index]);
 
-		// Calculate screenspace position.
-		utils::Vector3 screenSpace;
-		const auto position = transform.position;
-		screenSpace.v4 = _mm_sub_ps(position.v4, p4Camera);
+		const auto transformWorld = _transformSystem->ToWorld(transform);
+		const utils::Vector3 screenSpace = transformWorld.position - cameraPosition;
 
 		int32_t h;
 		SDL_QueryTexture(renderer.texture, nullptr, nullptr, nullptr, &h);
@@ -83,12 +83,12 @@ void game::RenderSystem::OnUpdate(
 		// Adjust color.
 		const float colorMultiplier = 1.0f - std::max(.0f, 
 			(abs(screenSpace.z) - _module->zColorFallofThreshold) * _module->zColorFallof);
-		c4Render.c4 = _mm_mul_ps(renderer.color.c4, _mm_set_ps1(colorMultiplier));
+		colorRender.c4 = _mm_mul_ps(renderer.color.c4, _mm_set_ps1(colorMultiplier));
 
 		SDL_SetTextureColorMod(renderer.texture, 
-			c4Render.r, c4Render.g, c4Render.b);
+			colorRender.r, colorRender.g, colorRender.b);
 
-		const float rotation = renderer.rotation + transform.rotation;
+		const float rotation = renderer.rotation + transformWorld.rotation;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);
