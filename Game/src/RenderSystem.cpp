@@ -104,10 +104,11 @@ void game::RenderSystem::SortIndexes(
 
 	int32_t n = 0;
 	std::generate(_sortableInfo, last,
-		[&n, &transforms, dense]
+		[this, &n, &transforms, dense]
 		{
 			auto& transform = transforms.Get(dense[n]);
-			return RenderInfo(n++, transform.position.z);
+			const auto world = _transformSystem->ToWorld(transform);
+			return RenderInfo(n++, world.position.z);
 		});
 
 	std::sort(_sortableInfo, last,

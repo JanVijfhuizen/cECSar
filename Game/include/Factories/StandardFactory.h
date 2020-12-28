@@ -13,7 +13,7 @@ namespace game
 
 	protected:
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
+		void OnConstruction(cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info) override;
 
 		virtual IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar);
 		virtual IFactoryImp<Transform>* SetTransformImp(cecsar::Cecsar& cecsar);

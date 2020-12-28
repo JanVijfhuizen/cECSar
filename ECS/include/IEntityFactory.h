@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include <cstdint>
 
 namespace cecsar
 {
 	class Cecsar;
+	struct EntityInfo;
 
 	class IEntityFactory
 	{
@@ -14,6 +14,6 @@ namespace cecsar
 
 	protected:
 		virtual void Initialize(Cecsar& cecsar);
-		virtual void Construct(Cecsar& cecsar, int32_t index);
+		virtual void Construct(Cecsar& cecsar, const EntityInfo& info);
 	};
 }

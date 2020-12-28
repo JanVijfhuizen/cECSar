@@ -1,5 +1,6 @@
 #pragma once
 #include "Utils/Vector3.h"
+#include "EntityInfo.h"
 
 namespace game
 {
@@ -7,6 +8,6 @@ namespace game
 	{
 		utils::Vector3 position;
 		float rotation = 0;
-		int32_t parent = -1;
+		cecsar::EntityInfo parent;
 	};
 }

@@ -14,6 +14,7 @@ namespace game
 			const Transform& t, const utils::Vector3& p = {}) const;
 
 	private:
+		cecsar::Cecsar* _cecsar = nullptr;
 		utils::SparseSet<Transform>* _transforms = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;

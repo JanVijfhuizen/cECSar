@@ -7,11 +7,12 @@ namespace game
 	class EnvironmentFactory final : public cecsar::EntityFactory
 	{
 	protected:
-		inline void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
+		inline void OnConstruction(
+			cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info) override;
 	};
 
 	inline void EnvironmentFactory::OnConstruction(
-		cecsar::Cecsar& cecsar, const int32_t index)
+		cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 	{
 		const int32_t width = 32, height = 32;
 		const auto blocks = cecsar.AddEntity<GroundBlockFactory>(width * height);
@@ -47,6 +48,6 @@ namespace game
 		}
 
 		// This is just a proxy entity.
-		cecsar.RemoveEntity(index);
+		cecsar.RemoveEntity(info.index);
 	}
 }
