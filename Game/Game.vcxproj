@@ -162,48 +162,48 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\StandardFactory.cpp" />
+    <ClCompile Include="src\HumanoidFactory.cpp" />
     <ClCompile Include="src\CameraSystem.cpp" />
     <ClCompile Include="src\ControllerSystem.cpp" />
-    <ClCompile Include="src\HandSystem.cpp" />
-    <ClCompile Include="src\LegSystem.cpp" />
     <ClCompile Include="src\MovementSystem.cpp" />
     <ClCompile Include="src\RenderModule.cpp" />
     <ClCompile Include="src\RenderSystem.cpp" />
-    <ClCompile Include="src\TransformSystem.cpp" />
+    <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\LegComponent.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\HandComponent.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
-    <ClInclude Include="include\Factories\GunFactory.h" />
-    <ClInclude Include="include\Factories\LegFactory.h" />
-    <ClInclude Include="include\Factories\HandFactory.h" />
-    <ClInclude Include="include\Factories\PlayerFactory.h" />
-    <ClInclude Include="include\Helpers\TransformHelper.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
-    <ClInclude Include="include\Factories\BlockFactory.h" />
+    <ClInclude Include="include\Factories\Environment\EnvironmentFactory.h" />
+    <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\IFactoryImp.h" />
+    <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
+    <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\RoninFactory.h" />
+    <ClInclude Include="include\Factories\StandardFactory.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
-    <ClInclude Include="include\Systems\HandSystem.h" />
+    <ClInclude Include="include\Modules\TransformModule.h" />
+    <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
-    <ClInclude Include="include\Systems\LegSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
     <ClInclude Include="include\Systems\ControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
-    <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
-    <ClInclude Include="Managers\LevelGenerator.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />

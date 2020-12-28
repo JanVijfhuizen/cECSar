@@ -53,13 +53,12 @@ namespace game
 					{
 						Job job;
 
-						if (RequestJob(job))
+						while (RequestJob(job))
 						{
 							job();
 
 							std::unique_lock<std::mutex> lk(_mutexJobPool);
 							_activeNum--;
-							continue;
 						}
 
 						std::unique_lock<std::mutex> lock(_mutexJobRequest);
@@ -75,6 +74,7 @@ namespace game
 		_jobPool.push(job);
 		_inactiveNum++;
 
+		std::unique_lock<std::mutex> lock(_mutexJobRequest);
 		_cvJobRequest.notify_one();
 	}
 

@@ -22,35 +22,37 @@ void game::RenderSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_module = &cecsar.GetModule<RenderModule>();
 	_sortableInfo = new RenderInfo[cecsar.info.setCapacity];
-
-	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
-void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
+void game::RenderSystem::OnUpdate(
+	utils::SparseSet<Renderer>& renderers, utils::SparseSet<Transform>& transforms)
 {
-	SortIndexes(renderers);
+	SortIndexes(renderers, transforms);
 
 	Color c4Render;
 	const auto p4Camera = _module->cameraPos.v4;
 	auto& screenRenderer = _module->GetRenderer();
-	const int32_t imageSize = _module->DEFAULT_IMAGE_SIZE;
 
 	const auto dense = renderers.GetDenseRaw();
 	for (int32_t i = renderers.GetCount() - 1; i >= 0; --i)
 	{
 		const int32_t index = _sortableInfo[i].index;
 		auto& renderer = renderers[index];
-		auto& transform = _transformBuffer->Get(dense[index]);
+		auto& transform = transforms.Get(dense[index]);
 
 		// Calculate screenspace position.
 		utils::Vector3 screenSpace;
-		screenSpace.v4 = _mm_sub_ps(transform.posGlobal.v4, p4Camera);
+		const auto position = transform.position;
+		screenSpace.v4 = _mm_sub_ps(position.v4, p4Camera);
+
+		int32_t h;
+		SDL_QueryTexture(renderer.texture, nullptr, nullptr, nullptr, &h);
 
 		SDL_Rect srcRect;
-		srcRect.x = imageSize * renderer.index;
+		srcRect.x = h * renderer.index;
 		srcRect.y = 0;
-		srcRect.w = imageSize;
-		srcRect.h = imageSize;
+		srcRect.w = h;
+		srcRect.h = h;
 
 		// Spread objects out based on depth/z axis.
 		const float depthModifier = std::max(.0f, 1.0f + screenSpace.z * _module->zMod);
@@ -58,7 +60,7 @@ void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 
 		// Calculate screen position based on world position.
 		SDL_Rect dstRect;
-		const float imgMod = depthModifier * imageSize * _module->DEFAULT_IMAGE_UPSCALING;
+		const float imgMod = depthModifier * h * _module->DEFAULT_IMAGE_UPSCALING;
 
 		dstRect.w = renderer.xScale * imgMod;
 		dstRect.h = renderer.yScale * imgMod;
@@ -86,14 +88,15 @@ void game::RenderSystem::OnUpdate(utils::SparseSet<Renderer>& renderers)
 		SDL_SetTextureColorMod(renderer.texture, 
 			c4Render.r, c4Render.g, c4Render.b);
 
-		const float rotation = renderer.rotation + transform.rotGlobal;
+		const float rotation = renderer.rotation + transform.rotation;
 		SDL_RenderCopyEx(&screenRenderer, renderer.texture,
 			&srcRect, &dstRect,
 			rotation, nullptr, renderer.flip);
 	}
 }
 
-void game::RenderSystem::SortIndexes(utils::SparseSet<Renderer>& renderers) const
+void game::RenderSystem::SortIndexes(
+	utils::SparseSet<Renderer>& renderers, utils::SparseSet<Transform>& transforms) const
 {
 	const int32_t count = renderers.GetCount();
 	const auto dense = renderers.GetDenseRaw();
@@ -101,10 +104,10 @@ void game::RenderSystem::SortIndexes(utils::SparseSet<Renderer>& renderers) cons
 
 	int32_t n = 0;
 	std::generate(_sortableInfo, last,
-		[this, &n, dense]
+		[&n, &transforms, dense]
 		{
-			auto& transform = _transformBuffer->Get(dense[n]);
-			return RenderInfo(n++, transform.posGlobal.z);
+			auto& transform = transforms.Get(dense[n]);
+			return RenderInfo(n++, transform.position.z);
 		});
 
 	std::sort(_sortableInfo, last,

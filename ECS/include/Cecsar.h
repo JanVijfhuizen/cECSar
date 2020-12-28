@@ -10,47 +10,171 @@
 
 namespace cecsar
 {
-	struct CecsarInfo final
+	struct EntityInfo
 	{
+		int32_t index = -1;
+		int32_t globalId = -1;
+
+		EntityInfo();
+		EntityInfo(int32_t index, int32_t globalId);
+	};
+
+	/*
+	Settings for the ECS framework.
+	Cecsar uses the default values if no settings are overloaded during construction.
+	*/
+	struct CecsarSettings final
+	{
+		/*
+		The capacity of each sparse set.
+		Setting this high doesn't directly affect performance, but it drastically affects
+		startup times.
+
+		Take note that this system uses lazy initialization and that not everything might be
+		set up in the first frame.
+
+		To force initialization, you can just use GetSet on every set you want initialized.
+		*/
 		int32_t setCapacity = 256;
 	};
 
+	/*
+	ECS framework.
+	Manages everything that is related to ECS.
+	Uses lazy initialization for everything.
+	*/
 	class Cecsar final
 	{
 	public:
-		const CecsarInfo info;
+		const CecsarSettings info;
 
-		explicit inline Cecsar(CecsarInfo info = CecsarInfo());
+		explicit inline Cecsar(CecsarSettings info = CecsarSettings());
 		~Cecsar();
 
+#pragma region System Management
+		/*
+		Updates target system.
+		Systems manage one or more components.
+		A TransformSystem would, for instance, modify the Transform components in some way.
+
+		Inherit your custom system from ComponentSystem to make use of this feature.
+		*/
 		template <typename System>
 		void Update();
 
-#pragma region Entity Management
-		template <typename Factory = IEntityFactory>
-		std::shared_ptr<int32_t[]> AddEntity(int32_t count = 1);
+		/*
+		Gets target system.
+		Read the update comment for more info on systems.
+		Sometimes systems have specific functionality (ie TransformSystem: SetParent),
+		so just having an update function is not enough.
+		*/
+		template <typename System>
+		System& GetSystem();
+#pragma endregion 
 
+#pragma region Entity Management
+		/*
+		Adds N entities and returns its indexes as a shared pointer.
+		The index can be used as an overload to add/remove components.
+		A factory type can be given, but is not required.
+
+		Read the GetFactory description for more info.
+		*/
+		template <typename Factory = IEntityFactory>
+		std::shared_ptr<EntityInfo[]> AddEntity(int32_t count = 1);
+
+		/*
+		Removes an entity from the game.
+		This also removes all attached components.
+		*/
 		void RemoveEntity(int32_t index);
 #pragma endregion 
 
 #pragma region Component Management
+		/*
+		Add a component to a target entity.
+		*/
 		template <typename Component>
 		Component& AddComponent(int32_t index);
 
+		/*
+		Removes a component from a target entity.
+		*/
 		template <typename Component>
 		void RemoveComponent(int32_t index);
 #pragma endregion 
 
-#pragma region Getters
+#pragma region Other Getters
+		/*
+		Get the sparse set of components of type "Component".
+		A sparse set is not the most common type of data structure,
+		so you might want to read up on it a bit.
+
+		Essentially you can iterate over it, but you can also it as a hashset/map.
+		Example:
+
+		for(auto& component : components)
+			component.x++;
+
+		OR
+
+		const int32_t count = components.GetCount();
+		for(int32_t i = 0; i < count; ++i)
+			components[i].x++;
+
+		OR
+
+		const int32_t targetEntity = 25;
+		components.Get(targetEntity).x++;
+
+		*/
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
+		/*
+		Gets target module.
+		A module can be anything at all, as long as it inherits from the IModule interface.
+
+		This is useful for when you want to have a class that manages something that doesn't
+		immediately relate to ECS, but you still want to have access to it.
+
+		Example:
+		JobSystem, TimeModule, RenderModule, TextureLib etc.
+		*/
 		template <typename Module>
 		constexpr Module& GetModule();
+
+		/*
+		Gets target factory.
+
+		You can use a factory to streamline object creation,
+		by predefining what components need to be created with what values.
+		*/
+		template <typename Factory>
+		IEntityFactory& GetFactory();
+
+		/*
+		Gets uniquely defined ID for entity with target index.
+		Since entities can be created/destroyed, using an index to check if something
+		is still there isn't reccomended.
+		*/
+		constexpr int32_t GetEntityId(int32_t index);
 #pragma endregion
 
 	private:
 #pragma region Structs
+		template <typename I>
+		struct IMap final
+		{
+			~IMap();
+
+			template <typename T>
+			T& Get(Cecsar& cecsar);
+
+		private:
+			std::unordered_map<std::type_index, I*> _map;
+		};
+
 		struct ISetContainer
 		{
 			virtual ~ISetContainer();
@@ -58,7 +182,7 @@ namespace cecsar
 		};
 
 		template <typename Block>
-		struct SetContainer : ISetContainer
+		struct SetContainer final : ISetContainer
 		{
 			utils::SparseSet<Block> set;
 
@@ -67,20 +191,20 @@ namespace cecsar
 		};
 #pragma endregion 
 
-		utils::SparseSet<void*> _entities;
+		utils::SparseSet<int32_t> _entities;
+		int32_t _globalEntityCount = 0;
 
-#define INDEX_MAP(type) std::unordered_map<std::type_index, type*>
+		std::unordered_map<std::type_index, ISetContainer*> _sets;
 
-		INDEX_MAP(ISetContainer) _sets;
-		INDEX_MAP(IComponentSystem) _systems;
-		INDEX_MAP(IModule) _modules;
-		INDEX_MAP(IEntityFactory) _factories;
-
-#pragma region Getters
-		template <typename Factory>
-		IEntityFactory& GetFactory();
-#pragma endregion 
+		IMap<IComponentSystem> _systems;
+		IMap<IModule> _modules;
+		IMap<IEntityFactory> _factories;
 	};
+
+	constexpr int32_t Cecsar::GetEntityId(const int32_t index)
+	{
+		return _entities.Get(index);
+	}
 
 	template <typename Component>
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
@@ -98,18 +222,18 @@ namespace cecsar
 	template <typename Module>
 	constexpr Module& Cecsar::GetModule()
 	{
-		if (_modules.count(typeid(Module)) == 0)
-		{
-			auto module = new Module();
-			static_cast<IModule*>(module)->Initialize(*this);
-			_modules[typeid(Module)] = module;
-		}
-
-		const auto set = _modules[typeid(Module)];
-		return *static_cast<Module*>(set);
+		return _modules.Get<Module>(*this);
 	}
 
-	inline Cecsar::Cecsar(const CecsarInfo info) : 
+	inline EntityInfo::EntityInfo() = default;
+
+	inline EntityInfo::EntityInfo(const int32_t index, const int32_t globalId) :
+		index(index), globalId(globalId)
+	{
+
+	}
+
+	inline Cecsar::Cecsar(const CecsarSettings info) : 
 		info(info), _entities(info.setCapacity)
 	{
 		
@@ -119,44 +243,37 @@ namespace cecsar
 	{
 		for (auto set : _sets)
 			delete set.second;
-		for (auto system : _systems)
-			delete system.second;
-		for (auto module : _modules)
-			delete module.second;
-		for (auto factory : _factories)
-			delete factory.second;
 	}
 
 	template <typename System>
 	void Cecsar::Update()
 	{
-		if (_systems.count(typeid(System)) == 0)
-		{
-			auto sys = new System();
-			static_cast<IComponentSystem*>(sys)->Initialize(*this);
-			_systems[typeid(System)] = sys;
-		}
+		auto& sys = GetSystem<System>();
+		static_cast<IComponentSystem*>(&sys)->Update(*this);
+	}
 
-		const auto sys = _systems[typeid(System)];
-		sys->Update(*this);
+	template <typename System>
+	System& Cecsar::GetSystem()
+	{
+		return _systems.Get<System>(*this);
 	}
 
 	template <typename Factory>
-	std::shared_ptr<int32_t[]> Cecsar::AddEntity(const int32_t count)
+	std::shared_ptr<EntityInfo[]> Cecsar::AddEntity(const int32_t count)
 	{
-		std::shared_ptr<int32_t[]> ptr(new int32_t[count]);
+		std::shared_ptr<EntityInfo[]> ptr(new EntityInfo[count]);
 
 		for (int32_t i = 0; i < count; ++i)
 		{
-			const int32_t index = _entities.Add();
-			ptr[i] = index;
+			const int32_t index = _entities.Add(_globalEntityCount);
+			ptr[i] = { index, _globalEntityCount++ };
 		}
 
 		if (typeid(Factory) != typeid(IEntityFactory)) 
 		{
 			auto& factory = GetFactory<Factory>();
 			for (int32_t i = 0; i < count; ++i)
-				factory.Construct(*this, ptr[i]);
+				factory.Construct(*this, ptr[i].index);
 		}
 
 		return ptr;
@@ -174,15 +291,7 @@ namespace cecsar
 	template <typename Factory>
 	IEntityFactory& Cecsar::GetFactory()
 	{
-		if (_factories.count(typeid(Factory)) == 0)
-		{
-			auto factory = new Factory();
-			static_cast<IEntityFactory*>(factory)->Initialize(*this);
-			_factories[typeid(Factory)] = factory;
-		}
-
-		const auto factory = _factories[typeid(Factory)];
-		return *factory;
+		return _factories.Get<Factory>(*this);
 	}
 
 	template <typename Component>
@@ -195,6 +304,28 @@ namespace cecsar
 	void Cecsar::RemoveComponent(const int32_t index)
 	{
 		GetSet<Component>().RemoveAt(index);
+	}
+
+	template <typename I>
+	Cecsar::IMap<I>::~IMap()
+	{
+		for (auto set : _map)
+			delete set.second;
+	}
+
+	template <typename I>
+	template <typename T>
+	T& Cecsar::IMap<I>::Get(Cecsar& cecsar)
+	{
+		if (_map.count(typeid(T)) == 0)
+		{
+			auto t = new T();
+			static_cast<I*>(t)->Initialize(cecsar);
+			_map[typeid(T)] = t;
+		}
+
+		const auto t = _map[typeid(T)];
+		return *static_cast<T*>(t);
 	}
 
 	template <typename Component>

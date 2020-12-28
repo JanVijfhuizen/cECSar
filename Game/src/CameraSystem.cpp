@@ -3,6 +3,7 @@
 #include "Modules/RenderModule.h"
 #include "Modules/TimeModule.h"
 #include "Modules/BufferModule.h"
+#include <iostream>
 
 void game::CameraSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -17,17 +18,19 @@ void game::CameraSystem::OnUpdate(
 	if (!targets.GetCount())
 		return;
 
+	// Get the center position for the camera.
 	utils::Vector3 center;
 	float xMin = std::numeric_limits<float>::max();
 	float xMax = std::numeric_limits<float>::min();
 	float yMin = std::numeric_limits<float>::max();
 	float yMax = std::numeric_limits<float>::min();
 
+	// Add to center and stretch the boundaries.
 	const auto dense = targets.GetDenseRaw();
 	for (int32_t i = targets.GetCount() - 1; i >= 0; --i)
 	{
 		auto& transform = _transformBuffer->Get(dense[i]);
-		auto position = transform.posGlobal;
+		auto& position = transform.position;
 
 		// Update bounds.
 		xMin = std::min(xMin, position.x);
@@ -38,7 +41,8 @@ void game::CameraSystem::OnUpdate(
 		center.v4 = _mm_add_ps(center.v4, position.v4);
 	}
 
-	center.v4 = _mm_div_ps(center.v4, _mm_set_ps1(targets.GetCount()));
+	// Average the target position.
+	center /= targets.GetCount();
 	center.x -= _renderModule->SCREEN_WIDTH / 2;
 	center.y -= _renderModule->SCREEN_HEIGHT / 2;
 
@@ -54,19 +58,23 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3& target) const
 
 	const float deltaTime = _timeModule->GetDeltaTime();
 
+	const int32_t xDir = offset.x > 0 ? 1 : -1;
+	const int32_t yDir = offset.y > 0 ? 1 : -1;
+
 	// X axis.
 	if (abs(offset.x) >= _followThreshold.x)
 		// Moving.
 		if (abs(offset.x) <= _hardFollowThreshold.x)
 		{
-			const float xFollowSpeed = deltaTime * _followSpeed * (offset.x > 0 ? 1 : -1);
+			
+			const float xFollowSpeed = deltaTime * _followSpeed * xDir;
 			cameraPosition.x -= xFollowSpeed;
 		}
 	// Teleporting.
 		else
 		{
 			const float diff = abs(abs(offset.x) - _hardFollowThreshold.x);
-			cameraPosition.x -= diff * (offset.x > 0 ? 1 : -1);
+			cameraPosition.x -= diff * xDir;
 		}
 
 	// Y axis.
@@ -74,22 +82,13 @@ void game::CameraSystem::UpdatePosition(const utils::Vector3& target) const
 		// Moving.
 		if (abs(offset.y) <= _hardFollowThreshold.y)
 		{
-			const float yFollowSpeed = deltaTime * _followSpeed * (offset.y > 0 ? 1 : -1);
+			const float yFollowSpeed = deltaTime * _followSpeed * yDir;
 			cameraPosition.y -= yFollowSpeed;
 		}
 	// Teleporting.
 		else
 		{
 			const float diff = abs(abs(offset.y) - _hardFollowThreshold.y);
-			cameraPosition.y -= diff * (offset.y > 0 ? 1 : -1);
+			cameraPosition.y -= diff * yDir;
 		}
-
-	const float hardFollowMagn = _hardFollowThreshold.Magnitude();
-	const float offsetMagn = offset.Magnitude();
-
-	const float magnLerp = offsetMagn / hardFollowMagn;
-	const float convLerp = std::max(.0f, magnLerp - _movementZoomThreshold) / 
-		(1.0f - _movementZoomThreshold);
-	
-	_renderModule->zoom = 1 + convLerp * _movementZoomMultiplier;
 }

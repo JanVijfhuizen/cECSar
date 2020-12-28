@@ -2,6 +2,7 @@
 #include <emmintrin.h>
 #include <SDL_stdinc.h>
 #include "Mathf.h"
+#include <algorithm>
 
 namespace utils
 {
@@ -36,17 +37,22 @@ namespace utils
 
 		inline Vector3 Lerp2d(const Vector3& other, const float& f) const;
 		inline Vector3 MoveTowards2d(const Vector3& other, const float& f) const;
+		inline Vector3 MoveTowards2dClamped(const Vector3& other, const float& f) const;
 #pragma endregion 
 
 		inline Vector3& operator =(const Vector3& other);
 
 		inline Vector3 operator +(const Vector3& other) const;
-		inline Vector3 operator -(const Vector3& other) const;
 		inline Vector3& operator+=(const Vector3& vector3);
+
+		inline Vector3 operator -(const Vector3& other) const;
 		inline Vector3& operator-=(const Vector3& vector3);
 
 		inline Vector3 operator *(const float& f) const;
 		inline Vector3& operator*=(const float& f);
+
+		inline Vector3 operator /(const float& f) const;
+		inline Vector3& operator/=(const float& f);
 
 #pragma region Statics
 		inline static float RotateTowards2d(const float& f, const Vector3& to, const float& delta);
@@ -116,6 +122,12 @@ namespace utils
 		return *this + dir * f;
 	}
 
+	inline Vector3 Vector3::MoveTowards2dClamped(const Vector3& other, const float& f) const
+	{
+		const float distance = (*this - other).Magnitude2d();
+		return MoveTowards2d(other, std::min(f, distance));
+	}
+
 	constexpr Vector3 Vector3::To2D() const
 	{
 		return{ x, y };
@@ -157,6 +169,17 @@ namespace utils
 	inline Vector3& Vector3::operator*=(const float& f)
 	{
 		v4 = _mm_mul_ps(v4, _mm_set_ps1(f));
+		return *this;
+	}
+
+	inline Vector3 Vector3::operator/(const float& f) const
+	{
+		return { _mm_div_ps(v4, _mm_set_ps1(f)) };
+	}
+
+	inline Vector3& Vector3::operator/=(const float& f)
+	{
+		v4 = _mm_div_ps(v4, _mm_set_ps1(f));
 		return *this;
 	}
 
