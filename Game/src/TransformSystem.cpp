@@ -1,4 +1,5 @@
 ﻿#include <Systems/TransformSystem.h>
+#include <stack>
 
 game::Transform game::TransformSystem::ToWorld(const Transform& t, const utils::Vector3& p) const
 {
@@ -6,9 +7,9 @@ game::Transform game::TransformSystem::ToWorld(const Transform& t, const utils::
 	world.position += p;
 
 	const Transform* current = &t;
-	while (current->parent != -1)
+	while (_cecsar->IsEntityValid(current->parent))
 	{
-		Transform& parent = _transforms->Get(current->parent);
+		Transform& parent = _transforms->Get(current->parent.index);
 		world.position = parent.position + world.position.Rotate(parent.rotation);
 		world.rotation += parent.rotation;
 
@@ -20,17 +21,41 @@ game::Transform game::TransformSystem::ToWorld(const Transform& t, const utils::
 
 game::Transform game::TransformSystem::ToLocal(const Transform& t, const utils::Vector3& p) const
 {
-	Transform local = t;
-	local.position += p;
+	// I'm sure there is a better way to do it.
+	// Too bad I'm not a mathmatician.
 
-	const Transform* current = &t;
-	while (t.parent != -1)
+	struct Calc final
 	{
-		Transform& parent = _transforms->Get(current->parent);
-		local.position = local.position.Rotate(-parent.rotation) - parent.position;
-		local.rotation -= parent.rotation;
+		float rot{};
+		utils::Vector3 pos{};
+	};
+
+	std::stack<Calc> stack;
+
+	// Do the inverse calculations in the reverse order to get to the local position.
+	const Transform* current = &t;
+	while (_cecsar->IsEntityValid(current->parent))
+	{
+		Transform& parent = _transforms->Get(current->parent.index);
+
+		Calc c;
+		c.pos = parent.position;
+		c.rot = parent.rotation;
+		stack.push(c);
 
 		current = &parent;
+	}
+
+	Transform local{};
+	local.position = p;
+
+	while(!stack.empty())
+	{
+		const Calc c = stack.top();
+		stack.pop();
+
+		local.position = (local.position - c.pos).Rotate(-c.rot);
+		local.rotation -= c.rot;
 	}
 
 	return local;
@@ -38,9 +63,11 @@ game::Transform game::TransformSystem::ToLocal(const Transform& t, const utils::
 
 void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 {
+	_cecsar = &cecsar;
 	_transforms = &cecsar.GetSet<Transform>();
 }
 
 void game::TransformSystem::OnUpdate(utils::SparseSet<Transform>&)
 {
+	
 }
