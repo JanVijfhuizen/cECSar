@@ -76,9 +76,11 @@ namespace cecsar
 		std::shared_ptr<EntityInfo[]> AddEntity(int32_t count = 1);
 
 		/*
-		Get target entity.
+		Get target entity's global id.
 		*/
-		inline EntityInfo GetEntity(int32_t index);
+		inline int32_t GetEntity(int32_t index);
+
+		inline bool IsEntityValid(const EntityInfo& entity);
 
 		/*
 		Removes an entity from the game.
@@ -268,9 +270,16 @@ namespace cecsar
 		return ptr;
 	}
 
-	inline EntityInfo Cecsar::GetEntity(const int32_t index)
+	inline int32_t Cecsar::GetEntity(const int32_t index)
 	{
-		return { index, _entities.Get(index) };
+		return _entities.Get(index);
+	}
+
+	inline bool Cecsar::IsEntityValid(const EntityInfo& entity)
+	{
+		if (entity.index < 0 || entity.index >= info.setCapacity)
+			return false;
+		return _entities.Get(entity.index) == entity.globalId;
 	}
 
 	inline void Cecsar::RemoveEntity(const int32_t index)
