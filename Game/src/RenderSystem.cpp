@@ -45,13 +45,14 @@ void game::RenderSystem::OnUpdate(
 		const auto transformWorld = _transformSystem->ToWorld(transform);
 		const utils::Vector3 screenSpace = transformWorld.position - cameraPosition;
 
-		int32_t h;
-		SDL_QueryTexture(renderer.texture, nullptr, nullptr, nullptr, &h);
+		int32_t w, h;
+		SDL_QueryTexture(renderer.texture, nullptr, nullptr, &w, &h);
+		w /= renderer.count;
 
 		SDL_Rect srcRect;
-		srcRect.x = h * renderer.index;
+		srcRect.x = w * renderer.index;
 		srcRect.y = 0;
-		srcRect.w = h;
+		srcRect.w = w;
 		srcRect.h = h;
 
 		// Spread objects out based on depth/z axis.
@@ -60,10 +61,9 @@ void game::RenderSystem::OnUpdate(
 
 		// Calculate screen position based on world position.
 		SDL_Rect dstRect;
-		const float imgMod = depthModifier * h * _module->DEFAULT_IMAGE_UPSCALING;
-
-		dstRect.w = renderer.xScale * imgMod;
-		dstRect.h = renderer.yScale * imgMod;
+		const auto dstMod = depthModifier * _module->DEFAULT_IMAGE_UPSCALING;
+		dstRect.w = renderer.xScale * w * dstMod;
+		dstRect.h = renderer.yScale * h * dstMod;
 
 		dstRect.x = (screenSpace.x - dstRect.w / 2) * depthModifier +
 			positionModifier * _module->SCREEN_WIDTH;

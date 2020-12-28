@@ -14,7 +14,7 @@ namespace game
 	{
 		auto renderer = new StandardRendererImp;
 		renderer->path = "Art/Ronin.png";
-		renderer->blueprint.count = 6;
+		renderer->prototype.count = 6;
 		return renderer;
 	}
 }
