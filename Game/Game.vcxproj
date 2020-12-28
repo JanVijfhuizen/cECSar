@@ -173,9 +173,7 @@
     <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Components\LegComponent.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
-    <ClInclude Include="include\Components\HandComponent.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />

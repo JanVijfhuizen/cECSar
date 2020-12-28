@@ -7,12 +7,12 @@ namespace cecsar
 	class EntityFactory : public IEntityFactory
 	{
 	protected:
-		void Construct(Cecsar& cecsar, int32_t index) final override;
-		virtual void OnConstruction(Cecsar& cecsar, int32_t index) = 0;
+		void Construct(Cecsar& cecsar, const EntityInfo& info) final override;
+		virtual void OnConstruction(Cecsar& cecsar, const EntityInfo& info) = 0;
 	};
 
-	inline void EntityFactory::Construct(Cecsar& cecsar, const int32_t index)
+	inline void EntityFactory::Construct(Cecsar& cecsar, const EntityInfo& info)
 	{
-		OnConstruction(cecsar, index);
+		OnConstruction(cecsar, info);
 	}
 }

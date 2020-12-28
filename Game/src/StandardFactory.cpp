@@ -17,13 +17,13 @@ void game::StandardFactory::Initialize(cecsar::Cecsar& cecsar)
 }
 
 void game::StandardFactory::OnConstruction(
-	cecsar::Cecsar& cecsar, const int32_t index)
+	cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 {
-	auto& renderer = cecsar.AddComponent<Renderer>(index);
-	auto& transform = cecsar.AddComponent<Transform>(index);
+	auto& renderer = cecsar.AddComponent<Renderer>(info.index);
+	auto& transform = cecsar.AddComponent<Transform>(info.index);
 
-	_renderImp->OnConstruction(cecsar, renderer, index);
-	_transformImp->OnConstruction(cecsar, transform, index);
+	_renderImp->OnConstruction(cecsar, renderer, info.index);
+	_transformImp->OnConstruction(cecsar, transform, info.index);
 }
 
 game::IFactoryImp<game::Renderer>* game::StandardFactory::SetRenderImp(cecsar::Cecsar& cecsar)

@@ -7,18 +7,10 @@
 #include <IComponentSystem.h>
 #include <IModule.h>
 #include <memory>
+#include <EntityInfo.h>
 
 namespace cecsar
 {
-	struct EntityInfo
-	{
-		int32_t index = -1;
-		int32_t globalId = -1;
-
-		EntityInfo();
-		EntityInfo(int32_t index, int32_t globalId);
-	};
-
 	/*
 	Settings for the ECS framework.
 	Cecsar uses the default values if no settings are overloaded during construction.
@@ -82,6 +74,11 @@ namespace cecsar
 		*/
 		template <typename Factory = IEntityFactory>
 		std::shared_ptr<EntityInfo[]> AddEntity(int32_t count = 1);
+
+		/*
+		Get target entity.
+		*/
+		inline EntityInfo GetEntity(int32_t index);
 
 		/*
 		Removes an entity from the game.
@@ -225,14 +222,6 @@ namespace cecsar
 		return _modules.Get<Module>(*this);
 	}
 
-	inline EntityInfo::EntityInfo() = default;
-
-	inline EntityInfo::EntityInfo(const int32_t index, const int32_t globalId) :
-		index(index), globalId(globalId)
-	{
-
-	}
-
 	inline Cecsar::Cecsar(const CecsarSettings info) : 
 		info(info), _entities(info.setCapacity)
 	{
@@ -273,10 +262,15 @@ namespace cecsar
 		{
 			auto& factory = GetFactory<Factory>();
 			for (int32_t i = 0; i < count; ++i)
-				factory.Construct(*this, ptr[i].index);
+				factory.Construct(*this, ptr[i]);
 		}
 
 		return ptr;
+	}
+
+	inline EntityInfo Cecsar::GetEntity(const int32_t index)
+	{
+		return { index, _entities.Get(index) };
 	}
 
 	inline void Cecsar::RemoveEntity(const int32_t index)

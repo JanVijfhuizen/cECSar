@@ -89,12 +89,6 @@
     <ClInclude Include="include\Components\CameraFollowTarget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Components\HandComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\Components\LegComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Utils\Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
