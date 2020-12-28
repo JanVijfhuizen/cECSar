@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\TransformSystem.cpp" />
     <ClCompile Include="src\StandardFactory.cpp" />
     <ClCompile Include="src\HumanoidFactory.cpp" />
     <ClCompile Include="src\CameraSystem.cpp" />
@@ -192,13 +193,13 @@
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
-    <ClInclude Include="include\Modules\TransformModule.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
     <ClInclude Include="include\Systems\ControllerSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
     <ClInclude Include="include\Utils\Stack.h" />

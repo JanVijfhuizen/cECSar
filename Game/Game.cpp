@@ -38,10 +38,15 @@ int main(int argc, char* argv[])
 	cecsar.GetSet<game::Transform>().Get(oni.index).position = { 200, 200, .1f };
 	cecsar.GetSet<game::Transform>().Get(ronin.index).position = { 100, 100, .1f };
 
+	cecsar.GetSet<game::Transform>().Get(ronin.index).parent = oni.index;
+
 #pragma endregion
 
 	while(!quit)
 	{
+		cecsar.GetSet<game::Transform>().Get(oni.index).rotation = 
+			sin(timeModule.GetTime()) * 180;
+
 		timeModule.Update();
 
 		// Check for inputs.
