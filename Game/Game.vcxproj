@@ -179,10 +179,13 @@
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\Transform.h" />
-    <ClInclude Include="include\Factories\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\Environment\EnvironmentFactory.h" />
+    <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
     <ClInclude Include="include\Factories\IFactoryImp.h" />
     <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
-    <ClInclude Include="include\Factories\OniFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\RoninFactory.h" />
     <ClInclude Include="include\Factories\StandardFactory.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />

@@ -1,6 +1,6 @@
 #pragma once
-#include "HumanoidFactory.h"
-#include "Implementations/StandardRendererImp.h"
+#include <Factories/Humanoids/HumanoidFactory.h>
+#include <Factories/Implementations/StandardRendererImp.h>
 
 namespace game
 {

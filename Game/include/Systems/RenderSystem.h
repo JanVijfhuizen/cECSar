@@ -8,7 +8,7 @@ namespace game
 {
 	class RenderModule;
 
-	class RenderSystem final : public cecsar::ComponentSystem<Renderer>
+	class RenderSystem final : public cecsar::ComponentSystem<Renderer, Transform>
 	{
 	public:
 		~RenderSystem();
@@ -25,10 +25,9 @@ namespace game
 
 		RenderModule* _module = nullptr;
 		RenderInfo* _sortableInfo = nullptr;
-		utils::SparseSet<Transform>* _transformBuffer = nullptr;
 
 		void Initialize(cecsar::Cecsar& cecsar) override;
-		void OnUpdate(utils::SparseSet<Renderer>&) override;
-		void SortIndexes(utils::SparseSet<Renderer>&) const;
+		void OnUpdate(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) override;
+		void SortIndexes(utils::SparseSet<Renderer>&, utils::SparseSet<Transform>&) const;
 	};
 }

@@ -7,9 +7,9 @@
 #include "Modules/TimeModule.h"
 #include "Systems/CameraSystem.h"
 #include "Modules/JobSystemModule.h"
-#include "Modules/BufferModule.h"
-#include "Factories/OniFactory.h"
-#include "Modules/TransformModule.h"
+#include "Factories/Humanoids/OniFactory.h"
+#include "Factories/Humanoids/RoninFactory.h"
+#include "Factories/Environment/EnvironmentFactory.h"
 
 int main(int argc, char* argv[])
 {
@@ -20,47 +20,25 @@ int main(int argc, char* argv[])
 
 	// Setup cecsar.
 	cecsar::CecsarSettings info;
-	info.setCapacity = 5e3;
+	info.setCapacity = 2e3;
 	cecsar::Cecsar cecsar{ info };
 
 	// Modules.
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
-	// Buffers.
-	auto& transformBuffer = cecsar.GetModule<game::BufferModule<game::Transform>>();
-	auto& renderBuffer = cecsar.GetModule<game::BufferModule<game::Renderer>>();
-	auto& controllerBuffer = cecsar.GetModule<game::BufferModule<game::Controller>>();
-
 	SDL_Event event;
 	bool quit = false;
 
-	const auto onis = cecsar.AddEntity<game::OniFactory>(2);
-	game::Transform& oniA = cecsar.GetSet<game::Transform>()[onis[0].index];
-	game::Transform& oniB = cecsar.GetSet<game::Transform>()[onis[1].index];
+	cecsar.AddEntity<game::EnvironmentFactory>();
+
+	const auto oni = cecsar.AddEntity<game::OniFactory>()[0];
+	const auto ronin = cecsar.AddEntity<game::RoninFactory>()[0];
+
+	cecsar.GetSet<game::Transform>().Get(oni.index).position = { 200, 200, .1f };
+	cecsar.GetSet<game::Transform>().Get(ronin.index).position = { 100, 100, .1f };
 
 #pragma endregion
-
-#pragma region Render Thread
-	std::mutex mutexRenderer{};
-	std::condition_variable cv_renderer{};
-
-	std::thread renderThread([&mutexRenderer, &cv_renderer, &cecsar, &renderModule]()
-		{
-			while (true)
-			{
-				std::unique_lock<std::mutex> lock(mutexRenderer);
-				cv_renderer.wait(lock);
-
-				renderModule.PreRender();
-
-				cecsar.Update<game::CameraSystem>();
-				cecsar.Update<game::RenderSystem>();
-
-				renderModule.PostRender();
-			}
-		});
-#pragma endregion 
 
 	while(!quit)
 	{
@@ -73,30 +51,17 @@ int main(int argc, char* argv[])
 				quit = true;
 		}
 
-#pragma region Pre Buffers
-		oniB.position = { 100, 100, 0 };
-		oniB.rotation = sin(timeModule.GetTime()) * 360;
-		oniA.position =
-			game::TransformModule::ToWorldSpace(oniB, { 100, 0, 0 });
-		oniA.rotation = oniB.rotation;
-		
-#pragma endregion
+		renderModule.PreRender();
 
-#pragma region Updating Buffers
-		transformBuffer.UpdateBuffer();
-		renderBuffer.UpdateBuffer();
-		controllerBuffer.UpdateBuffer();
-#pragma endregion 
+		cecsar.Update<game::CameraSystem>();
+		cecsar.Update<game::RenderSystem>();
 
-		// Notify the render thread.
-		cv_renderer.notify_one();
+		renderModule.PostRender();
 
 #pragma region Post Buffers
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::MovementSystem>();
-#pragma endregion 
-
-		std::unique_lock<std::mutex> lock(mutexRenderer);
+#pragma endregion
 	}
 
 	SDL_Quit();

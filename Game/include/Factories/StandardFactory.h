@@ -12,13 +12,14 @@ namespace game
 		~StandardFactory() override;
 
 	protected:
-		IFactoryImp<Renderer>* _renderImp = nullptr;
-		IFactoryImp<Transform>* _transformImp = nullptr;
-
 		void Initialize(cecsar::Cecsar& cecsar) override;
 		void OnConstruction(cecsar::Cecsar& cecsar, int32_t index) override;
 
 		virtual IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar);
 		virtual IFactoryImp<Transform>* SetTransformImp(cecsar::Cecsar& cecsar);
+
+	private:
+		IFactoryImp<Renderer>* _renderImp = nullptr;
+		IFactoryImp<Transform>* _transformImp = nullptr;
 	};
 }
