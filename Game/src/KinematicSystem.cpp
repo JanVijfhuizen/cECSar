@@ -38,11 +38,12 @@ void game::KinematicSystem::OnUpdate(
 		const auto target = _transformSystem->ToWorld(targetTransform);
 
 		// Set position.
-		const auto point = root.position.Lerp2d(target.position, .5f);
+		const auto point = root.position.MoveTowards2dClamped(
+			target.position, kinematic.max);
 		auto pointLocal = _transformSystem->ToLocal(transform, point);
 
 		// Clamp z position.
-		pointLocal.position.z = transform.position.z;
+		pointLocal.position.z = kinematic.offset.z;
 		transform.position = pointLocal.position;
 	}
 

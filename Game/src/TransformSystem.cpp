@@ -7,7 +7,7 @@ game::Transform game::TransformSystem::ToWorld(const Transform& t, const utils::
 	world.position += p;
 
 	const Transform* current = &t;
-	while (current->parent.index != -1)
+	while (_cecsar->IsEntityValid(current->parent))
 	{
 		Transform& parent = _transforms->Get(current->parent.index);
 		world.position = parent.position + world.position.Rotate(parent.rotation);
@@ -34,7 +34,7 @@ game::Transform game::TransformSystem::ToLocal(const Transform& t, const utils::
 
 	// Do the inverse calculations in the reverse order to get to the local position.
 	const Transform* current = &t;
-	while (current->parent.index != -1)
+	while (_cecsar->IsEntityValid(current->parent))
 	{
 		Transform& parent = _transforms->Get(current->parent.index);
 
@@ -63,6 +63,7 @@ game::Transform game::TransformSystem::ToLocal(const Transform& t, const utils::
 
 void game::TransformSystem::Initialize(cecsar::Cecsar& cecsar)
 {
+	_cecsar = &cecsar;
 	_transforms = &cecsar.GetSet<Transform>();
 }
 

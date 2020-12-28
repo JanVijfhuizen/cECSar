@@ -56,6 +56,8 @@ int main(int argc, char* argv[])
 			sin(timeModule.GetTime()) * 180;
 		cecsar.GetSet<game::Transform>().Get(ronin.index).rotation =
 			cos(timeModule.GetTime() * 2) * 180;
+		cecsar.GetSet<game::Kinematic>().Get(ronin2.index).offset = { 
+			cos(timeModule.GetTime()) * 30, sin(timeModule.GetTime()) * 30 };
 
 		timeModule.Update();
 
