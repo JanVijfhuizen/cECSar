@@ -8,7 +8,6 @@
 #include "Systems/CameraSystem.h"
 #include "Modules/JobSystemModule.h"
 #include "Modules/BufferModule.h"
-#include "Systems/ChildSystem.h"
 #include "Factories/OniFactory.h"
 
 int main(int argc, char* argv[])
@@ -72,7 +71,7 @@ int main(int argc, char* argv[])
 		}
 
 #pragma region Pre Buffers
-		cecsar.Update<game::ChildSystem>();
+		
 #pragma endregion
 
 #pragma region Updating Buffers

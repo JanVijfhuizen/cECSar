@@ -164,7 +164,6 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="src\StandardFactory.cpp" />
     <ClCompile Include="src\HumanoidFactory.cpp" />
-    <ClCompile Include="src\ChildSystem.cpp" />
     <ClCompile Include="src\CameraSystem.cpp" />
     <ClCompile Include="src\ControllerSystem.cpp" />
     <ClCompile Include="src\MovementSystem.cpp" />
@@ -173,7 +172,6 @@
     <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Components\ChildComponent.h" />
     <ClInclude Include="include\Components\LegComponent.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\HandComponent.h" />
@@ -191,7 +189,6 @@
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
-    <ClInclude Include="include\Systems\ChildSystem.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
