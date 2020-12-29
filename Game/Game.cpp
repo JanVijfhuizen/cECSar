@@ -16,21 +16,24 @@
 
 struct test
 {
-	void pool()
-	{
-
-	}
+	
 };
+
+bool compare(const test& t, const utils::Quad& q)
+{
+	return true;
+}
 
 int main(int argc, char* argv[])
 {
-	utils::QuadTree<test> tree;
+	utils::QuadTree<test> tree({ {}, 800, 600 });
 
 	test a;
-	tree.Push(a);
+	for (int i = 0; i < 100; ++i)
+		tree.TryPush(a, compare);
 	tree.Clear();
-	tree.Push(a);
-	auto& b = tree.Navigate(a);
+	tree.TryPush(a, compare);
+	auto b = tree.TryNavigate(a, compare);
 
 	SDL_Init(0);
 

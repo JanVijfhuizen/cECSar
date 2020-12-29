@@ -31,7 +31,7 @@ namespace utils
 		T* instance;
 
 		if (_inactive.empty())
-			instance = new T();
+			instance = new T;
 		else
 		{
 			instance = _inactive.back();
