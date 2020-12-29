@@ -45,8 +45,6 @@ namespace utils
 	template <typename T>
 	constexpr void Pool<T>::Push(T& instance)
 	{
-		instance.pool();
-
 		auto position = std::find(_active.begin(), _active.end(), &instance);
 		_active.erase(position);
 		_inactive.push_back(&instance);
