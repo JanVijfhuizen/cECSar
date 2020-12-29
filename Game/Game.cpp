@@ -13,6 +13,7 @@
 #include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
 #include "Utils/QuadTree.h"
+#include "Systems/CollisionSystem.h"
 
 bool Sort(const game::Transform& t, const utils::Quad& q)
 {
@@ -106,6 +107,11 @@ int main(int argc, char* argv[])
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::KinematicSystem>();
 #pragma endregion
+
+#pragma region Cleanup
+		cecsar.Update<game::TransformSystem>();
+		cecsar.Update<game::CollisionSystem>();
+#pragma endregion 
 	}
 
 	SDL_Quit();

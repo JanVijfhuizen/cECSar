@@ -18,7 +18,7 @@ void game::MovementSystem::OnUpdate(
 	const auto deltaTime = _timeModule->GetDeltaTime();
 	const auto dense = movementComponents.GetDenseRaw();
 
-	auto& jobModule = GetJobModule();
+	auto& jobModule = GetJobConvModule();
 
 	jobModule.ToLinearJobs(movementComponents.GetCount(),
 		[deltaTime, dense, &movementComponents, &transforms, &controllers]

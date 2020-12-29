@@ -5,9 +5,9 @@
 
 namespace game
 {
-	class CollisionSystem final : JobSystem<Collider, Transform>
+	class CollisionSystem final : public JobSystem<Collider, Transform>
 	{
-	public:
-
+	private:
+		void OnUpdate(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) override;
 	};
 }
