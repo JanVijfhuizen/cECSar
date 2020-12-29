@@ -30,6 +30,7 @@ int main(int argc, char* argv[])
 	tree.Push(a);
 	tree.Clear();
 	tree.Push(a);
+	auto& b = tree.Navigate(a);
 
 	SDL_Init(0);
 

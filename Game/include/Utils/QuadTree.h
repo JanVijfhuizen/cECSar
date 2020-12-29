@@ -8,29 +8,40 @@ namespace utils
 	{
 	public:
 		constexpr void Push(T& instance);
+		constexpr std::vector<T*>& Navigate(T& instance);
 		constexpr void Clear();
 
 	private:
 		class Node final
 		{
 		public:
-			constexpr bool TryPush(T& instance, Pool<Node>& pool);
+			std::vector<T*> instances{};
+
+			constexpr Node* TryNavigate(T& instance, Pool<Node>& pool);
+			constexpr void Push(T& instance);
 			constexpr void Clear(Pool<Node>& pool);
 
 		private:
-			std::vector<T*> _instances{};
 			Node* _nested[C]{};
 			bool _isLeaf = true;
 		};
 
-		Pool<Node> _pool;
-		Node _root;
+		Pool<Node> _pool{};
+		Node _root{};
 	};
 
 	template <typename T, size_t C>
 	constexpr void QuadTree<T, C>::Push(T& instance)
 	{
-		_root.TryPush(instance, _pool);
+		Node* node = _root.TryNavigate(instance, _pool);
+		node->Push(instance);
+	}
+
+	template <typename T, size_t C>
+	constexpr std::vector<T*>& QuadTree<T, C>::Navigate(T& instance)
+	{
+		Node* node = _root.TryNavigate(instance, _pool);
+		return node->instances;
 	}
 
 	template <typename T, size_t C>
@@ -40,14 +51,14 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
-	constexpr bool QuadTree<T, C>::Node::TryPush(
+	constexpr typename QuadTree<T, C>::Node* QuadTree<T, C>::Node::TryNavigate(
 		T& instance, Pool<Node>& pool)
 	{
 		// Check if the current leaf is out of capacity.
-		if(_instances.size() >= 4)
+		if (instances.size() >= 4)
 		{
 			// Change into a branch.
-			if(_isLeaf)
+			if (_isLeaf)
 			{
 				_isLeaf = false;
 				for (auto i = 0; i < C; ++i)
@@ -56,15 +67,23 @@ namespace utils
 		}
 
 		// Try to pass it to it's nested leaves/branches.
-		if(!_isLeaf)
+		if (!_isLeaf)
 			for (auto i = 0; i < C; ++i)
-				if (_nested[i]->TryPush(instance, pool))
-					return true;
+			{
+				Node* nested = _nested[i]->TryNavigate(instance, pool);
+				if(nested)
+					return nested;
+			}
 
-		// If it fits in none of the nested branches or the capacity hasn't been reached yet,
-		// add it to this node.
-		_instances.push_back(&instance);
-		return true;
+		// Fitness check.
+
+		return this;
+	}
+
+	template <typename T, size_t C>
+	constexpr void QuadTree<T, C>::Node::Push(T& instance)
+	{
+		instances.push_back(&instance);
 	}
 
 	template <typename T, size_t C>
@@ -73,7 +92,7 @@ namespace utils
 		// Clear self.
 		if (_isLeaf)
 		{
-			_instances.clear();
+			instances.clear();
 			return;
 		}
 
