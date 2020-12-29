@@ -71,6 +71,9 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < 100; ++i)
 			tree.TryPush(ts[i], Sort);
 
+		std::vector<game::Transform*> v;
+		tree.Navigate(ts[2], Sort, v);
+
 		cecsar.GetSet<game::Transform>().Get(oni.index).rotation = 
 			sin(timeModule.GetTime()) * 180;
 		cecsar.GetSet<game::Transform>().Get(ronin.index).rotation =

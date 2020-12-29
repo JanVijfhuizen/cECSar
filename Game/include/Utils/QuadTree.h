@@ -21,7 +21,7 @@ namespace utils
 		template <typename Lambda>
 		constexpr bool TryPush(T& instance, const Lambda&& method);
 		template <typename Lambda>
-		constexpr std::vector<T*>* TryNavigate(T& instance, const Lambda&& method);
+		constexpr void Navigate(T& instance, const Lambda&& method, std::vector<T*>& out);
 		constexpr void Clear();
 
 	private:
@@ -33,7 +33,8 @@ namespace utils
 			std::vector<T*> instances{};
 
 			template <typename Lambda>
-			constexpr Node* TryNavigate(T& instance, const Lambda&& method);
+			constexpr Node* TryNavigate(
+				T& instance, const Lambda&& method, std::vector<T*>* out);
 			template <typename Lambda>
 			constexpr void TrySplit(Pool<Node>& pool, const Lambda&& method);
 
@@ -62,7 +63,7 @@ namespace utils
 	template <typename Lambda>
 	constexpr bool QuadTree<T, C>::TryPush(T& instance, const Lambda&& method)
 	{
-		Node* node = _root.TryNavigate(instance, method);
+		Node* node = _root.TryNavigate(instance, method, nullptr);
 		if (node)
 			node->Push(instance, _pool, method);
 		return node;
@@ -70,10 +71,10 @@ namespace utils
 
 	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr std::vector<T*>* QuadTree<T, C>::TryNavigate(T& instance, const Lambda&& method)
+	constexpr void QuadTree<T, C>::Navigate(
+		T& instance, const Lambda&& method, std::vector<T*>& out)
 	{
-		Node* node = _root.TryNavigate(instance, method);
-		return node ? &node->instances : nullptr;
+		_root.TryNavigate(instance, method, &out);
 	}
 
 	template <typename T, size_t C>
@@ -85,19 +86,37 @@ namespace utils
 	template <typename T, size_t C>
 	template <typename Lambda>
 	constexpr typename QuadTree<T, C>::Node* QuadTree<T, C>::Node::TryNavigate(
-		T& instance, const Lambda&& method)
+		T& instance, const Lambda&& method, std::vector<T*>* out)
 	{
 		// Try to pass it to it's nested leaves/branches.
 		if (!_isLeaf)
 			for (auto i = 0; i < C; ++i)
 			{
-				Node* nested = _nested[i]->TryNavigate(instance, method);
-				if (nested)
+				Node* nested = _nested[i]->TryNavigate(instance, method, out);
+				if (nested) 
+				{
+					// If out is not requested.
+					if (!out)
+						return nested;
+
+					for (auto& inst : instances)
+						out->push_back(inst);
 					return nested;
+				}
 			}
 
 		// Fitness check.
-		return method(instance, quad) ? this : nullptr;
+		const bool fit = method(instance, quad);
+		if (!fit)
+			return nullptr;
+
+		// If out is not requested.
+		if (!out)
+			return this;
+
+		for (auto& inst : instances)
+			out->push_back(inst);
+		return this;
 	}
 
 	template <typename T, size_t C>
@@ -137,7 +156,7 @@ namespace utils
 			{
 				auto& instance = *instances[j];
 
-				if (!nested->TryNavigate(instance, method))
+				if (!nested->TryNavigate(instance, method, nullptr))
 					continue;
 
 				nested->Push(instance, pool, method);
