@@ -12,9 +12,21 @@
 #include "Factories/Environment/EnvironmentFactory.h"
 #include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
+#include "Utils/Pool.h"
+#include "Utils/QuadTree.h"
 
 int main(int argc, char* argv[])
 {
+	struct test
+	{
+		void pool()
+		{
+			
+		}
+	};
+
+	utils::QuadTree<test> tree;
+
 	SDL_Init(0);
 
 	// THIS IS JUST SOME NONSENSE TESTING STUFF.
