@@ -14,27 +14,19 @@
 #include "Systems/KinematicSystem.h"
 #include "Utils/QuadTree.h"
 
-struct test
+bool Sort(const game::Transform& t, const utils::Quad& q)
 {
-	
-};
+	const float x = t.position.x;
+	const float y = t.position.y;
 
-bool compare(const test& t, const utils::Quad& q)
-{
-	return true;
+	const float qX = q.pos.x;
+	const float qY = q.pos.y;
+
+	return x > qX && y > qY && x < qX + q.width && y < qY + q.height;
 }
 
 int main(int argc, char* argv[])
 {
-	utils::QuadTree<test> tree({ {}, 800, 600 });
-
-	test a;
-	for (int i = 0; i < 100; ++i)
-		tree.TryPush(a, compare);
-	tree.Clear();
-	tree.TryPush(a, compare);
-	auto b = tree.TryNavigate(a, compare);
-
 	SDL_Init(0);
 
 	// THIS IS JUST SOME NONSENSE TESTING STUFF.
@@ -70,8 +62,15 @@ int main(int argc, char* argv[])
 
 #pragma endregion
 
+	auto& ts = cecsar.GetSet<game::Transform>();
+	utils::QuadTree<game::Transform> tree{{ {}, 800, 600}};
+
 	while(!quit)
 	{
+		tree.Clear();
+		for (int i = 0; i < 100; ++i)
+			tree.TryPush(ts[i], Sort);
+
 		cecsar.GetSet<game::Transform>().Get(oni.index).rotation = 
 			sin(timeModule.GetTime()) * 180;
 		cecsar.GetSet<game::Transform>().Get(ronin.index).rotation =

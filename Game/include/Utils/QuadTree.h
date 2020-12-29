@@ -16,12 +16,12 @@ namespace utils
 	class QuadTree final
 	{
 	public:
-		using NavMethod = std::function<bool(const T&, const Quad&)>;
-
 		explicit constexpr QuadTree(const Quad& quad, int32_t depth = 8);
 
-		constexpr bool TryPush(T& instance, const NavMethod& method);
-		constexpr std::vector<T*>* TryNavigate(T& instance, const NavMethod& method);
+		template <typename Lambda>
+		constexpr bool TryPush(T& instance, const Lambda&& method);
+		template <typename Lambda>
+		constexpr std::vector<T*>* TryNavigate(T& instance, const Lambda&& method);
 		constexpr void Clear();
 
 	private:
@@ -32,11 +32,14 @@ namespace utils
 			Quad quad{};
 			std::vector<T*> instances{};
 
-			constexpr Node* TryNavigate(T& instance, const NavMethod& method);
-			constexpr void TrySplit(Pool<Node>& pool, const NavMethod& method);
+			template <typename Lambda>
+			constexpr Node* TryNavigate(T& instance, const Lambda&& method);
+			template <typename Lambda>
+			constexpr void TrySplit(Pool<Node>& pool, const Lambda&& method);
 
-			constexpr void Push(T& instance, 
-				Pool<Node>& pool, const NavMethod& method);
+			template <typename Lambda>
+			constexpr void Push(T& instance, Pool<Node>& pool, const Lambda&& method);
+
 			constexpr void Clear(Pool<Node>& pool);
 
 		private:
@@ -56,18 +59,18 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
-	constexpr bool QuadTree<T, C>::TryPush(
-		T& instance, const NavMethod& method)
+	template <typename Lambda>
+	constexpr bool QuadTree<T, C>::TryPush(T& instance, const Lambda&& method)
 	{
 		Node* node = _root.TryNavigate(instance, method);
-		if(node)
+		if (node)
 			node->Push(instance, _pool, method);
 		return node;
 	}
 
 	template <typename T, size_t C>
-	constexpr std::vector<T*>* QuadTree<T, C>::TryNavigate(
-		T& instance, const NavMethod& method)
+	template <typename Lambda>
+	constexpr std::vector<T*>* QuadTree<T, C>::TryNavigate(T& instance, const Lambda&& method)
 	{
 		Node* node = _root.TryNavigate(instance, method);
 		return node ? &node->instances : nullptr;
@@ -80,15 +83,16 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
+	template <typename Lambda>
 	constexpr typename QuadTree<T, C>::Node* QuadTree<T, C>::Node::TryNavigate(
-		T& instance, const NavMethod& method)
+		T& instance, const Lambda&& method)
 	{
 		// Try to pass it to it's nested leaves/branches.
 		if (!_isLeaf)
 			for (auto i = 0; i < C; ++i)
 			{
 				Node* nested = _nested[i]->TryNavigate(instance, method);
-				if(nested)
+				if (nested)
 					return nested;
 			}
 
@@ -97,8 +101,9 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
+	template <typename Lambda>
 	constexpr void QuadTree<T, C>::Node::TrySplit(
-		Pool<Node>& pool, const NavMethod& method)
+		Pool<Node>& pool, const Lambda&& method)
 	{
 		if (depth == 0)
 			return;
@@ -142,8 +147,9 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
+	template <typename Lambda>
 	constexpr void QuadTree<T, C>::Node::Push(
-		T& instance, Pool<Node>& pool, const NavMethod& method)
+		T& instance, Pool<Node>& pool, const Lambda&& method)
 	{
 		instances.push_back(&instance);
 		TrySplit(pool, method);
