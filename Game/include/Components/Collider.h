@@ -6,14 +6,14 @@ namespace game
 {
 	enum class ColliderType
 	{
-		Circle, Rectange
+		Circle, Rectangle
 	};
 
 	struct Collider final
 	{
 		ColliderType type{};
 
-		bool isCollider = false;
+		bool isTrigger = false;
 		bool isStatic = false;
 
 		union
@@ -23,7 +23,7 @@ namespace game
 				float radius;
 			} circle;
 
-			struct Rectange
+			struct Rectangle
 			{
 				float width, height;
 			} rectangle;

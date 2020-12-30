@@ -13,14 +13,12 @@ namespace utils
 		constexpr void Push(T& instance);
 
 	private:
-		std::vector<T*> _active, _inactive;
+		std::vector<T*> _inactive;
 	};
 
 	template <typename T>
 	Pool<T>::~Pool()
 	{
-		for (auto active : _active)
-			delete active;
 		for (auto inactive : _inactive)
 			delete inactive;
 	}
@@ -38,15 +36,12 @@ namespace utils
 			_inactive.pop_back();
 		}
 
-		_active.push_back(instance);
 		return *instance;
 	}
 
 	template <typename T>
 	constexpr void Pool<T>::Push(T& instance)
 	{
-		auto position = std::find(_active.begin(), _active.end(), &instance);
-		_active.erase(position);
 		_inactive.push_back(&instance);
 	}
 }

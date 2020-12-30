@@ -15,17 +15,6 @@
 #include "Utils/QuadTree.h"
 #include "Systems/CollisionSystem.h"
 
-bool Sort(const game::Transform& t, const utils::Quad& q)
-{
-	const float x = t.position.x;
-	const float y = t.position.y;
-
-	const float qX = q.pos.x;
-	const float qY = q.pos.y;
-
-	return x > qX && y > qY && x < qX + q.width && y < qY + q.height;
-}
-
 int main(int argc, char* argv[])
 {
 	SDL_Init(0);
@@ -63,18 +52,8 @@ int main(int argc, char* argv[])
 
 #pragma endregion
 
-	auto& ts = cecsar.GetSet<game::Transform>();
-	utils::QuadTree<game::Transform> tree{{ {}, 800, 600}};
-
 	while(!quit)
 	{
-		tree.Clear();
-		for (int i = 0; i < 100; ++i)
-			tree.TryPush(ts[i], Sort);
-
-		std::vector<game::Transform*> v;
-		tree.Navigate(ts[2], Sort, v);
-
 		cecsar.GetSet<game::Transform>().Get(oni.index).rotation = 
 			sin(timeModule.GetTime()) * 180;
 		cecsar.GetSet<game::Transform>().Get(ronin.index).rotation =
