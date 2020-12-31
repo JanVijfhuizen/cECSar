@@ -4,6 +4,10 @@
 
 namespace utils
 {
+	/*
+	This is a sort of combination between a normal vector and a map.
+	You can iterate over the contents, but you can also very quickly get instances by index.
+	*/
 	template <typename T>
 	class SparseSet final
 	{
@@ -11,25 +15,57 @@ namespace utils
 		typedef float (*Sorter)(const T& instance);
 		constexpr T& operator[](int32_t denseIndex) const;
 
+		/*
+		Get the dense indexes. Each value points to the sparse array and can be used
+		with the method Get() to get the instance at a target index.
+		*/
 		constexpr int32_t* GetDenseRaw() const;
 
+		/*
+		Check if the sparse set contains an object at target index.
+		*/
 		constexpr bool Contains(int32_t sparseIndex) const;
+		/*
+		Gets the count of the dense array.
+		*/
 		constexpr int32_t GetCount() const;
+		/*
+		Gets the capacity, or the count of the sparse array.
+		*/
 		constexpr int32_t GetCapacity() const;
 
 		constexpr SparseSet(int32_t capacity);
 		~SparseSet();
 
+		/*
+		Add an instance to the sparse set.
+		Will fill in the first empty slot.
+		*/
 		constexpr int32_t Add(T val = T());
+		/*
+		Insert an instance at target index.
+		*/
 		constexpr T& Insert(int32_t sparseIndex, T val = T());
+		/*
+		Get an entity at target index.
+		*/
 		constexpr T& Get(int32_t sparseIndex);
 
+		/*
+		Remove an entity at target index.
+		*/
 		constexpr void RemoveAt(int32_t sparseIndex);
+		/*
+		Clear the set.
+		*/
 		constexpr void Clear();
 
 		constexpr T* begin() const;
 		constexpr T* end() const;
 
+		/*
+		Swap two values at target indexes.
+		*/
 		constexpr void Swap(int32_t a, int32_t b);
 
 	private:
@@ -87,6 +123,8 @@ namespace utils
 	template <typename T>
 	constexpr int32_t SparseSet<T>::Add(T val)
 	{
+		// Check if the index is filled.
+		// TODO: optimize by using quick injection.
 		for (int32_t i = 0; i < _capacity; ++i)
 		{
 			if (Contains(i))

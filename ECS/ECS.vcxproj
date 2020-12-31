@@ -166,7 +166,6 @@
     <ClInclude Include="Include\EntityFactory.h" />
     <ClInclude Include="include\IEntityFactory.h" />
     <ClInclude Include="Include\IModule.h" />
-    <ClInclude Include="include\Sorter.h" />
     <ClInclude Include="Include\SparseSet.h" />
     <ClInclude Include="Include\pch.h" />
   </ItemGroup>

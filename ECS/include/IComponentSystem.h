@@ -4,6 +4,10 @@ namespace cecsar
 {
 	class Cecsar;
 
+	/*
+	Used to avoid circular dependencies.
+	Use ComponentSystem instead.
+	*/
 	class IComponentSystem
 	{
 		friend Cecsar;
