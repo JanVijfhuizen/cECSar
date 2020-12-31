@@ -41,7 +41,7 @@ namespace utils
 			template <typename Lambda>
 			constexpr void Push(T& instance, Pool<Node>& pool, const Lambda& method);
 
-			constexpr void Clear(Pool<Node>& pool);
+			constexpr bool Clear(Pool<Node>& pool);
 
 		private:
 			Node* _nested[4]{};
@@ -91,10 +91,10 @@ namespace utils
 		T& instance, const Lambda& method, std::vector<T*>* out)
 	{
 		// Try to pass it to it's nested leaves/branches.
-		if (!_isLeaf)
-			for (auto i = 0; i < 4; ++i)
+		if(!_isLeaf)
+			for (auto& i : _nested)
 			{
-				Node* nested = _nested[i]->TryNavigate(instance, method, out);
+				Node* nested = i->TryNavigate(instance, method, out);
 				if (nested) 
 				{
 					// If out is not requested.
@@ -126,15 +126,15 @@ namespace utils
 	constexpr void QuadTree<T, C>::Node::TrySplit(
 		Pool<Node>& pool, const Lambda& method)
 	{
-		if (depth == 0)
-			return;
 		if (!_isLeaf)
+			return;
+		if (depth == 0)
 			return;
 		if (instances.size() < C)
 			return;
 
-		// Check if the current leaf is out of capacity.
 		_isLeaf = false;
+
 		for (auto i = 0; i < 4; ++i)
 		{
 			auto& nested = _nested[i] = &pool.Get();
@@ -159,9 +159,8 @@ namespace utils
 		{
 			auto& instance = *instances[i];
 
-			for (int32_t j = 0; j < 4; ++j)
+			for (auto& nested : _nested)
 			{
-				auto& nested = _nested[j];
 				if (!nested->TryNavigate(instance, method, nullptr))
 					continue;
 
@@ -182,22 +181,35 @@ namespace utils
 	}
 
 	template <typename T, size_t C>
-	constexpr void QuadTree<T, C>::Node::Clear(Pool<Node>& pool)
+	constexpr bool QuadTree<T, C>::Node::Clear(Pool<Node>& pool)
 	{
+		bool empty = instances.empty();
 		instances.clear();
 
-		// Clear self.
-		if (_isLeaf)
-			return;
-		_isLeaf = true;
-
 		// Clear nested branches.
-		for (auto& i : _nested)
+		if (!_isLeaf)
 		{
-			auto nested = i;
-			nested->Clear(pool);
-			pool.Push(*i);
+			for (auto& i : _nested)
+			{
+				auto nested = i;
+				const bool nestedEmpty = nested->Clear(pool);
+				if (!nestedEmpty)
+					empty = false;
+			}
+
+			// Only pool the nodes if all child nodes are empty.
+			if (empty)
+			{
+				_isLeaf = true;
+				for (auto& i : _nested)
+				{
+					pool.Push(*i);
+					i = nullptr;
+				}
+			}
 		}
+
+		return empty;
 	}
 
 	constexpr Quad::Quad() = default;
