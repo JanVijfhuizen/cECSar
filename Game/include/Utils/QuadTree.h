@@ -1,5 +1,5 @@
 #pragma once
-#include "Pool.h"
+#include <Utils/Pool.h>
 
 namespace utils
 {
@@ -12,16 +12,20 @@ namespace utils
 		inline Quad(const Vector3& pos, float width, float height);
 	};
 
-	template <typename T, size_t C = 4>
+	template <typename T, size_t C = 16>
 	class QuadTree final
 	{
 	public:
+		using Instances = std::vector<std::vector<T*>*>;
+
 		explicit constexpr QuadTree(float width, float height, int32_t depth = 8);
 
 		template <typename Lambda>
 		constexpr bool TryPush(T& instance, const Lambda& method);
+
 		template <typename Lambda>
-		constexpr void Navigate(T& instance, const Lambda& method, std::vector<T*>& out);
+		constexpr void Iterate(const Lambda&& method);
+
 		constexpr void Clear();
 
 	private:
@@ -34,7 +38,7 @@ namespace utils
 
 			template <typename Lambda>
 			constexpr Node* TryNavigate(
-				T& instance, const Lambda& method, std::vector<T*>* out);
+				T& instance, const Lambda& method);
 			template <typename Lambda>
 			constexpr void TrySplit(Pool<Node>& pool, const Lambda& method);
 
@@ -43,6 +47,9 @@ namespace utils
 
 			constexpr bool Clear(Pool<Node>& pool);
 
+			template <typename Lambda>
+			constexpr void Iterate(Instances& vector, Lambda&& method);
+
 		private:
 			Node* _nested[4]{};
 			bool _isLeaf = true;
@@ -50,6 +57,9 @@ namespace utils
 
 		Pool<Node> _pool{};
 		Node _root{};
+
+		template <typename Lambda>
+		constexpr void Navigate(T& instance, const Lambda&& method);
 	};
 
 	template <typename T, size_t C>
@@ -65,7 +75,7 @@ namespace utils
 	template <typename Lambda>
 	constexpr bool QuadTree<T, C>::TryPush(T& instance, const Lambda& method)
 	{
-		Node* node = _root.TryNavigate(instance, method, nullptr);
+		Node* node = _root.TryNavigate(instance, method);
 		if (node)
 			node->Push(instance, _pool, method);
 		return node;
@@ -74,9 +84,9 @@ namespace utils
 	template <typename T, size_t C>
 	template <typename Lambda>
 	constexpr void QuadTree<T, C>::Navigate(
-		T& instance, const Lambda& method, std::vector<T*>& out)
+		T& instance, const Lambda&& method)
 	{
-		_root.TryNavigate(instance, method, &out);
+		_root.TryNavigate(instance, method);
 	}
 
 	template <typename T, size_t C>
@@ -87,37 +97,30 @@ namespace utils
 
 	template <typename T, size_t C>
 	template <typename Lambda>
+	constexpr void QuadTree<T, C>::Iterate(const Lambda&& method)
+	{
+		Instances instances{};
+		_root.Iterate(instances, method);
+	}
+
+	template <typename T, size_t C>
+	template <typename Lambda>
 	constexpr typename QuadTree<T, C>::Node* QuadTree<T, C>::Node::TryNavigate(
-		T& instance, const Lambda& method, std::vector<T*>* out)
+		T& instance, const Lambda& method)
 	{
 		// Try to pass it to it's nested leaves/branches.
 		if(!_isLeaf)
 			for (auto& i : _nested)
 			{
-				Node* nested = i->TryNavigate(instance, method, out);
-				if (nested) 
-				{
-					// If out is not requested.
-					if (!out)
-						return nested;
-
-					for (auto& inst : instances)
-						out->push_back(inst);
+				Node* nested = i->TryNavigate(instance, method);
+				if (nested)
 					return nested;
-				}
 			}
 
 		// Fitness check.
 		const bool fit = method(instance, quad);
 		if (!fit)
 			return nullptr;
-
-		// If out is not requested.
-		if (!out)
-			return this;
-
-		for (auto& inst : instances)
-			out->push_back(inst);
 		return this;
 	}
 
@@ -135,6 +138,7 @@ namespace utils
 
 		_isLeaf = false;
 
+		// Create nested nodes.
 		for (auto i = 0; i < 4; ++i)
 		{
 			auto& nested = _nested[i] = &pool.Get();
@@ -161,7 +165,7 @@ namespace utils
 
 			for (auto& nested : _nested)
 			{
-				if (!nested->TryNavigate(instance, method, nullptr))
+				if (!nested->TryNavigate(instance, method))
 					continue;
 
 				nested->Push(instance, pool, method);
@@ -210,6 +214,24 @@ namespace utils
 		}
 
 		return empty;
+	}
+
+	template <typename T, size_t C>
+	template <typename Lambda>
+	constexpr void QuadTree<T, C>::Node::Iterate(
+		Instances& vector, Lambda&& method)
+	{
+		vector.push_back(&instances);
+
+		// Recursively go though branches.
+		// Only call the method at the leafs.
+		if (_isLeaf)
+			method(vector);
+		else
+			for (auto& nested : _nested)
+				nested->Iterate(vector, method);
+
+		vector.pop_back();
 	}
 
 	constexpr Quad::Quad() = default;

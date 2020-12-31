@@ -15,15 +15,21 @@ void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 
 	const float w = renderModule.SCREEN_WIDTH;
 	const float h = renderModule.SCREEN_HEIGHT;
-	_quadTree = new utils::QuadTree<Collider>(w, h);
+	_quadTree = new utils::QuadTree<int32_t>(w, h);
 }
 
 void game::CollisionSystem::OnUpdate(
 	utils::SparseSet<Collider>& colliders, 
 	utils::SparseSet<Transform>& transforms)
 {
-	auto& jobModule = GetJobModule();
+	FillQuadTree(colliders, transforms);
+	IterateQuadTree(colliders, transforms);
+}
 
+void game::CollisionSystem::FillQuadTree(
+	utils::SparseSet<Collider>& colliders, 
+	utils::SparseSet<Transform>& transforms) const
+{
 	_quadTree->Clear();
 
 	const auto dense = colliders.GetDenseRaw();
@@ -33,47 +39,58 @@ void game::CollisionSystem::OnUpdate(
 		auto world = _transformSystem->ToWorld(local);
 		auto& collider = colliders[i];
 
-		_quadTree->TryPush(collider,
-			[&world](const Collider& collider, const utils::Quad& quad)
-		{
-			const auto& position = world.position;
-
-			const float xCol = position.x;
-			const float yCol = position.y;
-
-			const float xQuad = quad.pos.x;
-			const float yQuad = quad.pos.y;
-
-			const float quadWidth = quad.width;
-			const float quadHeight = quad.height;
-
-			// Switch collision type.
-			switch (collider.type)
+		// Push the colliders based on their positions.
+		_quadTree->TryPush(i,
+			[&world, &collider](const int32_t& _, const utils::Quad& quad)
 			{
-			case ColliderType::Circle:
-				float radiusHalf;
-				radiusHalf = collider.circle.radius / 2;
+				const auto& position = world.position;
 
-				// Horizontal check.
-				if (xCol - radiusHalf < xQuad || 
-					yCol - radiusHalf < yQuad)
-					return false;
+				const float xCol = position.x;
+				const float yCol = position.y;
 
-				// Vertical check.
-				if (xCol + radiusHalf >= xQuad + quadWidth || 
-					yCol + radiusHalf >= yQuad + quadHeight)
-					return false;
+				const float xQuad = quad.pos.x;
+				const float yQuad = quad.pos.y;
+
+				const float quadWidth = quad.width;
+				const float quadHeight = quad.height;
+
+				// Switch collision type.
+				switch (collider.type)
+				{
+				case ColliderType::Circle:
+					float radiusHalf;
+					radiusHalf = collider.circle.radius / 2;
+
+					// Horizontal check.
+					if (xCol - radiusHalf < xQuad ||
+						yCol - radiusHalf < yQuad)
+						return false;
+
+					// Vertical check.
+					if (xCol + radiusHalf >= xQuad + quadWidth ||
+						yCol + radiusHalf >= yQuad + quadHeight)
+						return false;
+
+					return true;
+
+				case ColliderType::Rectangle:
+					throw std::exception("Not Implemented Exception");
+
+				default:
+					break;
+				}
 
 				return true;
-
-			case ColliderType::Rectangle:
-				throw std::exception("Not implemented exception");
-
-			default:
-				break;
-			}
-
-			return true;
-		});
+			});
 	}
+}
+
+void game::CollisionSystem::IterateQuadTree(
+	utils::SparseSet<Collider>& colliders, 
+	utils::SparseSet<Transform>& transforms) const
+{
+	_quadTree->Iterate([](auto& instances)
+		{
+			// Do the thing.
+		});
 }
