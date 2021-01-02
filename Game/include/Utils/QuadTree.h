@@ -3,6 +3,8 @@
 
 namespace utils
 {
+#define QUAD_BLOCK_SIZE 16
+
 	/*
 	Used for intersection checks in the QuadTree.
 	*/
@@ -22,7 +24,6 @@ namespace utils
 	and assigning the intersectable objects to their corresponding quad, where they only
 	need to check collisions with the objects in the same quad.
 	*/
-	template <typename T, size_t C = 16>
 	class QuadTree final
 	{
 	public:
@@ -36,19 +37,19 @@ namespace utils
 		It makes using this algorithms more convoluted, but in the end, this algorithm is
 		ment to increase performance, so that's what I'll do.
 		*/
-		using Instances = std::vector<std::vector<T*>*>;
+		using Instances = std::vector<std::vector<int32_t>*>;
 
 		/*
 		Overload the width and height of the initial quad.
 		The depths corresponds to the maximum depth for nested objects.
 		*/
-		explicit constexpr QuadTree(float width, float height, int32_t depth = 8);
+		inline QuadTree(float width, float height, int32_t depth = 8);
 
 		/*
 		Push an object into the quadtree, while using a lambda to sort it correctly.
 		*/
 		template <typename Lambda>
-		constexpr bool TryPush(T& instance, const Lambda& lambda);
+		constexpr bool TryPush(int32_t instance, const Lambda& lambda);
 		/*
 		Iterate over all the different groups in the tree.
 		Do please look at the way Instances is constructed, since it's done in a bit
@@ -62,7 +63,7 @@ namespace utils
 		It only pools nodes that are empty, to save performance when filling/clearing frequently.
 		To save ALL the nodes removed regardless, simply clear twice.
 		*/
-		constexpr void Clear();
+		inline void Clear();
 
 	private:
 		/*
@@ -74,14 +75,14 @@ namespace utils
 		public:
 			int32_t depth = 0;
 			Quad quad{};
-			std::vector<T*> instances{};
+			std::vector<int32_t> instances{};
 
 			/*
 			Recursively iterate through the nodes.
 			If the lambda returns true, the instance fits within this node.
 			*/
 			template <typename Lambda>
-			constexpr Node* TryNavigate(T& instance, const Lambda& lambda);
+			constexpr Node* TryNavigate(int32_t instance, const Lambda& lambda);
 			/*
 			Try splitting the node into multiple sub nodes.
 			Done when there are too many instances in the node.
@@ -94,7 +95,7 @@ namespace utils
 			Also check if the node needs to split.
 			*/
 			template <typename Lambda>
-			constexpr void Push(T& instance, Pool<Node>& pool, const Lambda& lambda);
+			constexpr void Push(int32_t instance, Pool<Node>& pool, const Lambda& lambda);
 			/*
 			Recursively iterate through all the groups and use them as a parameter
 			in the overloaded lambda.
@@ -105,7 +106,7 @@ namespace utils
 			/*
 			Clear the node. Doest pool the node if it's not empty.
 			*/
-			constexpr bool Clear(Pool<Node>& pool);
+			inline bool Clear(Pool<Node>& pool);
 
 		private:
 			Node* _nested[4]{};
@@ -116,8 +117,7 @@ namespace utils
 		Node _root{};
 	};
 
-	template <typename T, size_t C>
-	constexpr QuadTree<T, C>::QuadTree(const float width, const float height, const int32_t depth)
+	inline QuadTree::QuadTree(const float width, const float height, const int32_t depth)
 	{
 		Quad&& quad{ {}, width, height };
 
@@ -125,9 +125,8 @@ namespace utils
 		_root.depth = depth;
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr bool QuadTree<T, C>::TryPush(T& instance, const Lambda& lambda)
+	constexpr bool QuadTree::TryPush(int32_t instance, const Lambda& lambda)
 	{
 		Node* node = _root.TryNavigate(instance, lambda);
 		if (node)
@@ -135,24 +134,21 @@ namespace utils
 		return node;
 	}
 
-	template <typename T, size_t C>
-	constexpr void QuadTree<T, C>::Clear()
+	inline void QuadTree::Clear()
 	{
 		_root.Clear(_pool);
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr void QuadTree<T, C>::Iterate(const Lambda&& lambda)
+	constexpr void QuadTree::Iterate(const Lambda&& lambda)
 	{
 		Instances instances{};
 		_root.Iterate(instances, lambda);
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr typename QuadTree<T, C>::Node* QuadTree<T, C>::Node::TryNavigate(
-		T& instance, const Lambda& lambda)
+	constexpr typename QuadTree::Node* QuadTree::Node::TryNavigate(
+		int32_t instance, const Lambda& lambda)
 	{
 		// Try to pass it to it's nested leaves/branches.
 		if(!_isLeaf)
@@ -170,9 +166,8 @@ namespace utils
 		return this;
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr void QuadTree<T, C>::Node::TrySplit(
+	constexpr void QuadTree::Node::TrySplit(
 		Pool<Node>& pool, const Lambda& lambda)
 	{
 		// Check if it's splittable.
@@ -180,7 +175,7 @@ namespace utils
 			return;
 		if (depth == 0)
 			return;
-		if (instances.size() < C)
+		if (instances.size() < QUAD_BLOCK_SIZE)
 			return;
 
 		_isLeaf = false;
@@ -208,7 +203,7 @@ namespace utils
 		// Emplace all instances in nested nodes.
 		for (int32_t i = instances.size() - 1; i >= 0; --i)
 		{
-			auto& instance = *instances[i];
+			auto& instance = instances[i];
 
 			for (auto& nested : _nested)
 			{
@@ -222,52 +217,49 @@ namespace utils
 		}
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr void QuadTree<T, C>::Node::Push(
-		T& instance, Pool<Node>& pool, const Lambda& lambda)
+	constexpr void QuadTree::Node::Push(
+		int32_t instance, Pool<Node>& pool, const Lambda& lambda)
 	{
-		instances.push_back(&instance);
+		instances.push_back(instance);
 		TrySplit(pool, lambda);
 	}
 
-	template <typename T, size_t C>
-	constexpr bool QuadTree<T, C>::Node::Clear(Pool<Node>& pool)
+	inline bool QuadTree::Node::Clear(Pool<Node>& pool)
 	{
 		bool empty = instances.empty();
 		instances.clear();
 
+		// If this doesn't have nested nodes.
+		if (_isLeaf)
+			return empty;
+
 		// Clear nested branches.
-		if (!_isLeaf)
+		// Check if every child node is empty.
+		for (auto& i : _nested)
 		{
-			// Check if every child node is empty.
+			auto nested = i;
+			const bool nestedEmpty = nested->Clear(pool);
+			if (!nestedEmpty)
+				empty = false;
+		}
+
+		// Only pool the nodes if all child nodes are empty.
+		if (empty)
+		{
+			_isLeaf = true;
 			for (auto& i : _nested)
 			{
-				auto nested = i;
-				const bool nestedEmpty = nested->Clear(pool);
-				if (!nestedEmpty)
-					empty = false;
-			}
-
-			// Only pool the nodes if all child nodes are empty.
-			if (empty)
-			{
-				_isLeaf = true;
-				for (auto& i : _nested)
-				{
-					pool.Push(*i);
-					i = nullptr;
-				}
+				pool.Push(*i);
+				i = nullptr;
 			}
 		}
 
 		return empty;
 	}
 
-	template <typename T, size_t C>
 	template <typename Lambda>
-	constexpr void QuadTree<T, C>::Node::Iterate(
-		Instances& vector, Lambda&& lambda)
+	constexpr void QuadTree::Node::Iterate(Instances& vector, Lambda&& lambda)
 	{
 		vector.push_back(&instances);
 
