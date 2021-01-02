@@ -26,8 +26,8 @@ void game::CollisionSystem::OnUpdate(
 	utils::SparseSet<Transform>& transforms)
 {
 	UpdateBuffer(colliders, transforms);
-	FillQuadTree(colliders, transforms);
-	IterateQuadTree(colliders, transforms);
+	FillQuadTree(colliders);
+	IterateQuadTree(colliders);
 }
 
 void game::CollisionSystem::UpdateBuffer(
@@ -43,9 +43,7 @@ void game::CollisionSystem::UpdateBuffer(
 	}
 }
 
-void game::CollisionSystem::FillQuadTree(
-	utils::SparseSet<Collider>& colliders, 
-	utils::SparseSet<Transform>& transforms) const
+void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) const
 {
 	_quadTree->Clear();
 
@@ -63,12 +61,8 @@ void game::CollisionSystem::FillQuadTree(
 	}
 }
 
-void game::CollisionSystem::IterateQuadTree(
-	utils::SparseSet<Collider>& colliders, 
-	utils::SparseSet<Transform>& transforms) const
+void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders) const
 {
-	return;
-
 	_quadTree->Iterate([this, &colliders](auto& instances)
 	{
 		// List of instances that could collide with eachother.
@@ -81,18 +75,18 @@ void game::CollisionSystem::IterateQuadTree(
 				// Information entity A.
 				const int32_t aIndex = aVector[j];
 				auto& aCollider = colliders.Get(aIndex);
-				const auto aWorld = _worldBuffer[aIndex];
+				auto& aWorld = _worldBuffer[aIndex];
 
 				// Check every other collidable entity.
-				for (int32_t k = instances.size() - 1; k >= i; --k)
+				for (int32_t k = i - 1; k >= 0; --k)
 				{
 					auto& bVector = *instances[i];
-					for (int32_t l = bVector.size() - 1; l > j; --l)
+					for (int32_t l = j - 1; l >= 0; --l)
 					{
 						// Information entity B.
 						const int32_t bIndex = bVector[l];
 						auto& bCollider = colliders.Get(bIndex);
-						const auto bWorld = _worldBuffer[bIndex];
+						auto& bWorld = _worldBuffer[bIndex];
 
 						// If the intersection check fails.
 						if (!IntersectsOther(
@@ -122,31 +116,17 @@ bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
 	const float quadWidth = quad.width;
 	const float quadHeight = quad.height;
 
-	// Switch collision type.
-	switch (collider.type)
-	{
-	case ColliderType::Circle:
-		float radiusHalf;
-		radiusHalf = collider.circle.radius / 2;
+	const float radiusHalf = collider.radius / 2;
 
-		// Horizontal check.
-		if (xCol - radiusHalf < xQuad ||
-			yCol - radiusHalf < yQuad)
-			return false;
+	// Horizontal check.
+	if (xCol - radiusHalf < xQuad ||
+		yCol - radiusHalf < yQuad)
+		return false;
 
-		// Vertical check.
-		if (xCol + radiusHalf >= xQuad + quadWidth ||
-			yCol + radiusHalf >= yQuad + quadHeight)
-			return false;
-
-		return true;
-
-	case ColliderType::Rectangle:
-		throw std::exception("Not Implemented Exception");
-
-	default:
-		break;
-	}
+	// Vertical check.
+	if (xCol + radiusHalf >= xQuad + quadWidth ||
+		yCol + radiusHalf >= yQuad + quadHeight)
+		return false;
 
 	return true;
 }
@@ -155,5 +135,6 @@ bool game::CollisionSystem::IntersectsOther(
 	const Collider& aCollider, const Transform& aWorld,
 	const Collider& bCollider, const Transform& bWorld)
 {
-	return true;
+	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
+	return (aWorld.position - bWorld.position).Magnitude() < threshold;
 }

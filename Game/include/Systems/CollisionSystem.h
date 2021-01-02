@@ -20,8 +20,8 @@ namespace game
 
 		void OnUpdate(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) override;
 		void UpdateBuffer(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) const;
-		void FillQuadTree(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) const;
-		void IterateQuadTree(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) const;
+		void FillQuadTree(utils::SparseSet<Collider>&) const;
+		void IterateQuadTree(utils::SparseSet<Collider>&) const;
 
 		static bool IntersectsQuad(const Collider& collider, 
 			const Transform& world, const utils::Quad& quad);
