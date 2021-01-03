@@ -78,7 +78,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			*/
 			template <typename Lambda>
 			constexpr void Iterate(std::vector<Node*>& vector, 
-				int32_t& anchor, Lambda&& lambda);
+				int32_t& anchor, int32_t maxDepth, Lambda&& lambda);
 
 			/*
 			Clear the node. Doest pool the node if it's not empty.
@@ -144,7 +144,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	{
 		std::vector<Node*> instances{};
 		int32_t anchor = 0;
-		_root.Iterate(instances, anchor, lambda);
+		_root.Iterate(instances, anchor, _root._depth, lambda);
 	}
 
 	template <typename Lambda>
@@ -262,7 +262,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	template <typename Lambda>
 	constexpr void QuadTree::Node::Iterate(std::vector<Node*>& vector, 
-		int32_t& anchor, Lambda&& lambda)
+		int32_t& anchor, const int32_t maxDepth, Lambda&& lambda)
 	{
 		vector.push_back(this);
 
@@ -272,10 +272,10 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			lambda(vector, anchor);
 		else
 			for (auto& nested : _nested)
-				nested->Iterate(vector, anchor, lambda);
+				nested->Iterate(vector, anchor, maxDepth, lambda);
 
 		vector.pop_back();
-		anchor = _depth;
+		anchor = maxDepth - _depth;
 	}
 
 	constexpr Quad::Quad() = default;
