@@ -3,7 +3,7 @@
 
 namespace utils
 {
-constexpr auto QUAD_BLOCK_SIZE = 16;
+constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	/*
 	Used for intersection checks in the QuadTree.
@@ -89,7 +89,7 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 		Overload the width and height of the initial quad.
 		The depths corresponds to the maximum depth for nested objects.
 		*/
-		inline QuadTree(float width, float height, int32_t depth = 8);
+		inline QuadTree(float width, float height, int32_t depth = 4);
 
 		/*
 		Push an object into the quadtree, while using a lambda to sort it correctly.

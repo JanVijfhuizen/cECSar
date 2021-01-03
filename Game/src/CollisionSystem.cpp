@@ -1,6 +1,7 @@
 ﻿#include <Systems/CollisionSystem.h>
 #include "Systems/TransformSystem.h"
 #include "Modules/RenderModule.h"
+#include <iostream>
 
 game::CollisionSystem::~CollisionSystem()
 {
@@ -87,6 +88,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 			}
 		});
 
+	// Clear the empty nodes.
 	_quadTree->Clear(false);
 
 	// Only push the instances that have changed their position within the tree.
@@ -97,8 +99,8 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		auto& buffer = _transformBuffer[dense[i]];
 		if (buffer.sorted)
 			continue;
-		buffer.sorted = true;
 
+		buffer.sorted = true;
 		auto& world = _transformBuffer[dense[i]].world;
 
 		// Push the colliders based on their positions.
@@ -112,7 +114,9 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders) const
 {
-	_quadTree->Iterate([this, &colliders](auto& nodes)
+	int collisionChecks = 0;
+
+	_quadTree->Iterate([this, &colliders, &collisionChecks](auto& nodes)
 	{
 		// List of nodes.
 		for (int32_t i = nodes.size() - 1; i >= 0; --i)
@@ -137,6 +141,8 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 						auto& bCollider = colliders.Get(bIndex);
 						auto& bWorld = _transformBuffer[bIndex].world;
 
+						collisionChecks++;
+
 						// If the intersection check fails.
 						if (!IntersectsOther(
 							aCollider, aWorld, 
@@ -149,6 +155,8 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 			}
 		}
 	});
+
+	std::cout << "Collision Checks: " << collisionChecks << std::endl;
 }
 
 bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
