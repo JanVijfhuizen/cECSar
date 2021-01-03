@@ -82,7 +82,7 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 			/*
 			Clear the node. Doest pool the node if it's not empty.
 			*/
-			inline bool Clear(Pool<Node>& pool);
+			inline bool Clear(Pool<Node>& pool, bool clearInstances);
 		};
 
 		/*
@@ -109,7 +109,7 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 		It only pools nodes that are empty, to save performance when filling/clearing frequently.
 		To save ALL the nodes removed regardless, simply clear twice.
 		*/
-		inline void Clear();
+		inline void Clear(bool clearInstances);
 
 	private:
 		Pool<Node> _pool{};
@@ -133,9 +133,9 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 		return node;
 	}
 
-	inline void QuadTree::Clear()
+	inline void QuadTree::Clear(const bool clearInstances)
 	{
-		_root.Clear(_pool);
+		_root.Clear(_pool, clearInstances);
 	}
 
 	template <typename Lambda>
@@ -224,10 +224,11 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 		TrySplit(pool, lambda);
 	}
 
-	inline bool QuadTree::Node::Clear(Pool<Node>& pool)
+	inline bool QuadTree::Node::Clear(Pool<Node>& pool, const bool clearInstances)
 	{
 		bool empty = instances.empty();
-		instances.clear();
+		if(clearInstances)
+			instances.clear();
 
 		// If this doesn't have nested nodes.
 		if (_isLeaf)
@@ -238,7 +239,7 @@ constexpr auto QUAD_BLOCK_SIZE = 16;
 		for (auto& i : _nested)
 		{
 			auto nested = i;
-			const bool nestedEmpty = nested->Clear(pool);
+			const bool nestedEmpty = nested->Clear(pool, clearInstances);
 			if (!nestedEmpty)
 				empty = false;
 		}

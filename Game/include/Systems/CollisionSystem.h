@@ -11,9 +11,16 @@ namespace game
 	class CollisionSystem final : public JobSystem<Collider, Transform>
 	{
 	private:
+		struct TransformBuffer
+		{
+			bool moved = false;
+			bool sorted = false;
+			Transform world{};
+		};
+
 		utils::QuadTree* _quadTree = nullptr;
 		TransformSystem* _transformSystem = nullptr;
-		Transform* _worldBuffer = nullptr;
+		TransformBuffer* _transformBuffer = nullptr;
 
 		~CollisionSystem();
 		void Initialize(cecsar::Cecsar& cecsar) override;
