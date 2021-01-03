@@ -30,6 +30,8 @@ namespace game
 		void FillQuadTree(utils::SparseSet<Collider>&) const;
 		void IterateQuadTree(utils::SparseSet<Collider>&) const;
 
+		void OnCollision(int32_t a, int32_t b);
+
 		static bool IntersectsQuad(const Collider& collider, 
 			const Transform& world, const utils::Quad& quad);
 

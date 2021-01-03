@@ -52,7 +52,7 @@ void game::CollisionSystem::UpdateBuffer(
 
 void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) const
 {
-	// Remove only the instances that are either invalid or have moved (too much).
+	// Remove the instances that are either invalid or have moved (too much).
 	_quadTree->Iterate([this, &colliders](auto& nodes)
 		{
 			// List of nodes.
@@ -95,16 +95,18 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 	const auto dense = colliders.GetDenseRaw();
 	for (int32_t i = colliders.GetCount() - 1; i >= 0; --i)
 	{
+		const int32_t index = dense[i];
+
 		auto& collider = colliders[i];
-		auto& buffer = _transformBuffer[dense[i]];
+		auto& buffer = _transformBuffer[index];
 		if (buffer.sorted)
 			continue;
 
 		buffer.sorted = true;
-		auto& world = _transformBuffer[dense[i]].world;
+		auto& world = buffer.world;
 
 		// Push the colliders based on their positions.
-		_quadTree->TryPush(i, [&collider, &world](
+		_quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
 				return IntersectsQuad(collider, world, quad);
@@ -114,9 +116,10 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders) const
 {
-	int collisionChecks = 0;
+	int32_t checks = 0;
 
-	_quadTree->Iterate([this, &colliders, &collisionChecks](auto& nodes)
+	// Check for possible collisions.
+	_quadTree->Iterate([this, &colliders, &checks](auto& nodes)
 	{
 		// List of nodes.
 		for (int32_t i = nodes.size() - 1; i >= 0; --i)
@@ -130,18 +133,34 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 				auto& aCollider = colliders.Get(aIndex);
 				auto& aWorld = _transformBuffer[aIndex].world;
 
+				// Check with own vector.
+				for (int32_t k = j - 1; k >= 0; --k)
+				{
+					// Information entity B.
+					const int32_t bIndex = aVector[k];
+					auto& bCollider = colliders.Get(bIndex);
+					auto& bWorld = _transformBuffer[bIndex].world;
+
+					if (!IntersectsOther(
+						aCollider, aWorld,
+						bCollider, bWorld))
+						continue;
+
+					OnCollision(aIndex, bIndex);
+				}
+
 				// Check every other collidable entity.
 				for (int32_t k = i - 1; k >= 0; --k)
 				{
 					auto& bVector = nodes[i]->instances;
-					for (int32_t l = j - 1; l >= 0; --l)
+					for (int32_t l = bVector.size() - 1; l >= 0; --l)
 					{
+						checks++;
+
 						// Information entity B.
 						const int32_t bIndex = bVector[l];
 						auto& bCollider = colliders.Get(bIndex);
 						auto& bWorld = _transformBuffer[bIndex].world;
-
-						collisionChecks++;
 
 						// If the intersection check fails.
 						if (!IntersectsOther(
@@ -149,14 +168,19 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 							bCollider, bWorld))
 							continue;
 
-						// Do the thing.
+						OnCollision(aIndex, bIndex);
 					}
 				}
 			}
 		}
 	});
 
-	std::cout << "Collision Checks: " << collisionChecks << std::endl;
+	std::cout << checks << std::endl;
+}
+
+void game::CollisionSystem::OnCollision(const int32_t a, const int32_t b) const
+{
+	// Do the thing.
 }
 
 bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
