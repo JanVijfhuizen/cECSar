@@ -77,7 +77,8 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			ment to increase performance, so that's what I'll do.
 			*/
 			template <typename Lambda>
-			constexpr void Iterate(std::vector<Node*>& vector, Lambda&& lambda);
+			constexpr void Iterate(std::vector<Node*>& vector, 
+				int32_t& anchor, Lambda&& lambda);
 
 			/*
 			Clear the node. Doest pool the node if it's not empty.
@@ -142,7 +143,8 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	constexpr void QuadTree::Iterate(const Lambda&& lambda)
 	{
 		std::vector<Node*> instances{};
-		_root.Iterate(instances, lambda);
+		int32_t anchor = 0;
+		_root.Iterate(instances, anchor, lambda);
 	}
 
 	template <typename Lambda>
@@ -259,19 +261,21 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	}
 
 	template <typename Lambda>
-	constexpr void QuadTree::Node::Iterate(std::vector<Node*>& vector, Lambda&& lambda)
+	constexpr void QuadTree::Node::Iterate(std::vector<Node*>& vector, 
+		int32_t& anchor, Lambda&& lambda)
 	{
 		vector.push_back(this);
 
 		// Recursively go though branches.
 		// Only call the lambda at the leafs.
 		if (_isLeaf)
-			lambda(vector);
+			lambda(vector, anchor);
 		else
 			for (auto& nested : _nested)
-				nested->Iterate(vector, lambda);
+				nested->Iterate(vector, anchor, lambda);
 
 		vector.pop_back();
+		anchor = _depth;
 	}
 
 	constexpr Quad::Quad() = default;
