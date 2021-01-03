@@ -59,7 +59,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 			{
 				auto& node = *nodes[i];
 				auto& quad = node.quad;
-				auto& vector = nodes[i]->instances;
+				auto& vector = node.instances;
 
 				for (int32_t j = vector.size() - 1; j >= 0; --j)
 				{
@@ -120,53 +120,51 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	_quadTree->Iterate([this, &colliders, &checks](auto& nodes, const int32_t anchor)
 	{
 		// List of nodes.
-		for (int32_t i = nodes.size() - 1; i >= 0; --i)
+		for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 		{
-			// Instances for each (sub)node.
-			auto& aVector = nodes[i]->instances;
-			for (int32_t j = aVector.size() - 1; j >= 0; --j)
-			{
-				// Information entity A.
-				const int32_t aIndex = aVector[j];
-				auto& aCollider = colliders.Get(aIndex);
-				auto& aWorld = _transformBuffer[aIndex].world;
+			auto& node = *nodes[i];
+			auto& vector = node.instances;
 
-				// Check with own vector.
+			// Check collision for own instances.
+			for (int32_t j = vector.size() - 1; j >= 0; --j)
+			{
+				const int32_t index = vector[j];
+				auto& collider = colliders.Get(index);
+				auto& world = _transformBuffer[index].world;
+
 				for (int32_t k = j - 1; k >= 0; --k)
 				{
-					// Information entity B.
-					const int32_t bIndex = aVector[k];
-					auto& bCollider = colliders.Get(bIndex);
-					auto& bWorld = _transformBuffer[bIndex].world;
+					const int32_t otherIndex = vector[j];
+					auto& otherCollider = colliders.Get(otherIndex);
+					auto& otherWorld = _transformBuffer[otherIndex].world;
 
-					if (!IntersectsOther(
-						aCollider, aWorld,
-						bCollider, bWorld))
-						continue;
-
-					OnCollision(aIndex, bIndex);
+					checks++;
+					if (IntersectsOther(collider, world,
+						otherCollider, otherWorld))
+						OnCollision(index, otherIndex);
 				}
+			}
 
-				// Check every other collidable entity.
-				for (int32_t k = i - 1; k >= 0; --k)
+			// Check instance collisions against other nodes.
+			for (int32_t j = i - 1; j >= 0; --j)
+			{
+				auto& otherNode = *nodes[j];
+				auto& otherVector = otherNode.instances;
+
+				for (auto& index : vector)
 				{
-					auto& bVector = nodes[i]->instances;
-					for (int32_t l = bVector.size() - 1; l >= 0; --l)
+					auto& collider = colliders.Get(index);
+					auto& world = _transformBuffer[index].world;
+
+					for (auto& otherIndex : otherVector)
 					{
+						auto& otherCollider = colliders.Get(otherIndex);
+						auto& otherWorld = _transformBuffer[otherIndex].world;
+
 						checks++;
-
-						// Information entity B.
-						const int32_t bIndex = bVector[l];
-						auto& bCollider = colliders.Get(bIndex);
-						auto& bWorld = _transformBuffer[bIndex].world;
-
-						// If the intersection check fails.
-						if (!IntersectsOther(
-							aCollider, aWorld, 
-							bCollider, bWorld))
-							continue;
-
-						OnCollision(aIndex, bIndex);
+						if (IntersectsOther(collider, world,
+							otherCollider, otherWorld))
+							OnCollision(index, otherIndex);
 					}
 				}
 			}

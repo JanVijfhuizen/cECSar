@@ -12,7 +12,6 @@
 #include "Factories/Environment/EnvironmentFactory.h"
 #include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
-#include "Utils/QuadTree.h"
 #include "Systems/CollisionSystem.h"
 
 int main(int argc, char* argv[])

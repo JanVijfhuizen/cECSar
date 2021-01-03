@@ -90,7 +90,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Overload the width and height of the initial quad.
 		The depths corresponds to the maximum depth for nested objects.
 		*/
-		inline QuadTree(float width, float height, int32_t depth = 4);
+		inline QuadTree(float width, float height, int32_t depth = 8);
 
 		/*
 		Push an object into the quadtree, while using a lambda to sort it correctly.
@@ -176,7 +176,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			return;
 		if (_depth == 0)
 			return;
-		if (instances.size() < QUAD_BLOCK_SIZE)
+		if (instances.size() <= QUAD_BLOCK_SIZE)
 			return;
 
 		_isLeaf = false;
