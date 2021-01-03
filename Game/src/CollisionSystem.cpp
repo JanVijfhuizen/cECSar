@@ -45,6 +45,12 @@ void game::CollisionSystem::UpdateBuffer(
 
 void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) const
 {
+	// Remove only the instances that are either invalid or have moved (too much).
+	_quadTree->Iterate([this, &colliders](auto& instances)
+		{
+
+		});
+
 	_quadTree->Clear();
 
 	for (int32_t i = colliders.GetCount() - 1; i >= 0; --i)
@@ -69,7 +75,7 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 		for (int32_t i = instances.size() - 1; i >= 0; --i)
 		{
 			// Instances for each (sub)node.
-			auto& aVector = *instances[i];
+			auto& aVector = instances[i]->instances;
 			for (int32_t j = aVector.size() - 1; j >= 0; --j)
 			{
 				// Information entity A.
@@ -80,7 +86,7 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 				// Check every other collidable entity.
 				for (int32_t k = i - 1; k >= 0; --k)
 				{
-					auto& bVector = *instances[i];
+					auto& bVector = instances[i]->instances;
 					for (int32_t l = j - 1; l >= 0; --l)
 					{
 						// Information entity B.

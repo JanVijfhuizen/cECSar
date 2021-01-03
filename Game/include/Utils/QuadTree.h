@@ -3,7 +3,7 @@
 
 namespace utils
 {
-#define QUAD_BLOCK_SIZE 16
+constexpr auto QUAD_BLOCK_SIZE = 16;
 
 	/*
 	Used for intersection checks in the QuadTree.
@@ -28,16 +28,62 @@ namespace utils
 	{
 	public:
 		/*
-		Rather than constantly filling a single vector every single frame,
-		I decided to just return a vector of instances.
-
-		This way I only have to refill a single vector instead of copying all those
-		entity references, which is costly to say the least.
-
-		It makes using this algorithms more convoluted, but in the end, this algorithm is
-		ment to increase performance, so that's what I'll do.
+		Class that recursively nests to create the tree.
+		Holds instances.
 		*/
-		using Instances = std::vector<std::vector<int32_t>*>;
+		class Node final
+		{
+			friend QuadTree;
+
+		public:
+			Quad quad{};
+			std::vector<int32_t> instances{};
+
+		private:
+			Node* _nested[4]{};
+			int32_t _depth = 0;
+			bool _isLeaf = true;
+
+			/*
+			Recursively iterate through the nodes.
+			If the lambda returns true, the instance fits within this node.
+			*/
+			template <typename Lambda>
+			constexpr Node* TryNavigate(int32_t instance, const Lambda& lambda);
+			/*
+			Try splitting the node into multiple sub nodes.
+			Done when there are too many instances in the node.
+			*/
+			template <typename Lambda>
+			constexpr void TrySplit(Pool<Node>& pool, const Lambda& lambda);
+
+			/*
+			Push an instance to this node.
+			Also check if the node needs to split.
+			*/
+			template <typename Lambda>
+			constexpr void Push(int32_t instance, Pool<Node>& pool, const Lambda& lambda);
+			/*
+			Recursively iterate through all the groups and use them as a parameter
+			in the overloaded lambda.
+
+			Rather than constantly filling a single vector every single frame,
+			I decided to just return a vector of instances.
+
+			This way I only have to refill a single vector instead of copying all those
+			entity references, which is costly to say the least.
+
+			It makes using this algorithms more convoluted, but in the end, this algorithm is
+			ment to increase performance, so that's what I'll do.
+			*/
+			template <typename Lambda>
+			constexpr void Iterate(std::vector<Node*>& vector, Lambda&& lambda);
+
+			/*
+			Clear the node. Doest pool the node if it's not empty.
+			*/
+			inline bool Clear(Pool<Node>& pool);
+		};
 
 		/*
 		Overload the width and height of the initial quad.
@@ -66,53 +112,6 @@ namespace utils
 		inline void Clear();
 
 	private:
-		/*
-		Internal class that recursively nests to create the tree.
-		Holds instances.
-		*/
-		class Node final
-		{
-		public:
-			int32_t depth = 0;
-			Quad quad{};
-			std::vector<int32_t> instances{};
-
-			/*
-			Recursively iterate through the nodes.
-			If the lambda returns true, the instance fits within this node.
-			*/
-			template <typename Lambda>
-			constexpr Node* TryNavigate(int32_t instance, const Lambda& lambda);
-			/*
-			Try splitting the node into multiple sub nodes.
-			Done when there are too many instances in the node.
-			*/
-			template <typename Lambda>
-			constexpr void TrySplit(Pool<Node>& pool, const Lambda& lambda);
-
-			/*
-			Push an instance to this node.
-			Also check if the node needs to split.
-			*/
-			template <typename Lambda>
-			constexpr void Push(int32_t instance, Pool<Node>& pool, const Lambda& lambda);
-			/*
-			Recursively iterate through all the groups and use them as a parameter
-			in the overloaded lambda.
-			*/
-			template <typename Lambda>
-			constexpr void Iterate(Instances& vector, Lambda&& lambda);
-
-			/*
-			Clear the node. Doest pool the node if it's not empty.
-			*/
-			inline bool Clear(Pool<Node>& pool);
-
-		private:
-			Node* _nested[4]{};
-			bool _isLeaf = true;
-		};
-
 		Pool<Node> _pool{};
 		Node _root{};
 	};
@@ -122,7 +121,7 @@ namespace utils
 		Quad&& quad{ {}, width, height };
 
 		_root.quad = quad;
-		_root.depth = depth;
+		_root._depth = depth;
 	}
 
 	template <typename Lambda>
@@ -142,12 +141,12 @@ namespace utils
 	template <typename Lambda>
 	constexpr void QuadTree::Iterate(const Lambda&& lambda)
 	{
-		Instances instances{};
+		std::vector<Node*> instances{};
 		_root.Iterate(instances, lambda);
 	}
 
 	template <typename Lambda>
-	constexpr typename QuadTree::Node* QuadTree::Node::TryNavigate(
+	constexpr QuadTree::Node* QuadTree::Node::TryNavigate(
 		int32_t instance, const Lambda& lambda)
 	{
 		// Try to pass it to it's nested leaves/branches.
@@ -173,7 +172,7 @@ namespace utils
 		// Check if it's splittable.
 		if (!_isLeaf)
 			return;
-		if (depth == 0)
+		if (_depth == 0)
 			return;
 		if (instances.size() < QUAD_BLOCK_SIZE)
 			return;
@@ -184,7 +183,7 @@ namespace utils
 		for (auto i = 0; i < 4; ++i)
 		{
 			auto& nested = _nested[i] = &pool.Get();
-			nested->depth = depth - 1;
+			nested->_depth = _depth - 1;
 
 			const bool isEven = i % 2 == 0;
 			const float width = quad.width / 2;
@@ -259,9 +258,9 @@ namespace utils
 	}
 
 	template <typename Lambda>
-	constexpr void QuadTree::Node::Iterate(Instances& vector, Lambda&& lambda)
+	constexpr void QuadTree::Node::Iterate(std::vector<Node*>& vector, Lambda&& lambda)
 	{
-		vector.push_back(&instances);
+		vector.push_back(this);
 
 		// Recursively go though branches.
 		// Only call the lambda at the leafs.
