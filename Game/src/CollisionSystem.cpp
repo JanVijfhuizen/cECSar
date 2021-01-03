@@ -114,10 +114,8 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders) const
 {
-	int32_t checks = 0;
-
 	// Check for possible collisions.
-	_quadTree->Iterate([this, &colliders, &checks](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([this, &colliders](auto& nodes, const int32_t anchor)
 	{
 		// List of nodes.
 		for (int32_t i = nodes.size() - 1; i >= anchor; --i)
@@ -138,7 +136,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 					auto& otherCollider = colliders.Get(otherIndex);
 					auto& otherWorld = _transformBuffer[otherIndex].world;
 
-					checks++;
 					if (IntersectsOther(collider, world,
 						otherCollider, otherWorld))
 						OnCollision(index, otherIndex);
@@ -161,7 +158,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 						auto& otherCollider = colliders.Get(otherIndex);
 						auto& otherWorld = _transformBuffer[otherIndex].world;
 
-						checks++;
 						if (IntersectsOther(collider, world,
 							otherCollider, otherWorld))
 							OnCollision(index, otherIndex);
@@ -170,8 +166,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 			}
 		}
 	});
-
-	std::cout << checks << std::endl;
 }
 
 void game::CollisionSystem::OnCollision(const int32_t a, const int32_t b) const
