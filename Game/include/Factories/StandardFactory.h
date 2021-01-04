@@ -3,6 +3,7 @@
 #include "Components/Renderer.h"
 #include "Components/Transform.h"
 #include "IFactoryImp.h"
+#include "Components/Collider.h"
 
 namespace game
 {
@@ -17,9 +18,11 @@ namespace game
 
 		virtual IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar);
 		virtual IFactoryImp<Transform>* SetTransformImp(cecsar::Cecsar& cecsar);
+		virtual IFactoryImp<Collider>* SetColliderImp(cecsar::Cecsar& cecsar);
 
 	private:
 		IFactoryImp<Renderer>* _renderImp = nullptr;
 		IFactoryImp<Transform>* _transformImp = nullptr;
+		IFactoryImp<Collider>* _colliderImp = nullptr;
 	};
 }

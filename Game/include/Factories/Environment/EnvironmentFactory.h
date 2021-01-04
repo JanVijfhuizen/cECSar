@@ -14,7 +14,7 @@ namespace game
 	inline void EnvironmentFactory::OnConstruction(
 		cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 	{
-		const int32_t width = 32, height = 32;
+		const int32_t width = 16, height = 16;
 		const auto blocks = cecsar.AddEntity<GroundBlockFactory>(width * height);
 
 		auto& transforms = cecsar.GetSet<Transform>();

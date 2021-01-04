@@ -12,6 +12,7 @@
 #include "Factories/Environment/EnvironmentFactory.h"
 #include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
+#include "Systems/CollisionSystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -28,6 +29,9 @@ int main(int argc, char* argv[])
 	// Modules.
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
+
+	// Systems.
+	auto& collisionSystem = cecsar.GetSystem<game::CollisionSystem>();
 
 	SDL_Event event;
 	bool quit = false;
@@ -83,6 +87,15 @@ int main(int argc, char* argv[])
 		cecsar.Update<game::ControllerSystem>();
 		cecsar.Update<game::MovementSystem>();
 		cecsar.Update<game::KinematicSystem>();
+#pragma endregion
+
+#pragma region Cleanup
+		cecsar.Update<game::TransformSystem>();
+		cecsar.Update<game::CollisionSystem>();
+#pragma endregion 
+
+#pragma region Observer Calls
+		collisionSystem.NotifyCollisions();
 #pragma endregion
 	}
 

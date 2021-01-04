@@ -1,5 +1,4 @@
-﻿#include <pch.h>
-#include <IEntityFactory.h>
+﻿#include <IEntityFactory.h>
 #include "EntityInfo.h"
 
 cecsar::IEntityFactory::~IEntityFactory() = default;
