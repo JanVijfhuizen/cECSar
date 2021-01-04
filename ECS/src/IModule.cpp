@@ -1,4 +1,3 @@
-#include <pch.h>
 #include <IModule.h>
 
 cecsar::IModule::~IModule() = default;

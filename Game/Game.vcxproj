@@ -149,7 +149,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/ECS/Include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)\SDL2_image-2.0.5\include;$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)/ECS/Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\CollisionSystem.cpp" />
     <ClCompile Include="src\KinematicSystem.cpp" />
     <ClCompile Include="src\TransformSystem.cpp" />
     <ClCompile Include="src\StandardFactory.cpp" />
@@ -175,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
+    <ClInclude Include="include\Components\Collider.h" />
     <ClInclude Include="include\Components\Kinematic.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
     <ClInclude Include="include\Components\Controller.h" />
@@ -193,6 +195,7 @@
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
+    <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
@@ -202,7 +205,10 @@
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
+    <ClInclude Include="include\Utils\IObserver.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
+    <ClInclude Include="include\Utils\Pool.h" />
+    <ClInclude Include="include\Utils\QuadTree.h" />
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />

@@ -5,6 +5,10 @@ namespace cecsar
 	class Cecsar;
 	struct EntityInfo;
 
+	/*
+	Used to avoid circular dependencies.
+	Use EntityFactory instead.
+	*/
 	class IEntityFactory
 	{
 		friend Cecsar;

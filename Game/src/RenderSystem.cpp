@@ -1,7 +1,6 @@
 #include <Systems/RenderSystem.h>
 #include "Modules/RenderModule.h"
 #include <algorithm>
-#include "Sorter.h"
 #include <iostream>
 #include "Modules/BufferModule.h"
 #include "Systems/TransformSystem.h"

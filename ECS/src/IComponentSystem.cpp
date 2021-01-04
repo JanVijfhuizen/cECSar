@@ -1,5 +1,4 @@
-﻿#include <pch.h>
-#include <IComponentSystem.h>
+﻿#include <IComponentSystem.h>
 
 cecsar::IComponentSystem::~IComponentSystem() = default;
 
