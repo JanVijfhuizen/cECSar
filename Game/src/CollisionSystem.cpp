@@ -117,6 +117,9 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	// Check for possible collisions.
 	_quadTree->Iterate([this, &colliders](auto& nodes, const int32_t anchor)
 	{
+		HitInfo aInfo{};
+		HitInfo bInfo{};
+
 		// List of nodes.
 		for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 		{
@@ -136,9 +139,12 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 					auto& otherCollider = colliders.Get(otherIndex);
 					auto& otherWorld = _transformBuffer[otherIndex].world;
 
-					if (IntersectsOther(collider, world,
-						otherCollider, otherWorld))
-						OnCollision(index, otherIndex);
+					if (IntersectsOther(index, otherIndex, collider, world,
+						otherCollider, otherWorld, aInfo, bInfo))
+					{
+						Notify(aInfo);
+						Notify(bInfo);
+					}
 				}
 			}
 
@@ -158,19 +164,17 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 						auto& otherCollider = colliders.Get(otherIndex);
 						auto& otherWorld = _transformBuffer[otherIndex].world;
 
-						if (IntersectsOther(collider, world,
-							otherCollider, otherWorld))
-							OnCollision(index, otherIndex);
+						if (IntersectsOther(index, otherIndex, collider, world,
+							otherCollider, otherWorld, aInfo, bInfo)) 
+						{
+							Notify(aInfo);
+							Notify(bInfo);
+						}
 					}
 				}
 			}
 		}
 	});
-}
-
-void game::CollisionSystem::OnCollision(const int32_t a, const int32_t b) const
-{
-	// Do the thing.
 }
 
 bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
@@ -202,10 +206,39 @@ bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
 	return true;
 }
 
-bool game::CollisionSystem::IntersectsOther(
+bool game::CollisionSystem::IntersectsOther(const int32_t a, const int32_t b,
 	const Collider& aCollider, const Transform& aWorld,
-	const Collider& bCollider, const Transform& bWorld)
+	const Collider& bCollider, const Transform& bWorld,
+	HitInfo& aInfo, HitInfo& bInfo)
 {
+	// Circle collision.
 	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
-	return (aWorld.position - bWorld.position).Magnitude() < threshold;
+	const auto intersection = aWorld.position - bWorld.position;
+	const float intMagnitude = intersection.Magnitude();
+
+	// Check if in range.
+	if (intMagnitude > threshold)
+		return false;
+
+	// Set up hit info.
+	aInfo.point = intersection;
+	bInfo.point = intersection * -1;
+
+	auto& aInstance = aInfo.instance;
+	auto& bInstance = bInfo.instance;
+
+	aInstance.index = a;
+	bInstance.index = b;
+
+	aInstance.collider = &aCollider;
+	bInstance.collider = &bCollider;
+
+	aInstance.world = &aWorld;
+	bInstance.world = &bWorld;
+
+	// Copy instance info to other hit info.
+	aInfo.other = bInstance;
+	bInfo.other = aInstance;
+
+	return true;
 }

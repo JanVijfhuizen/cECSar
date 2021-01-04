@@ -3,15 +3,32 @@
 #include "Components/Transform.h"
 #include "Components/Collider.h"
 #include "Utils/QuadTree.h"
+#include "Utils/IObserver.h"
 
 namespace game
 {
 	class TransformSystem;
 
-	class CollisionSystem final : public JobSystem<Collider, Transform>
+	struct HitInstance final
+	{
+		int32_t index{};
+		const Collider* collider = nullptr;
+		const Transform* world = nullptr;
+	};
+
+	struct HitInfo final
+	{
+		HitInstance instance{};
+		HitInstance other{};
+
+		utils::Vector3 point{};
+	};
+
+	class CollisionSystem final : public JobSystem<Collider, Transform>,
+		public utils::ISubject<HitInfo>
 	{
 	private:
-		struct TransformBuffer
+		struct TransformBuffer final
 		{
 			bool moved = false;
 			bool sorted = false;
@@ -30,13 +47,12 @@ namespace game
 		void FillQuadTree(utils::SparseSet<Collider>&) const;
 		void IterateQuadTree(utils::SparseSet<Collider>&) const;
 
-		void OnCollision(int32_t a, int32_t b) const;
-
 		static bool IntersectsQuad(const Collider& collider, 
 			const Transform& world, const utils::Quad& quad);
 
-		static bool IntersectsOther(
+		static bool IntersectsOther(int32_t a, int32_t b,
 			const Collider& aCollider, const Transform& aWorld,
-			const Collider& bCollider, const Transform& bWorld);
+			const Collider& bCollider, const Transform& bWorld,
+			HitInfo& aInfo, HitInfo& bInfo);
 	};
 }

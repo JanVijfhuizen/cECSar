@@ -205,6 +205,7 @@
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
+    <ClInclude Include="include\Utils\IObserver.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
     <ClInclude Include="include\Utils\Pool.h" />
     <ClInclude Include="include\Utils\QuadTree.h" />
