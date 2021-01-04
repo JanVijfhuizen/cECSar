@@ -51,7 +51,7 @@ void game::CollisionSystem::UpdateBuffer(
 		auto world = _transformSystem->ToWorld(local);
 
 		const float delta = (world.position - buffer.world.position).SquaredLength();
-		buffer.moved = delta > 1e-4;
+		buffer.moved = delta > 1e-6;
 		buffer.world = world;
 	}
 }
