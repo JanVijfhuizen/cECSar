@@ -1,9 +1,9 @@
 ﻿#pragma once
-#include "JobSystem.h"
 #include "Components/Transform.h"
 #include "Components/Collider.h"
 #include "Utils/QuadTree.h"
 #include "Utils/IObserver.h"
+#include "ComponentSystem.h"
 
 namespace game
 {
@@ -24,9 +24,12 @@ namespace game
 		utils::Vector3 point{};
 	};
 
-	class CollisionSystem final : public JobSystem<Collider, Transform>,
+	class CollisionSystem final : public cecsar::ComponentSystem<Collider, Transform>,
 		public utils::ISubject<HitInfo>
 	{
+	public:
+		void NotifyCollisions();
+
 	private:
 		struct TransformBuffer final
 		{
@@ -39,13 +42,15 @@ namespace game
 		TransformSystem* _transformSystem = nullptr;
 		TransformBuffer* _transformBuffer = nullptr;
 
+		std::vector<HitInfo> _hits{};
+
 		~CollisionSystem();
 		void Initialize(cecsar::Cecsar& cecsar) override;
 
 		void OnUpdate(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) override;
 		void UpdateBuffer(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) const;
 		void FillQuadTree(utils::SparseSet<Collider>&) const;
-		void IterateQuadTree(utils::SparseSet<Collider>&) const;
+		void IterateQuadTree(utils::SparseSet<Collider>&);
 
 		static bool IntersectsQuad(const Collider& collider, 
 			const Transform& world, const utils::Quad& quad);

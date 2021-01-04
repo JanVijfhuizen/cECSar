@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
 	auto& timeModule = cecsar.GetModule<game::TimeModule>();
 	auto& renderModule = cecsar.GetModule<game::RenderModule>();
 
+	// Systems.
+	auto& collisionSystem = cecsar.GetSystem<game::CollisionSystem>();
+
 	SDL_Event event;
 	bool quit = false;
 
@@ -90,6 +93,10 @@ int main(int argc, char* argv[])
 		cecsar.Update<game::TransformSystem>();
 		cecsar.Update<game::CollisionSystem>();
 #pragma endregion 
+
+#pragma region Observer Calls
+		collisionSystem.NotifyCollisions();
+#pragma endregion
 	}
 
 	SDL_Quit();
