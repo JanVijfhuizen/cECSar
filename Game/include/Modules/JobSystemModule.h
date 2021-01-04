@@ -18,8 +18,11 @@ namespace game
 		inline void Initialize(cecsar::Cecsar& cecsar) override;
 
 		inline void Enqueue(const Job& job);
-		inline bool IsDone();
+
+		inline void Start();
 		inline void Wait();
+
+		inline bool IsDone();
 
 		inline int32_t GetThreadCount() const;
 
@@ -73,9 +76,12 @@ namespace game
 
 		_jobPool.push(job);
 		_inactiveNum++;
+	}
 
+	inline void JobSystemModule::Start()
+	{
 		std::unique_lock<std::mutex> lock(_mutexJobRequest);
-		_cvJobRequest.notify_one();
+		_cvJobRequest.notify_all();
 	}
 
 	inline bool JobSystemModule::IsDone()

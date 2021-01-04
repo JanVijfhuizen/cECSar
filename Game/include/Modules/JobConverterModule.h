@@ -15,6 +15,8 @@ namespace game
 		typedef std::function<void(int32_t start, int32_t stop)> LinearJob;
 
 		inline void ToLinearJobs(int32_t count, const LinearJob& job) const;
+
+		inline void Start() const;
 		inline void Wait() const;
 
 	protected:
@@ -56,6 +58,11 @@ namespace game
 				job(start, stop);
 			});
 		}
+	}
+
+	inline void JobConverterModule::Start() const
+	{
+		_jobSystem->Start();
 	}
 
 	inline void JobConverterModule::Wait() const

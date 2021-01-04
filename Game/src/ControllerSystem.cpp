@@ -32,5 +32,6 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 			}
 		});
 
+	jobModule.Start();
 	jobModule.Wait();
 }

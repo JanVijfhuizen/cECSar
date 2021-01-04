@@ -53,5 +53,6 @@ void game::MovementSystem::OnUpdate(
 			}
 		});
 
+	jobModule.Start();
 	jobModule.Wait();
 }

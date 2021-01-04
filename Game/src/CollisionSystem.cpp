@@ -11,13 +11,14 @@ game::CollisionSystem::~CollisionSystem()
 
 void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	_transformSystem = &cecsar.GetSystem<TransformSystem>();
+	JobSystem<Collider, Transform>::Initialize(cecsar);
 
 	auto& renderModule = cecsar.GetModule<RenderModule>();
 
 	const float w = renderModule.SCREEN_WIDTH;
 	const float h = renderModule.SCREEN_HEIGHT;
 
+	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 	_quadTree = new utils::QuadTree(w, h);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 }
@@ -52,8 +53,10 @@ void game::CollisionSystem::UpdateBuffer(
 
 void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) const
 {
+	auto& jobModule = GetJobModule();
+
 	// Remove the instances that are either invalid or have moved (too much).
-	_quadTree->Iterate([this, &colliders](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([this, &colliders, &jobModule](auto& nodes, const int32_t anchor)
 		{
 			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 			{
@@ -84,7 +87,19 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 					buffer.sorted = false;
 				}
 			}
+
+			return;
+
+			// The node vector needs to be copied to be thread safe.
+			jobModule.Enqueue([this, &colliders, nodes, anchor] 
+				{
+					
+				});
 		});
+
+	// Implement this in other things as well.
+	jobModule.Start();
+	jobModule.Wait();
 
 	// Clear the empty nodes.
 	_quadTree->Clear(false);
@@ -114,8 +129,11 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders) const
 {
+	std::vector<HitInfo> hits;
+
 	// Check for possible collisions.
-	_quadTree->Iterate([this, &colliders](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([this, &colliders, &hits](
+		auto& nodes, const int32_t anchor)
 	{
 		HitInfo aInfo{};
 		HitInfo bInfo{};
@@ -142,8 +160,8 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 					if (IntersectsOther(index, otherIndex, collider, world,
 						otherCollider, otherWorld, aInfo, bInfo))
 					{
-						Notify(aInfo);
-						Notify(bInfo);
+						hits.push_back(aInfo);
+						hits.push_back(bInfo);
 					}
 				}
 			}
@@ -167,14 +185,18 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 						if (IntersectsOther(index, otherIndex, collider, world,
 							otherCollider, otherWorld, aInfo, bInfo)) 
 						{
-							Notify(aInfo);
-							Notify(bInfo);
+							hits.push_back(aInfo);
+							hits.push_back(bInfo);
 						}
 					}
 				}
 			}
 		}
 	});
+
+	// Notify subscribers.
+	for (auto& hit : hits)
+		Notify(hit);
 }
 
 bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
