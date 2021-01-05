@@ -38,8 +38,8 @@ int main(int argc, char* argv[])
 	cecsar.AddEntity<game::EnvironmentFactory>();
 
 	cecsar.AddEntity<game::OniFactory>();
-	for (int i = 0; i < 5; ++i)
-		cecsar.AddEntity<game::RoninFactory>();
+	cecsar.AddEntity<game::RoninFactory>();
+	
 
 #pragma endregion
 
