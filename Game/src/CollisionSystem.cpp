@@ -16,13 +16,8 @@ game::CollisionSystem::~CollisionSystem()
 
 void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	auto& renderModule = cecsar.GetModule<RenderModule>();
-
-	const float w = renderModule.SCREEN_WIDTH;
-	const float h = renderModule.SCREEN_HEIGHT;
-
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
-	_quadTree = new utils::QuadTree(w, h);
+	_quadTree = new utils::QuadTree({-800, -800}, 1600, 1600);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 	_hits.reserve(cecsar.info.setCapacity * 2);
 }
@@ -109,7 +104,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		auto& world = buffer.world;
 
 		// Push the colliders based on their positions.
-		_quadTree->TryPush(index, [&collider, &world](
+		bool b = _quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
 				return IntersectsQuad(collider, world, quad);
@@ -125,9 +120,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	_quadTree->Iterate([this, &colliders](
 		auto& nodes, const int32_t anchor)
 	{
-		HitInfo aInfo{};
-		HitInfo bInfo{};
-
 		// List of nodes.
 		for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 		{
@@ -147,12 +139,8 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 					auto& otherCollider = colliders.Get(otherIndex);
 					auto& otherWorld = _transformBuffer[otherIndex].world;
 
-					if (IntersectsOther(index, otherIndex, collider, world,
-						otherCollider, otherWorld, aInfo, bInfo))
-					{
-						_hits.push_back(aInfo);
-						_hits.push_back(bInfo);
-					}
+					CheckIntersection(index, otherIndex, collider, world,
+						otherCollider, otherWorld);
 				}
 			}
 
@@ -172,12 +160,8 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 						auto& otherCollider = colliders.Get(otherIndex);
 						auto& otherWorld = _transformBuffer[otherIndex].world;
 
-						if (IntersectsOther(index, otherIndex, collider, world,
-							otherCollider, otherWorld, aInfo, bInfo)) 
-						{
-							_hits.push_back(aInfo);
-							_hits.push_back(bInfo);
-						}
+						CheckIntersection(index, otherIndex, collider, world,
+							otherCollider, otherWorld);
 					}
 				}
 			}
@@ -214,11 +198,15 @@ bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
 	return true;
 }
 
-bool game::CollisionSystem::IntersectsOther(const int32_t a, const int32_t b,
+void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 	const Collider& aCollider, const Transform& aWorld,
-	const Collider& bCollider, const Transform& bWorld,
-	HitInfo& aInfo, HitInfo& bInfo)
+	const Collider& bCollider, const Transform& bWorld)
 {
+	// If neither masks collide, don't bother calculating.
+	if ((aCollider.targetMask & bCollider.mask) == 0 &&
+		(bCollider.targetMask & aCollider.mask) == 0)
+		return;
+
 	// Circle collision.
 	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
 	const auto intersection = aWorld.position - bWorld.position;
@@ -226,12 +214,16 @@ bool game::CollisionSystem::IntersectsOther(const int32_t a, const int32_t b,
 
 	// Check if in range.
 	if (intMagnitude > threshold)
-		return false;
+		return;
 
 	// Set up hit info.
+	HitInfo aInfo{};
+	HitInfo bInfo{};
+	
 	aInfo.point = intersection;
 	bInfo.point = intersection * -1;
 
+	// Set up hit instances.
 	auto& aInstance = aInfo.instance;
 	auto& bInstance = bInfo.instance;
 
@@ -248,5 +240,9 @@ bool game::CollisionSystem::IntersectsOther(const int32_t a, const int32_t b,
 	aInfo.other = bInstance;
 	bInfo.other = aInstance;
 
-	return true;
+	// Check masks before adding it to the hits.
+	if ((aCollider.mask & bCollider.targetMask) != 0)
+		_hits.push_back(aInfo);
+	if ((bCollider.mask & aCollider.targetMask) != 0)
+		_hits.push_back(bInfo);
 }

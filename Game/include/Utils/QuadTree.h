@@ -90,7 +90,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Overload the width and height of the initial quad.
 		The depths corresponds to the maximum depth for nested objects.
 		*/
-		inline QuadTree(float width, float height, int32_t depth = 8);
+		inline QuadTree(const Vector3& origin, float width, float height, int32_t depth = 8);
 
 		/*
 		Push an object into the quadtree, while using a lambda to sort it correctly.
@@ -117,9 +117,10 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Node _root{};
 	};
 
-	inline QuadTree::QuadTree(const float width, const float height, const int32_t depth)
+	inline QuadTree::QuadTree(const Vector3& origin, 
+		const float width, const float height, const int32_t depth)
 	{
-		Quad&& quad{ {}, width, height };
+		Quad&& quad{ origin, width, height };
 
 		_root.quad = quad;
 		_root._depth = depth;
