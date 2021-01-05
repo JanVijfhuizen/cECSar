@@ -2,7 +2,6 @@
 #include "ComponentSystem.h"
 #include <Components/Renderer.h>
 #include "Components/Transform.h"
-#include "Modules/BufferModule.h"
 #include "TransformSystem.h"
 
 namespace game

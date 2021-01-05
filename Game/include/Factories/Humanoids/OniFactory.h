@@ -7,7 +7,7 @@ namespace game
 	class OniFactory final : public HumanoidFactory
 	{
 	protected:
-		IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
+		inline IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
 	};
 
 	inline IFactoryImp<Renderer>* OniFactory::SetRenderImp(cecsar::Cecsar& cecsar)
