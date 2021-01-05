@@ -10,7 +10,6 @@
 #include "Factories/Humanoids/OniFactory.h"
 #include "Factories/Humanoids/RoninFactory.h"
 #include "Factories/Environment/EnvironmentFactory.h"
-#include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
 #include "Systems/CollisionSystem.h"
 
@@ -38,31 +37,14 @@ int main(int argc, char* argv[])
 
 	cecsar.AddEntity<game::EnvironmentFactory>();
 
-	const auto oni = cecsar.AddEntity<game::OniFactory>()[0];
-	const auto ronin = cecsar.AddEntity<game::RoninFactory>()[0];
-	const auto ronin2 = cecsar.AddEntity<game::RoninFactory>()[0];
-
-	cecsar.GetSet<game::Transform>().Get(oni.index).position = { 400, 300, .1f };
-	cecsar.GetSet<game::Transform>().Get(ronin.index).position = { 100, 100, .1f };
-	cecsar.GetSet<game::Transform>().Get(ronin2.index).position = { 50, -50, .1f };
-
-	cecsar.GetSet<game::Transform>().Get(ronin.index).parent = oni;
-	cecsar.GetSet<game::Transform>().Get(ronin2.index).parent = ronin;
-
-	cecsar.AddComponent<game::Kinematic>(ronin2.index);
-	cecsar.GetSet<game::Kinematic>().Get(ronin2.index).target = oni;
+	cecsar.AddEntity<game::OniFactory>();
+	cecsar.AddEntity<game::RoninFactory>();
+	
 
 #pragma endregion
 
 	while(!quit)
 	{
-		cecsar.GetSet<game::Transform>().Get(oni.index).rotation = 
-			sin(timeModule.GetTime()) * 180;
-		cecsar.GetSet<game::Transform>().Get(ronin.index).rotation =
-			cos(timeModule.GetTime() * 2) * 180;
-		cecsar.GetSet<game::Kinematic>().Get(ronin2.index).offset = { 
-			cos(timeModule.GetTime()) * 30, sin(timeModule.GetTime()) * 30 };
-
 		timeModule.Update();
 
 		// Check for inputs.
@@ -80,6 +62,7 @@ int main(int argc, char* argv[])
 
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
+		collisionSystem.DrawDebug();
 
 		renderModule.PostRender();
 

@@ -2,18 +2,16 @@
 #include <algorithm>
 #include "Modules/RenderModule.h"
 #include "Modules/TimeModule.h"
-#include "Modules/BufferModule.h"
-#include <iostream>
 
 void game::CameraSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_renderModule = &cecsar.GetModule<RenderModule>();
 	_timeModule = &cecsar.GetModule<TimeModule>();
-	_transformBuffer = cecsar.GetModule<BufferModule<Transform>>().buffer;
 }
 
 void game::CameraSystem::OnUpdate(
-	utils::SparseSet<CameraFollowTarget>& targets)
+	utils::SparseSet<CameraFollowTarget>& targets, 
+	utils::SparseSet<Transform>& transforms)
 {
 	if (!targets.GetCount())
 		return;
@@ -29,7 +27,7 @@ void game::CameraSystem::OnUpdate(
 	const auto dense = targets.GetDenseRaw();
 	for (int32_t i = targets.GetCount() - 1; i >= 0; --i)
 	{
-		auto& transform = _transformBuffer->Get(dense[i]);
+		auto& transform = transforms.Get(dense[i]);
 		auto& position = transform.position;
 
 		// Update bounds.

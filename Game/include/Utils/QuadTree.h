@@ -39,10 +39,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			Quad quad{};
 			std::vector<int32_t> instances{};
 
-		private:
-			Node* _nested[4]{};
-			int32_t _depth = 0;
-			bool _isLeaf = true;
+			constexpr bool IsLeaf() const;
 
 			/*
 			Recursively iterate through the nodes.
@@ -50,6 +47,12 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			*/
 			template <typename Lambda>
 			constexpr Node* TryNavigate(int32_t instance, const Lambda& lambda);
+
+		private:
+			Node* _nested[4]{};
+			int32_t _depth = 0;
+			bool _isLeaf = true;
+
 			/*
 			Try splitting the node into multiple sub nodes.
 			Done when there are too many instances in the node.
@@ -90,13 +93,14 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Overload the width and height of the initial quad.
 		The depths corresponds to the maximum depth for nested objects.
 		*/
-		inline QuadTree(float width, float height, int32_t depth = 8);
+		inline QuadTree(const Vector3& origin, float width, float height, int32_t depth = 8);
 
 		/*
 		Push an object into the quadtree, while using a lambda to sort it correctly.
 		*/
 		template <typename Lambda>
-		constexpr bool TryPush(int32_t instance, const Lambda& lambda);
+		constexpr bool TryPush(int32_t instance, const Lambda& lambda, 
+			Node* origin = nullptr, bool ignoreOrigin = false);
 		/*
 		Iterate over all the different groups in the tree.
 		Do please look at the way Instances is constructed, since it's done in a bit
@@ -104,7 +108,6 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		*/
 		template <typename Lambda>
 		constexpr void Iterate(const Lambda&& lambda);
-
 		/*
 		Clear the tree.
 		It only pools nodes that are empty, to save performance when filling/clearing frequently.
@@ -117,21 +120,28 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Node _root{};
 	};
 
-	inline QuadTree::QuadTree(const float width, const float height, const int32_t depth)
+	inline QuadTree::QuadTree(const Vector3& origin, 
+		const float width, const float height, const int32_t depth)
 	{
-		Quad&& quad{ {}, width, height };
+		Quad&& quad{ origin, width, height };
 
 		_root.quad = quad;
 		_root._depth = depth;
 	}
 
 	template <typename Lambda>
-	constexpr bool QuadTree::TryPush(int32_t instance, const Lambda& lambda)
+	constexpr bool QuadTree::TryPush(int32_t instance, const Lambda& lambda,
+		Node* origin, const bool ignoreOrigin)
 	{
-		Node* node = _root.TryNavigate(instance, lambda);
-		if (node)
+		if (origin == nullptr)
+			origin = &_root;
+
+		Node* node = origin->TryNavigate(instance, lambda);
+		const bool valid = node != nullptr && (node != origin || !ignoreOrigin);
+
+		if (valid)
 			node->Push(instance, _pool, lambda);
-		return node;
+		return valid;
 	}
 
 	inline void QuadTree::Clear(const bool clearInstances)
@@ -220,7 +230,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	template <typename Lambda>
 	constexpr void QuadTree::Node::Push(
-		int32_t instance, Pool<Node>& pool, const Lambda& lambda)
+		const int32_t instance, Pool<Node>& pool, const Lambda& lambda)
 	{
 		instances.push_back(instance);
 		TrySplit(pool, lambda);
@@ -280,8 +290,15 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	constexpr Quad::Quad() = default;
 
-	inline Quad::Quad(const Vector3& pos, const float width, const float height) :
+constexpr bool QuadTree::Node::IsLeaf() const
+{
+	return _isLeaf;
+}
+
+
+inline Quad::Quad(const Vector3& pos, const float width, const float height) :
 		pos(pos), width(width), height(height)
 	{
+
 	}
 }

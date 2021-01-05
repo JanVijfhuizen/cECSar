@@ -22,8 +22,6 @@ namespace game
 
 		float zoom = 1;
 
-		float xCameraOffset = 0, yCameraOffset = 0;
-
 		int32_t colorForegroundClear = 0xff;
 		int32_t colorBackgroundClear = 0x00;
 
