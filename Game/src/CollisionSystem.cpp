@@ -1,6 +1,7 @@
 ﻿#include <Systems/CollisionSystem.h>
 #include "Systems/TransformSystem.h"
 #include "Modules/RenderModule.h"
+#include <iostream>
 
 void game::CollisionSystem::NotifyCollisions()
 {
@@ -58,7 +59,9 @@ void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 {
 	_renderModule = &cecsar.GetModule<RenderModule>();
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
-	_quadTree = new utils::QuadTree({-800, -800}, 1600, 1600);
+
+	const int32_t size = 400;
+	_quadTree = new utils::QuadTree({-size / 2, -size / 2 }, size, size);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 	_hits.reserve(cecsar.info.setCapacity * 2);
 }
@@ -141,11 +144,10 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		if (buffer.sorted)
 			continue;
 
-		buffer.sorted = true;
 		auto& world = buffer.world;
 
 		// Push the colliders based on their positions.
-		bool b = _quadTree->TryPush(index, [&collider, &world](
+		buffer.sorted = _quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
 				return IntersectsQuad(collider, world, quad);

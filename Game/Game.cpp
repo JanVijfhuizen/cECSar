@@ -10,7 +10,6 @@
 #include "Factories/Humanoids/OniFactory.h"
 #include "Factories/Humanoids/RoninFactory.h"
 #include "Factories/Environment/EnvironmentFactory.h"
-#include "Components/Kinematic.h"
 #include "Systems/KinematicSystem.h"
 #include "Systems/CollisionSystem.h"
 
@@ -36,10 +35,11 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	bool quit = false;
 
-	cecsar.AddEntity<game::EnvironmentFactory>();
+	//cecsar.AddEntity<game::EnvironmentFactory>();
 
-	cecsar.AddEntity<game::OniFactory>();
-	cecsar.AddEntity<game::RoninFactory>();
+	//cecsar.AddEntity<game::OniFactory>();
+	for (int i = 0; i < 12; ++i)
+		cecsar.AddEntity<game::RoninFactory>();
 
 #pragma endregion
 

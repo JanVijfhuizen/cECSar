@@ -223,7 +223,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	template <typename Lambda>
 	constexpr void QuadTree::Node::Push(
-		int32_t instance, Pool<Node>& pool, const Lambda& lambda)
+		const int32_t instance, Pool<Node>& pool, const Lambda& lambda)
 	{
 		instances.push_back(instance);
 		TrySplit(pool, lambda);
