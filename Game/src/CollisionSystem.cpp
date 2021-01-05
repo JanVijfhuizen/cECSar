@@ -119,8 +119,22 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 						// Despite being moved, check if it still part of this quad.
 						auto& collider = colliders.Get(index);
-						if (IntersectsQuad(collider, buffer.world, quad))
-							continue;
+
+						bool pushed = false;
+						if(!node.IsLeaf())
+						{
+							pushed = _quadTree->TryPush(index, [&collider, &buffer](
+								const int32_t _, const utils::Quad& quad)
+								{
+									return IntersectsQuad(
+										collider, buffer.world, quad);
+								}, &node, true);
+						}
+
+						// If it doesn't have nested nodes or the pushing failed.
+						if(!pushed)
+							if (IntersectsQuad(collider, buffer.world, quad))
+								continue;
 					}
 
 					// Remove entity.

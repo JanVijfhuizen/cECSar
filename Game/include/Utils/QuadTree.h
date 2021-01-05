@@ -41,17 +41,18 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 			constexpr bool IsLeaf() const;
 
-		private:
-			Node* _nested[4]{};
-			int32_t _depth = 0;
-			bool _isLeaf = true;
-
 			/*
 			Recursively iterate through the nodes.
 			If the lambda returns true, the instance fits within this node.
 			*/
 			template <typename Lambda>
 			constexpr Node* TryNavigate(int32_t instance, const Lambda& lambda);
+
+		private:
+			Node* _nested[4]{};
+			int32_t _depth = 0;
+			bool _isLeaf = true;
+
 			/*
 			Try splitting the node into multiple sub nodes.
 			Done when there are too many instances in the node.
@@ -98,7 +99,8 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		Push an object into the quadtree, while using a lambda to sort it correctly.
 		*/
 		template <typename Lambda>
-		constexpr bool TryPush(int32_t instance, const Lambda& lambda);
+		constexpr bool TryPush(int32_t instance, const Lambda& lambda, 
+			Node* origin = nullptr, bool ignoreOrigin = false);
 		/*
 		Iterate over all the different groups in the tree.
 		Do please look at the way Instances is constructed, since it's done in a bit
@@ -106,7 +108,6 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		*/
 		template <typename Lambda>
 		constexpr void Iterate(const Lambda&& lambda);
-
 		/*
 		Clear the tree.
 		It only pools nodes that are empty, to save performance when filling/clearing frequently.
@@ -129,12 +130,18 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	}
 
 	template <typename Lambda>
-	constexpr bool QuadTree::TryPush(int32_t instance, const Lambda& lambda)
+	constexpr bool QuadTree::TryPush(int32_t instance, const Lambda& lambda,
+		Node* origin, const bool ignoreOrigin)
 	{
-		Node* node = _root.TryNavigate(instance, lambda);
-		if (node)
+		if (origin == nullptr)
+			origin = &_root;
+
+		Node* node = origin->TryNavigate(instance, lambda);
+		const bool valid = node != nullptr && (node != origin || !ignoreOrigin);
+
+		if (valid)
 			node->Push(instance, _pool, lambda);
-		return node;
+		return valid;
 	}
 
 	inline void QuadTree::Clear(const bool clearInstances)
