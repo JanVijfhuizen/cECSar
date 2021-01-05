@@ -22,7 +22,7 @@ namespace utils
 	class ISubject
 	{
 	public:
-		constexpr void Subscribe(const IObserver<Info>& subscriber);
+		constexpr void Subscribe(IObserver<Info>& subscriber);
 		constexpr void Unsubscribe(const IObserver<Info>& subscriber);
 		constexpr void ClearSubscribers();
 
@@ -34,9 +34,9 @@ namespace utils
 	};
 
 	template <typename Info>
-	constexpr void ISubject<Info>::Subscribe(const IObserver<Info>& subscriber)
+	constexpr void ISubject<Info>::Subscribe(IObserver<Info>& subscriber)
 	{
-		_subscribers.push_back(subscriber);
+		_subscribers.push_back(&subscriber);
 	}
 
 	template <typename Info>

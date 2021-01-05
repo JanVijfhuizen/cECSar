@@ -7,7 +7,8 @@ namespace game
 
 	struct Collider final
 	{
-		float radius = 8;
+		float radius = 16;
+		bool isTrigger;
 
 		uint32_t mask = MASK_DEFAULT;
 		uint32_t targetMask = MASK_DEFAULT;
