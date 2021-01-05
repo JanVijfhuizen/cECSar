@@ -8,6 +8,38 @@ void game::CollisionSystem::NotifyCollisions()
 		Notify(hit);
 }
 
+void game::CollisionSystem::Draw()
+{
+	auto& renderer = _renderModule->GetRenderer();
+
+	const int32_t color = 0xff;
+	SDL_SetRenderDrawColor(&renderer, 0xff, 0xff, 0xff, 0xff);
+
+	const auto offset = _renderModule->cameraPos;
+
+	_quadTree->Iterate([&renderer, &offset, color](auto& nodes, const int32_t anchor)
+		{
+			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
+			{
+				auto& node = *nodes[i];
+				auto& quad = node.quad;
+				auto& pos = quad.pos;
+
+				const float x = pos.x - offset.x;
+				const float y = pos.y - offset.y;
+
+				const float w = quad.width;
+				const float h = quad.height;
+
+				SDL_RenderDrawLine(&renderer, x, y, x + w, y);
+				SDL_RenderDrawLine(&renderer, x + w, y, x + w, y + h);
+
+				SDL_RenderDrawLine(&renderer, x + w, y + h, x, y + h);
+				SDL_RenderDrawLine(&renderer, x, y + h, x, y);
+			}
+		});
+}
+
 game::CollisionSystem::~CollisionSystem()
 {
 	delete _quadTree;
@@ -16,6 +48,7 @@ game::CollisionSystem::~CollisionSystem()
 
 void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 {
+	_renderModule = &cecsar.GetModule<RenderModule>();
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 	_quadTree = new utils::QuadTree({-800, -800}, 1600, 1600);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];

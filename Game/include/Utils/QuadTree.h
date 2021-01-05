@@ -281,8 +281,10 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 
 	constexpr Quad::Quad() = default;
 
-	inline Quad::Quad(const Vector3& pos, const float width, const float height) :
+
+inline Quad::Quad(const Vector3& pos, const float width, const float height) :
 		pos(pos), width(width), height(height)
 	{
+
 	}
 }

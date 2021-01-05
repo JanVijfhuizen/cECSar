@@ -4,6 +4,7 @@
 #include "Utils/QuadTree.h"
 #include "Utils/IObserver.h"
 #include "ComponentSystem.h"
+#include "Modules/RenderModule.h"
 
 namespace game
 {
@@ -29,6 +30,7 @@ namespace game
 	{
 	public:
 		void NotifyCollisions();
+		void Draw();
 
 	private:
 		struct TransformBuffer final
@@ -41,6 +43,7 @@ namespace game
 		utils::QuadTree* _quadTree = nullptr;
 		TransformSystem* _transformSystem = nullptr;
 		TransformBuffer* _transformBuffer = nullptr;
+		RenderModule* _renderModule = nullptr;
 
 		std::vector<HitInfo> _hits{};
 
