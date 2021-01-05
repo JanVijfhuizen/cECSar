@@ -1,7 +1,6 @@
 ﻿#include <Systems/CollisionSystem.h>
 #include "Systems/TransformSystem.h"
 #include "Modules/RenderModule.h"
-#include <iostream>
 
 void game::CollisionSystem::NotifyCollisions()
 {
