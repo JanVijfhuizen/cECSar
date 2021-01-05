@@ -30,7 +30,7 @@ namespace game
 	{
 	public:
 		void NotifyCollisions();
-		void Draw();
+		void DrawDebug();
 
 	private:
 		struct TransformBuffer final

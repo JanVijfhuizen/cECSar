@@ -35,9 +35,9 @@ int main(int argc, char* argv[])
 	SDL_Event event;
 	bool quit = false;
 
-	//cecsar.AddEntity<game::EnvironmentFactory>();
+	cecsar.AddEntity<game::EnvironmentFactory>();
 
-	//cecsar.AddEntity<game::OniFactory>();
+	cecsar.AddEntity<game::OniFactory>();
 	for (int i = 0; i < 5; ++i)
 		cecsar.AddEntity<game::RoninFactory>();
 
@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
 
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
-		collisionSystem.Draw();
+		collisionSystem.DrawDebug();
 
 		renderModule.PostRender();
 

@@ -9,12 +9,12 @@ void game::CollisionSystem::NotifyCollisions()
 		Notify(hit);
 }
 
-void game::CollisionSystem::Draw()
+void game::CollisionSystem::DrawDebug()
 {
 	auto& renderer = _renderModule->GetRenderer();
 	const auto offset = _renderModule->cameraPos;
 
-	_quadTree->Iterate([&renderer, &offset](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([this, &renderer, &offset](auto& nodes, const int32_t anchor)
 		{
 			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 			{
@@ -60,7 +60,7 @@ void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 	_renderModule = &cecsar.GetModule<RenderModule>();
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 
-	const int32_t size = 400;
+	const int32_t size = 1600;
 	_quadTree = new utils::QuadTree({-size / 2, -size / 2 }, size, size);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 	_hits.reserve(cecsar.info.setCapacity * 2);
@@ -110,7 +110,8 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 					const int32_t index = vector[j];
 					auto& buffer = _transformBuffer[index];
 
-					// Validate component.
+					// Validate component, and try pushing it to a nested node.
+					bool pushed = false;
 					if (colliders.Contains(index))
 					{
 						// Check if moved.
@@ -119,8 +120,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 						// Despite being moved, check if it still part of this quad.
 						auto& collider = colliders.Get(index);
-
-						bool pushed = false;
+						
 						if(!node.IsLeaf())
 						{
 							pushed = _quadTree->TryPush(index, [&collider, &buffer](
@@ -139,7 +139,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 					// Remove entity.
 					vector.erase(vector.begin() + j);
-					buffer.sorted = false;
+					buffer.sorted = pushed;
 				}
 			}
 		});
