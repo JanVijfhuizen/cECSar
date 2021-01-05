@@ -39,6 +39,8 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			Quad quad{};
 			std::vector<int32_t> instances{};
 
+			constexpr bool IsLeaf() const;
+
 		private:
 			Node* _nested[4]{};
 			int32_t _depth = 0;
@@ -280,6 +282,11 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	}
 
 	constexpr Quad::Quad() = default;
+
+constexpr bool QuadTree::Node::IsLeaf() const
+{
+	return _isLeaf;
+}
 
 
 inline Quad::Quad(const Vector3& pos, const float width, const float height) :

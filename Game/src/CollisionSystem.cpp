@@ -11,16 +11,14 @@ void game::CollisionSystem::NotifyCollisions()
 void game::CollisionSystem::Draw()
 {
 	auto& renderer = _renderModule->GetRenderer();
-
-	const int32_t color = 0xff;
-	SDL_SetRenderDrawColor(&renderer, 0xff, 0xff, 0xff, 0xff);
-
 	const auto offset = _renderModule->cameraPos;
 
-	_quadTree->Iterate([&renderer, &offset, color](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([&renderer, &offset](auto& nodes, const int32_t anchor)
 		{
 			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 			{
+				SDL_SetRenderDrawColor(&renderer, 0xff, 0xff, 0xff, 0xff);
+
 				auto& node = *nodes[i];
 				auto& quad = node.quad;
 				auto& pos = quad.pos;
@@ -36,6 +34,16 @@ void game::CollisionSystem::Draw()
 
 				SDL_RenderDrawLine(&renderer, x + w, y + h, x, y + h);
 				SDL_RenderDrawLine(&renderer, x, y + h, x, y);
+
+				SDL_SetRenderDrawColor(&renderer, 0xff, 0x00, 0x00, 0x00);
+
+				auto& vector = node.instances;
+				const int32_t count = vector.size();
+				for (int32_t j = count - 1; j >= 0; --j)
+				{
+					const int32_t xLine = x + (j + 1) * 4;
+					SDL_RenderDrawLine(&renderer, xLine, y, xLine, y + 4);
+				}
 			}
 		});
 }
