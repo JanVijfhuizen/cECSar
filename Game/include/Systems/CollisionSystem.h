@@ -57,12 +57,6 @@ namespace game
 		void IterateQuadTree(utils::SparseSet<Collider>&);
 
 #pragma region Quad Intersections
-		static bool IntersectsQuad(const Collider& collider, 
-			const Transform& world, const utils::Quad& quad);
-
-		static bool IntersectsQuadCircle(const Collider& collider,
-			const Transform& world, const utils::Quad& quad);
-
 		static bool IntersectsQuadRectangle(const Collider& collider,
 			const Transform& world, const utils::Quad& quad);
 #pragma endregion 

@@ -1,19 +1,28 @@
 #pragma once
+#include <variant>
+#include <Components/Transform.h>
+#include <Utils/Onion.h>
+#include <Utils/Quad.h>
 
 namespace game
 {
 	constexpr uint32_t MASK_NONE = 0;
 	constexpr uint32_t MASK_DEFAULT = 0b1;
 
-	enum class ColliderType
-	{
-		Circle,
-		Rectangle
-	};
-
 	struct Collider final
 	{
-		ColliderType type = ColliderType::Circle;
+		struct Circle final
+		{
+			float radius = 16;
+		};
+
+		struct Rectangle final
+		{
+			float width = 16;
+			float height = 16;
+		};
+
+		using Type = std::variant<Circle, Rectangle>;
 
 		bool isTrigger = false;
 		bool isStatic = false;
@@ -21,35 +30,37 @@ namespace game
 		uint32_t mask = MASK_DEFAULT;
 		uint32_t targetMask = MASK_DEFAULT;
 
-		union
-		{
-			struct Circle
-			{
-				float radius;
-			} circle;
-
-			struct Rectangle
-			{
-				float width, height;
-			} rectangle{};
-		};
-
-		inline Collider(ColliderType type = ColliderType::Circle);
+		Type type = Circle();
 	};
 
-	inline Collider::Collider(const ColliderType type) : type(type)
+	inline bool IntersectsQuad(Collider::Circle& circle, 
+		Transform& world, utils::Quad& quad)
 	{
-		switch (type)
-		{
-		case ColliderType::Circle:
-			circle.radius = 16;
-			break;
-		case ColliderType::Rectangle:
-			rectangle.width = 16;
-			rectangle.height = 16;
-			break;
-		default:
-			return;
-		}
+		const auto& position = world.position;
+
+		const float xCol = position.x;
+		const float yCol = position.y;
+
+		const float xQuad = quad.pos.x;
+		const float yQuad = quad.pos.y;
+
+		const float quadWidth = quad.width;
+		const float quadHeight = quad.height;
+
+		const float radiusHalf = circle.radius / 2;
+
+		// Horizontal check.
+		if (xCol - radiusHalf < xQuad ||
+			yCol - radiusHalf < yQuad)
+			return false;
+
+		// Vertical check.
+		if (xCol + radiusHalf >= xQuad + quadWidth ||
+			yCol + radiusHalf >= yQuad + quadHeight)
+			return false;
+			
+		return true;
 	}
+
+	VARIANT_FN(IntersectsQuad, bool);
 }

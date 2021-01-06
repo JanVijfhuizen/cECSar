@@ -126,14 +126,14 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 							pushed = _quadTree->TryPush(index, [&collider, &buffer](
 								const int32_t _, const utils::Quad& quad)
 								{
-									return IntersectsQuad(
-										collider, buffer.world, quad);
+									return IntersectsQuad(collider.type, 
+										buffer.world, quad);
 								}, &node, true);
 						}
 
 						// If it doesn't have nested nodes or the pushing failed.
 						if(!pushed)
-							if (IntersectsQuad(collider, buffer.world, quad))
+							if (IntersectsQuad(collider.type, buffer.world, quad))
 								continue;
 					}
 
@@ -164,7 +164,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		buffer.sorted = _quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
-				return IntersectsQuad(collider, world, quad);
+				return IntersectsQuad(collider.type, world, quad);
 			});
 	}
 }
@@ -226,52 +226,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	});
 }
 
-bool game::CollisionSystem::IntersectsQuad(
-	const Collider& collider, const Transform& world, 
-	const utils::Quad& quad)
-{
-	switch (collider.type) 
-	{ 
-		case ColliderType::Circle: 
-			return IntersectsQuadCircle(collider, world, quad);
-		case ColliderType::Rectangle: 
-			return IntersectsQuadRectangle(collider, world, quad);
-		default: 
-			return false;
-	}
-}
-
-bool game::CollisionSystem::IntersectsQuadCircle(
-	const Collider& collider, const Transform& world,
-	const utils::Quad& quad)
-{
-	const auto& position = world.position;
-
-	const float xCol = position.x;
-	const float yCol = position.y;
-
-	const float xQuad = quad.pos.x;
-	const float yQuad = quad.pos.y;
-
-	const float quadWidth = quad.width;
-	const float quadHeight = quad.height;
-
-	auto& circle = collider.circle;
-	const float radiusHalf = circle.radius / 2;
-
-	// Horizontal check.
-	if (xCol - radiusHalf < xQuad ||
-		yCol - radiusHalf < yQuad)
-		return false;
-
-	// Vertical check.
-	if (xCol + radiusHalf >= xQuad + quadWidth ||
-		yCol + radiusHalf >= yQuad + quadHeight)
-		return false;
-
-	return true;
-}
-
 bool game::CollisionSystem::IntersectsQuadRectangle(
 	const Collider& collider, const Transform& world,
 	const utils::Quad& quad)
@@ -287,18 +241,17 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 	if ((aCollider.targetMask & bCollider.mask) == 0 &&
 		(bCollider.targetMask & aCollider.mask) == 0)
 		return;
-
+	/*
 	HitInfo aInfo{};
 	HitInfo bInfo{};
 
-	/* 
 	This looks bad (why not use inheritance?), but faking inheritance
 	like this actually saves so much performance, and there are only going to be two
 	shapes max.
 
 	Collisions are the most performance heavy part of this program (at the time of writing), 
 	even after optimizing it quite a bit with a quadtree and minimizing pushing/clearing calls.
-	*/
+
 	switch (aCollider.type) 
 	{ 
 		case ColliderType::Circle:
@@ -373,6 +326,7 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 		_hits.push_back(aInfo);
 	if ((bCollider.mask & aCollider.targetMask) != 0)
 		_hits.push_back(bInfo);
+	*/
 }
 
 bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
@@ -380,6 +334,7 @@ bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
 	utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
 	utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut)
 {
+	/*
 	auto& aCircle = aCollider.circle;
 	auto& bCircle = bCollider.circle;
 
@@ -397,6 +352,7 @@ bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
 
 	aPointOut = dir * (aCircle.radius / 2) + aIntersectionOut;
 	bPointOut = dir * (-bCircle.radius / 2) + bIntersectionOut;
+	*/
 	return true;
 }
 
