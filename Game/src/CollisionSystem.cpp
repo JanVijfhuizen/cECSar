@@ -266,19 +266,22 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 
 	// Circle collision.
 	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
-	const auto intersection = aWorld.position - bWorld.position;
-	const float intMagnitude = intersection.Magnitude();
+	const auto dir = aWorld.position - bWorld.position;
+	const float dirMagnitude = dir.Magnitude();
 
 	// Check if in range.
-	if (intMagnitude > threshold)
+	if (dirMagnitude > threshold)
 		return;
 
 	// Set up hit info.
 	HitInfo aInfo{};
 	HitInfo bInfo{};
 	
-	aInfo.point = intersection;
-	bInfo.point = intersection * -1;
+	//aInfo.point = ;
+	//bInfo.point = ;
+
+	aInfo.intersection = dir * (dirMagnitude - threshold);
+	bInfo.intersection = dir * -(dirMagnitude - threshold);
 
 	// Set up hit instances.
 	auto& aInstance = aInfo.instance;

@@ -41,9 +41,6 @@ int main(int argc, char* argv[])
 	cecsar.AddEntity<game::OniFactory>();
 	cecsar.AddEntity<game::RoninFactory>();
 	
-
-#pragma endregion
-
 	while(!quit)
 	{
 		timeModule.Update();

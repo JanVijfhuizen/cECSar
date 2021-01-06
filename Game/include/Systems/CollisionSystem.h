@@ -23,6 +23,7 @@ namespace game
 		HitInstance other{};
 
 		utils::Vector3 point{};
+		utils::Vector3 intersection{};
 	};
 
 	class CollisionSystem final : public cecsar::ComponentSystem<Collider, Transform>,
