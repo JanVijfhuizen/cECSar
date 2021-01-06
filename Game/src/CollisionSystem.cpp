@@ -1,7 +1,6 @@
 ﻿#include <Systems/CollisionSystem.h>
 #include "Systems/TransformSystem.h"
 #include "Modules/RenderModule.h"
-#include <iostream>
 
 void game::CollisionSystem::NotifyCollisions()
 {
@@ -126,14 +125,14 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 							pushed = _quadTree->TryPush(index, [&collider, &buffer](
 								const int32_t _, const utils::Quad& quad)
 								{
-									return IntersectsQuad(collider.type, 
-										buffer.world, quad);
+									return Collider::IntersectsQuad(
+										collider.type, buffer.world, quad);
 								}, &node, true);
 						}
 
 						// If it doesn't have nested nodes or the pushing failed.
 						if(!pushed)
-							if (IntersectsQuad(collider.type, buffer.world, quad))
+							if(Collider::IntersectsQuad(collider.type, buffer.world, quad))
 								continue;
 					}
 
@@ -164,7 +163,7 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		buffer.sorted = _quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
-				return IntersectsQuad(collider.type, world, quad);
+				return Collider::IntersectsQuad(collider.type, world, quad);
 			});
 	}
 }

@@ -1,7 +1,6 @@
 #pragma once
 #include <variant>
 #include <Components/Transform.h>
-#include <Utils/Onion.h>
 #include <Utils/Quad.h>
 
 namespace game
@@ -13,13 +12,13 @@ namespace game
 	{
 		struct Circle final
 		{
-			float radius = 16;
+			float radius;
 		};
 
 		struct Rectangle final
 		{
-			float width = 16;
-			float height = 16;
+			float width;
+			float height;
 		};
 
 		using Type = std::variant<Circle, Rectangle>;
@@ -31,36 +30,55 @@ namespace game
 		uint32_t targetMask = MASK_DEFAULT;
 
 		Type type = Circle();
+
+		struct Visitor final
+		{
+			Transform& _world;
+			const utils::Quad& _quad;
+
+			Visitor(Transform& world, const utils::Quad& quad) :
+				_world(world), _quad(quad)
+			{
+				
+			}
+
+			constexpr bool operator()(Circle& circle) const
+			{
+				const auto& position = _world.position;
+
+				const float xCol = position.x;
+				const float yCol = position.y;
+
+				const float xQuad = _quad.pos.x;
+				const float yQuad = _quad.pos.y;
+
+				const float quadWidth = _quad.width;
+				const float quadHeight = _quad.height;
+
+				const float radiusHalf = circle.radius / 2;
+
+				// Horizontal check.
+				if (xCol - radiusHalf < xQuad ||
+					yCol - radiusHalf < yQuad)
+					return false;
+
+				// Vertical check.
+				if (xCol + radiusHalf >= xQuad + quadWidth ||
+					yCol + radiusHalf >= yQuad + quadHeight)
+					return false;
+				return true;
+			}
+
+			constexpr bool operator()(Rectangle& circle) const
+			{
+				return false;
+			}
+		};
+
+		template <typename ...Args>
+		static bool IntersectsQuad(Type& t, Args&& ... args)
+		{
+			return std::visit(Visitor{args...}, t);
+		}
 	};
-
-	inline bool IntersectsQuad(Collider::Circle& circle, 
-		Transform& world, utils::Quad& quad)
-	{
-		const auto& position = world.position;
-
-		const float xCol = position.x;
-		const float yCol = position.y;
-
-		const float xQuad = quad.pos.x;
-		const float yQuad = quad.pos.y;
-
-		const float quadWidth = quad.width;
-		const float quadHeight = quad.height;
-
-		const float radiusHalf = circle.radius / 2;
-
-		// Horizontal check.
-		if (xCol - radiusHalf < xQuad ||
-			yCol - radiusHalf < yQuad)
-			return false;
-
-		// Vertical check.
-		if (xCol + radiusHalf >= xQuad + quadWidth ||
-			yCol + radiusHalf >= yQuad + quadHeight)
-			return false;
-			
-		return true;
-	}
-
-	VARIANT_FN(IntersectsQuad, bool);
 }
