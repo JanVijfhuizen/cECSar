@@ -226,8 +226,24 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	});
 }
 
-bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
-	const Transform& world, const utils::Quad& quad)
+bool game::CollisionSystem::IntersectsQuad(
+	const Collider& collider, const Transform& world, 
+	const utils::Quad& quad)
+{
+	switch (collider.type) 
+	{ 
+		case ColliderType::Circle: 
+			return IntersectsQuadCircle(collider, world, quad);
+		case ColliderType::Rectangle: 
+			return IntersectsQuadRectangle(collider, world, quad);
+		default: 
+			return false;
+	}
+}
+
+bool game::CollisionSystem::IntersectsQuadCircle(
+	const Collider& collider, const Transform& world,
+	const utils::Quad& quad)
 {
 	const auto& position = world.position;
 
@@ -240,7 +256,8 @@ bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
 	const float quadWidth = quad.width;
 	const float quadHeight = quad.height;
 
-	const float radiusHalf = collider.radius / 2;
+	auto& circle = collider.circle;
+	const float radiusHalf = circle.radius / 2;
 
 	// Horizontal check.
 	if (xCol - radiusHalf < xQuad ||
@@ -255,6 +272,13 @@ bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
 	return true;
 }
 
+bool game::CollisionSystem::IntersectsQuadRectangle(
+	const Collider& collider, const Transform& world,
+	const utils::Quad& quad)
+{
+	return false;
+}
+
 void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 	const Collider& aCollider, const Transform& aWorld,
 	const Collider& bCollider, const Transform& bWorld)
@@ -264,26 +288,66 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 		(bCollider.targetMask & aCollider.mask) == 0)
 		return;
 
-	// Circle collision.
-	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
-	const auto dir = aWorld.position - bWorld.position;
-	const float dirMagnitude = dir.Magnitude();
-
-	// Check if in range.
-	if (dirMagnitude > threshold)
-		return;
-
-	// Set up hit info.
 	HitInfo aInfo{};
 	HitInfo bInfo{};
-	
-	//aInfo.point = ;
-	//bInfo.point = ;
 
-	aInfo.intersection = dir * (dirMagnitude - threshold);
-	bInfo.intersection = dir * -(dirMagnitude - threshold);
+	/* 
+	This looks bad (why not use inheritance?), but faking inheritance
+	like this actually saves so much performance, and there are only going to be two
+	shapes max.
 
-	// Set up hit instances.
+	Collisions are the most performance heavy part of this program (at the time of writing), 
+	even after optimizing it quite a bit with a quadtree and minimizing pushing/clearing calls.
+	*/
+	switch (aCollider.type) 
+	{ 
+		case ColliderType::Circle:
+			switch (bCollider.type) 
+			{ 
+				case ColliderType::Circle:
+					if (!CheckIntersectionCircles(
+						aCollider, aWorld,
+						bCollider, bWorld,
+						aInfo, bInfo))
+						return;
+					break;
+				case ColliderType::Rectangle:
+					if (!CheckIntersectionCircleRectangle(
+						aCollider, aWorld,
+						bCollider, bWorld,
+						aInfo, bInfo))
+						return;
+					break;
+				default:
+					return;
+			}
+			break;
+		case ColliderType::Rectangle:
+			switch (bCollider.type)
+			{
+				case ColliderType::Circle:
+					if (!CheckIntersectionCircleRectangle(
+						bCollider, bWorld,
+						aCollider, aWorld,
+						bInfo, aInfo))
+						return;
+					break;
+				case ColliderType::Rectangle:
+					if (!CheckIntersectionRectangles(
+						aCollider, aWorld,
+						bCollider, bWorld,
+						aInfo, bInfo))
+						return;
+					break;
+				default: 
+					return;
+			}
+			break;
+		default:
+			return;
+	}
+
+	// Set up remaining hit information.
 	auto& aInstance = aInfo.instance;
 	auto& bInstance = bInfo.instance;
 
@@ -305,4 +369,41 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 		_hits.push_back(aInfo);
 	if ((bCollider.mask & aCollider.targetMask) != 0)
 		_hits.push_back(bInfo);
+}
+
+bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
+	HitInfo& aOut, HitInfo& bOut)
+{
+	auto& aCircle = aCollider.circle;
+	auto& bCircle = bCollider.circle;
+
+	const float threshold = aCircle.radius / 2 + bCircle.radius / 2;
+	const auto dir = aWorld.position - bWorld.position;
+	const float dirMagnitude = dir.Magnitude();
+
+	// Check if in range.
+	if (dirMagnitude > threshold)
+		return false;
+
+	//aInfo.point = ;
+	//bInfo.point = ;
+
+	aOut.intersection = dir * (dirMagnitude - threshold);
+	bOut.intersection = dir * -(dirMagnitude - threshold);
+	return true;
+}
+
+bool game::CollisionSystem::CheckIntersectionRectangles(const Collider& aCollider,
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
+	HitInfo& aOut, HitInfo& bOut)
+{
+	return false;
+}
+
+bool game::CollisionSystem::CheckIntersectionCircleRectangle(const Collider& aCollider,
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
+	HitInfo& aOut, HitInfo& bOut)
+{
+	return false;
 }

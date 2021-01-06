@@ -22,7 +22,6 @@ namespace game
 	inline IFactoryImp<RigidBody>* OniFactory::SetRigidBodyImp(const cecsar::Cecsar& cecsar)
 	{
 		const auto rigidBody = new IFactoryImp<RigidBody>;
-		rigidBody->prototype.weight = 1.5f;
 		return rigidBody;
 	}
 }
