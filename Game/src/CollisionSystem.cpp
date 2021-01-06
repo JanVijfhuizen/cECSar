@@ -386,11 +386,12 @@ bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
 	if (dirMagnitude > threshold)
 		return false;
 
-	//aInfo.point = ;
-	//bInfo.point = ;
+	const float intersection = (dirMagnitude - threshold) / 2;
+	aOut.intersection = dir * intersection;
+	bOut.intersection = dir * -intersection;
 
-	aOut.intersection = dir * (dirMagnitude - threshold);
-	bOut.intersection = dir * -(dirMagnitude - threshold);
+	aOut.point = dir * (aCircle.radius / 2) + aOut.intersection;
+	bOut.point = dir * (-bCircle.radius / 2) + bOut.intersection;
 	return true;
 }
 
