@@ -8,6 +8,7 @@ namespace game
 	struct Collider final
 	{
 		float radius = 16;
+
 		bool isTrigger = false;
 		bool isStatic = false;
 

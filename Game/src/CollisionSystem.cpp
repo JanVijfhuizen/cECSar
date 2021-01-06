@@ -9,12 +9,12 @@ void game::CollisionSystem::NotifyCollisions()
 		Notify(hit);
 }
 
-void game::CollisionSystem::DrawDebug()
+void game::CollisionSystem::DrawDebug() const
 {
 	auto& renderer = _renderModule->GetRenderer();
 	const auto offset = _renderModule->cameraPos;
 
-	_quadTree->Iterate([this, &renderer, &offset](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([&renderer, &offset](auto& nodes, const int32_t anchor)
 		{
 			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 			{

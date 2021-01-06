@@ -43,10 +43,12 @@ void game::RigidBodySystem::OnUpdate(
 void game::RigidBodySystem::OnNotify(const HitInfo& info)
 {
 	auto& instance = info.instance;
+	auto& other = info.other;
 
 	auto& collider = instance.collider;
-	auto& otherCollider = info.other.collider;
+	auto& otherCollider = other.collider;
 
+	// Static colliders don't get displaced.
 	if (collider->isStatic)
 		return;
 
@@ -60,9 +62,27 @@ void game::RigidBodySystem::OnNotify(const HitInfo& info)
 
 	auto& rigidBody = _rigidBodies->Get(index);
 
+	// If both objects can be displaced, they should both move half essentially.
 	auto dir = info.intersection;
-	if (!otherCollider->isStatic)
-		dir /= 2;
+	if (!otherCollider->isStatic) 
+	{
+		float opposingForce = 1;
 
+		// If the other also has a rigidbody, displace based on the weights.
+		const int32_t otherIndex = other.index;
+		if(_rigidBodies->Contains(otherIndex))
+		{
+			auto& otherRigidbody = _rigidBodies->Get(otherIndex);
+			opposingForce = otherRigidbody.weight;
+		}
+
+		// Clamp balance between 1 and 0 based on the weight balance.
+		const float balance = rigidBody.weight - opposingForce;
+		const float multiplier = std::min(1.0f, 
+			std::max(.0f, (1 - balance) / 2));
+		dir *= multiplier;
+	}
+
+	// Apply immediate displacement.
 	rigidBody.immediateForce -= dir;
 }
