@@ -308,14 +308,16 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 					if (!CheckIntersectionCircles(
 						aCollider, aWorld,
 						bCollider, bWorld,
-						aInfo, bInfo))
+						aInfo.intersection, aInfo.point,
+						bInfo.intersection, bInfo.point))
 						return;
 					break;
 				case ColliderType::Rectangle:
 					if (!CheckIntersectionCircleRectangle(
 						aCollider, aWorld,
 						bCollider, bWorld,
-						aInfo, bInfo))
+						aInfo.intersection, aInfo.point,
+						bInfo.intersection, bInfo.point))
 						return;
 					break;
 				default:
@@ -329,14 +331,16 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 					if (!CheckIntersectionCircleRectangle(
 						bCollider, bWorld,
 						aCollider, aWorld,
-						bInfo, aInfo))
+						bInfo.intersection, bInfo.point,
+						aInfo.intersection, aInfo.point))
 						return;
 					break;
 				case ColliderType::Rectangle:
 					if (!CheckIntersectionRectangles(
 						aCollider, aWorld,
 						bCollider, bWorld,
-						aInfo, bInfo))
+						aInfo.intersection, aInfo.point,
+						bInfo.intersection, bInfo.point))
 						return;
 					break;
 				default: 
@@ -372,8 +376,9 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 }
 
 bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
-	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
-	HitInfo& aOut, HitInfo& bOut)
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld,
+	utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+	utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut)
 {
 	auto& aCircle = aCollider.circle;
 	auto& bCircle = bCollider.circle;
@@ -387,24 +392,26 @@ bool game::CollisionSystem::CheckIntersectionCircles(const Collider& aCollider,
 		return false;
 
 	const float intersection = (dirMagnitude - threshold) / 2;
-	aOut.intersection = dir * intersection;
-	bOut.intersection = dir * -intersection;
+	aIntersectionOut = dir * intersection;
+	bIntersectionOut = dir * -intersection;
 
-	aOut.point = dir * (aCircle.radius / 2) + aOut.intersection;
-	bOut.point = dir * (-bCircle.radius / 2) + bOut.intersection;
+	aPointOut = dir * (aCircle.radius / 2) + aIntersectionOut;
+	bPointOut = dir * (-bCircle.radius / 2) + bIntersectionOut;
 	return true;
 }
 
 bool game::CollisionSystem::CheckIntersectionRectangles(const Collider& aCollider,
-	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
-	HitInfo& aOut, HitInfo& bOut)
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld,
+	utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+	utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut)
 {
 	return false;
 }
 
 bool game::CollisionSystem::CheckIntersectionCircleRectangle(const Collider& aCollider,
-	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld, 
-	HitInfo& aOut, HitInfo& bOut)
+	const Transform& aWorld, const Collider& bCollider, const Transform& bWorld,
+	utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+	utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut)
 {
 	return false;
 }

@@ -75,17 +75,20 @@ namespace game
 		static bool CheckIntersectionCircles(
 			const Collider& aCollider, const Transform& aWorld,
 			const Collider& bCollider, const Transform& bWorld,
-			HitInfo& aOut, HitInfo& bOut);
+			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
 
 		static bool CheckIntersectionRectangles(
 			const Collider& aCollider, const Transform& aWorld,
 			const Collider& bCollider, const Transform& bWorld,
-			HitInfo& aOut, HitInfo& bOut);
+			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
 
 		static bool CheckIntersectionCircleRectangle(
 			const Collider& aCollider, const Transform& aWorld,
 			const Collider& bCollider, const Transform& bWorld,
-			HitInfo& aOut, HitInfo& bOut);
+			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
+			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
 #pragma endregion 
 	};
 }
