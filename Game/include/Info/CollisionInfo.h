@@ -6,32 +6,36 @@ namespace game
 {
 	struct CollisionInfo
 	{
-		const Transform& aWorld, bWorld;
-		utils::Vector3& aPointOut, bPointOut;
-		utils::Vector3& aIntersectOut, bIntersectOut;
+		const Transform* const aWorld;
+		const Transform* const bWorld;
+
+		utils::Vector3* const aPointOut;
+		utils::Vector3* const bPointOut;
+
+		utils::Vector3* const aIntersectOut;
+		utils::Vector3* const bIntersectOut;
 
 		inline CollisionInfo(
-			const Transform& aWorld, const Transform& bWorld,
-			utils::Vector3& aPointOut, utils::Vector3& bPointOut,
-			utils::Vector3& aIntersectOut, utils::Vector3& bIntersectOut);
+			const Transform* aWorld, const Transform* bWorld,
+			utils::Vector3* aPointOut, utils::Vector3* bPointOut,
+			utils::Vector3* aIntersectOut, utils::Vector3* bIntersectOut);
 
-		inline CollisionInfo Reverse();
+		[[nodiscard]] inline CollisionInfo Reverse() const;
 	};
 
 	inline CollisionInfo::CollisionInfo(
-		const Transform& aWorld, const Transform& bWorld,
-		utils::Vector3& aPointOut, utils::Vector3& bPointOut,
-		utils::Vector3& aIntersectOut, utils::Vector3& bIntersectOut) :
+		const Transform* aWorld, const Transform* bWorld,
+		utils::Vector3* aPointOut, utils::Vector3* bPointOut, 
+		utils::Vector3* aIntersectOut, utils::Vector3* bIntersectOut) :
 
 		aWorld(aWorld), bWorld(bWorld), aPointOut(aPointOut), bPointOut(bPointOut),
 		aIntersectOut(aIntersectOut), bIntersectOut(bIntersectOut)
 	{
-
 	}
 
-	inline CollisionInfo CollisionInfo::Reverse()
+	inline CollisionInfo CollisionInfo::Reverse() const
 	{
-		return { bWorld, aWorld, bPointOut,
-			aPointOut, bIntersectOut, aIntersectOut };
+		return CollisionInfo(bWorld, aWorld, bPointOut,
+			aPointOut, bIntersectOut, aIntersectOut);
 	}
 }

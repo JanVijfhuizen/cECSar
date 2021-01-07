@@ -62,7 +62,7 @@ namespace game
 		const Collider::Circle& b) const
 	{
 		const float threshold = a.radius / 2 + b.radius / 2;
-		const auto dir = info.aWorld.position - info.bWorld.position;
+		const auto dir = info.aWorld->position - info.bWorld->position;
 		const float dirMagnitude = dir.Magnitude();
 
 		// Check if in range.
@@ -70,11 +70,11 @@ namespace game
 			return false;
 
 		const float intersection = (dirMagnitude - threshold) / 2;
-		info.aIntersectOut = dir * intersection;
-		info.bIntersectOut = dir * -intersection;
+		*info.aIntersectOut = dir * intersection;
+		*info.bIntersectOut = dir * -intersection;
 
-		info.aPointOut = dir * (a.radius / 2) + info.aIntersectOut;
-		info.bPointOut = dir * (-b.radius / 2) + info.bIntersectOut;
+		*info.aPointOut = dir * (a.radius / 2) + *info.aIntersectOut;
+		*info.bPointOut = dir * (-b.radius / 2) + *info.bIntersectOut;
 		return true;
 	}
 

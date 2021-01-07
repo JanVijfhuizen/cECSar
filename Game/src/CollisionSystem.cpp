@@ -243,16 +243,16 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 	like this actually saves so much performance, and there are only going to be two
 	shapes max.
 
-	Collisions are the most performance heavy part of this program (at the time of writing), 
+	Collisions are the most performance heavy part of this program (at the time of writing),
 	even after optimizing it quite a bit with a quadtree and minimizing pushing/clearing calls.
 	*/
 
 	utils::Vector3 aPoint, bPoint;
 	utils::Vector3 aIntersect, bIntersect;
 
-	CollisionInfo info{aWorld, bWorld, 
-		aPoint, bPoint, 
-		aIntersect, bIntersect};
+	CollisionInfo info{&aWorld, &bWorld, 
+		&aPoint, &bPoint, 
+		&aIntersect, &bIntersect};
 
 	ShapeCollisionVisitor&& visitor = ShapeCollisionVisitor{ aCollider.type, info };
 	const bool hit = std::visit(visitor, bCollider.type);

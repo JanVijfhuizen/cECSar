@@ -10,13 +10,13 @@ namespace game
 	{
 		struct Circle final
 		{
-			float radius;
+			float radius = 16;
 		};
 
 		struct Rectangle final
 		{
-			float width;
-			float height;
+			float width = 16;
+			float height = 16;
 		};
 
 		using Type = std::variant<Circle, Rectangle>;
