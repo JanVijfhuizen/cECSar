@@ -194,6 +194,7 @@
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninFactory.h" />
     <ClInclude Include="include\Factories\StandardFactory.h" />
+    <ClInclude Include="include\Info\CollisionInfo.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />
     <ClInclude Include="include\Modules\JobSystemModule.h" />
@@ -212,12 +213,14 @@
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\IObserver.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
-    <ClInclude Include="include\Utils\Onion.h" />
     <ClInclude Include="include\Utils\Pool.h" />
+    <ClInclude Include="include\Utils\Quad.h" />
     <ClInclude Include="include\Utils\QuadTree.h" />
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
+    <ClInclude Include="include\Visitors\QuadCollisionVisitor.h" />
+    <ClInclude Include="include\Visitors\ShapeCollisionVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />

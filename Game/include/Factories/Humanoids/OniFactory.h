@@ -30,7 +30,10 @@ namespace game
 	inline IFactoryImp<Collider>* OniFactory::SetColliderImp(cecsar::Cecsar& cecsar)
 	{
 		const auto collider = new IFactoryImp<Collider>;
-		collider->prototype.circle.radius *= 2;
+		auto circle = Collider::Circle();
+		circle.radius *= 2;
+
+		collider->prototype.type = circle;
 		return collider;
 	}
 }
