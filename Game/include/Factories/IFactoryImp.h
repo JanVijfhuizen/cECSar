@@ -3,30 +3,45 @@
 
 namespace game
 {
-	template <typename T>
 	class IFactoryImp
+	{
+	public:
+		inline virtual ~IFactoryImp();
+
+		virtual void Initialize(cecsar::Cecsar& cecsar) = 0;
+		virtual void Construct(cecsar::Cecsar& cecsar, int32_t index) = 0;
+	};
+
+	template <typename T>
+	class FactoryImp : public IFactoryImp
 	{
 	public:
 		T prototype;
 
-		virtual ~IFactoryImp();
-
-		virtual void Initialize(cecsar::Cecsar& cecsar);
+		void Initialize(cecsar::Cecsar& cecsar) override;
+		void Construct(cecsar::Cecsar& cecsar, int32_t index) final override;
+		
 		virtual void OnConstruction(
 			cecsar::Cecsar& cecsar, T& component, int32_t index);
 	};
 
-	template <typename T>
-	IFactoryImp<T>::~IFactoryImp() = default;
+	inline IFactoryImp::~IFactoryImp() = default;
 
 	template <typename T>
-	void IFactoryImp<T>::Initialize(cecsar::Cecsar&)
+	void FactoryImp<T>::Initialize(cecsar::Cecsar&)
 	{
 
 	}
 
 	template <typename T>
-	void IFactoryImp<T>::OnConstruction(cecsar::Cecsar&, T& component, const int32_t)
+	void FactoryImp<T>::Construct(cecsar::Cecsar& cecsar, const int32_t index)
+	{
+		auto& component = cecsar.AddComponent<T>(index);
+		OnConstruction(cecsar, component, index);
+	}
+
+	template <typename T>
+	void FactoryImp<T>::OnConstruction(cecsar::Cecsar&, T& component, const int32_t)
 	{
 		component = prototype;
 	}

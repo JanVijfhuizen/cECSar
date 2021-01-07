@@ -10,16 +10,16 @@ namespace game
 		inline ~RoninFactory() override;
 
 	protected:
-		IFactoryImp<CameraFollowTarget>* _followTargetImp = nullptr;
+		FactoryImp<CameraFollowTarget>* _followTargetImp = nullptr;
 
 		inline void Initialize(cecsar::Cecsar& cecsar) override;
 		inline void OnConstruction(cecsar::Cecsar& cecsar, 
 			const cecsar::EntityInfo& info) override;
 
-		inline IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
-		inline IFactoryImp<Controller>* SetControllerImp(cecsar::Cecsar& cecsar) override;
+		inline FactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
+		inline FactoryImp<Controller>* SetControllerImp(cecsar::Cecsar& cecsar) override;
 
-		inline IFactoryImp<CameraFollowTarget>* SetFollowTargetImp(cecsar::Cecsar& cecsar);
+		inline FactoryImp<CameraFollowTarget>* SetFollowTargetImp(cecsar::Cecsar& cecsar);
 	};
 
 	inline RoninFactory::~RoninFactory()
@@ -42,7 +42,7 @@ namespace game
 		_followTargetImp->OnConstruction(cecsar, followTarget, info.index);
 	}
 
-	inline IFactoryImp<Renderer>* RoninFactory::SetRenderImp(
+	inline FactoryImp<Renderer>* RoninFactory::SetRenderImp(
 		cecsar::Cecsar& cecsar)
 	{
 		auto renderer = new StandardRendererImp;
@@ -51,17 +51,17 @@ namespace game
 		return renderer;
 	}
 
-	inline IFactoryImp<Controller>* RoninFactory::SetControllerImp(
+	inline FactoryImp<Controller>* RoninFactory::SetControllerImp(
 		cecsar::Cecsar& cecsar)
 	{
-		auto controller = new IFactoryImp<Controller>;
+		auto controller = new FactoryImp<Controller>;
 		controller->prototype.type = ControllerType::player;
 		return controller;
 	}
 
-	inline IFactoryImp<CameraFollowTarget>* RoninFactory::SetFollowTargetImp(
+	inline FactoryImp<CameraFollowTarget>* RoninFactory::SetFollowTargetImp(
 		cecsar::Cecsar& cecsar)
 	{
-		return new IFactoryImp<CameraFollowTarget>;
+		return new FactoryImp<CameraFollowTarget>;
 	}
 }

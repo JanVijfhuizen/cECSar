@@ -7,20 +7,20 @@ namespace game
 	class GroundBlockFactory final : public StandardFactory
 	{
 	protected:
-		inline IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
-		IFactoryImp<Collider>* SetColliderImp(cecsar::Cecsar& cecsar) override;
+		inline FactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
+		FactoryImp<Collider>* SetColliderImp(cecsar::Cecsar& cecsar) override;
 	};
 
-	inline IFactoryImp<Renderer>* GroundBlockFactory::SetRenderImp(cecsar::Cecsar& cecsar)
+	inline FactoryImp<Renderer>* GroundBlockFactory::SetRenderImp(cecsar::Cecsar& cecsar)
 	{
 		const auto renderer = new StandardRendererImp;
 		renderer->path = "Art/GroundBlock.png";
 		return renderer;
 	}
 
-	inline IFactoryImp<Collider>* GroundBlockFactory::SetColliderImp(cecsar::Cecsar& cecsar)
+	inline FactoryImp<Collider>* GroundBlockFactory::SetColliderImp(cecsar::Cecsar& cecsar)
 	{
-		const auto collider = new IFactoryImp<Collider>;
+		const auto collider = new FactoryImp<Collider>;
 		collider->prototype.targetMask = 0;
 		return collider;
 	}

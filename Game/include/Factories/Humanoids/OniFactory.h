@@ -31,7 +31,7 @@ namespace game
 	{
 		const auto collider = new IFactoryImp<Collider>;
 		auto circle = Collider::Circle();
-		circle.radius *= 2;
+		circle.radius *= 3;
 
 		collider->prototype.type = circle;
 		return collider;
