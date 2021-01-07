@@ -63,18 +63,22 @@ namespace game
 	{
 		const float threshold = a.radius / 2 + b.radius / 2;
 		const auto dir = info.aWorld->position - info.bWorld->position;
-		const float dirMagnitude = dir.Magnitude();
+		const float dirMagnitude = dir.Magnitude2d();
 
 		// Check if in range.
 		if (dirMagnitude > threshold)
 			return false;
 
+		// If it's lower than epsilon, just move it up.
+		const auto dirNormalized = dirMagnitude < 1e-5 ? 
+			utils::Vector3(0, 1) : dir.Normalized2d();
 		const float intersection = (dirMagnitude - threshold) / 2;
-		*info.aIntersectOut = dir * intersection;
-		*info.bIntersectOut = dir * -intersection;
 
-		*info.aPointOut = dir * (a.radius / 2) + *info.aIntersectOut;
-		*info.bPointOut = dir * (-b.radius / 2) + *info.bIntersectOut;
+		*info.aIntersectOut = dirNormalized * intersection;
+		*info.bIntersectOut = dirNormalized * -intersection;
+
+		*info.aPointOut = dirNormalized * (a.radius / 2) + *info.aIntersectOut;
+		*info.bPointOut = dirNormalized * (-b.radius / 2) + *info.bIntersectOut;
 		return true;
 	}
 
