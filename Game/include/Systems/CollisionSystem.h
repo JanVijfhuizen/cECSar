@@ -23,6 +23,7 @@ namespace game
 		HitInstance other{};
 
 		utils::Vector3 point{};
+		utils::Vector3 intersection{};
 	};
 
 	class CollisionSystem final : public cecsar::ComponentSystem<Collider, Transform>,
@@ -30,7 +31,7 @@ namespace game
 	{
 	public:
 		void NotifyCollisions();
-		void DrawDebug();
+		void DrawDebug() const;
 
 	private:
 		struct TransformBuffer final
@@ -54,9 +55,6 @@ namespace game
 		void UpdateBuffer(utils::SparseSet<Collider>&, utils::SparseSet<Transform>&) const;
 		void FillQuadTree(utils::SparseSet<Collider>&) const;
 		void IterateQuadTree(utils::SparseSet<Collider>&);
-
-		static bool IntersectsQuad(const Collider& collider, 
-			const Transform& world, const utils::Quad& quad);
 
 		void CheckIntersection(int32_t a, int32_t b,
 			const Collider& aCollider, const Transform& aWorld,

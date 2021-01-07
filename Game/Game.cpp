@@ -6,12 +6,12 @@
 #include "Systems/ControllerSystem.h"
 #include "Modules/TimeModule.h"
 #include "Systems/CameraSystem.h"
-#include "Modules/JobSystemModule.h"
 #include "Factories/Humanoids/OniFactory.h"
 #include "Factories/Humanoids/RoninFactory.h"
 #include "Factories/Environment/EnvironmentFactory.h"
 #include "Systems/KinematicSystem.h"
 #include "Systems/CollisionSystem.h"
+#include "Systems/RigidBodySystem.h"
 
 int main(int argc, char* argv[])
 {
@@ -40,9 +40,6 @@ int main(int argc, char* argv[])
 	cecsar.AddEntity<game::OniFactory>();
 	cecsar.AddEntity<game::RoninFactory>();
 	
-
-#pragma endregion
-
 	while(!quit)
 	{
 		timeModule.Update();
@@ -62,7 +59,7 @@ int main(int argc, char* argv[])
 
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
-		collisionSystem.DrawDebug();
+		//collisionSystem.DrawDebug();
 
 		renderModule.PostRender();
 
@@ -80,6 +77,10 @@ int main(int argc, char* argv[])
 #pragma region Observer Calls
 		collisionSystem.NotifyCollisions();
 #pragma endregion
+
+#pragma region Observers
+		cecsar.Update<game::RigidBodySystem>();
+#pragma endregion 
 	}
 
 	SDL_Quit();

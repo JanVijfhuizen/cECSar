@@ -2,6 +2,7 @@
 #include <Factories/StandardFactory.h>
 #include "Components/MovementComponent.h"
 #include "Components/Controller.h"
+#include "Components/RigidBody.h"
 
 namespace game
 {
@@ -16,9 +17,11 @@ namespace game
 
 		virtual IFactoryImp<MovementComponent>* SetMovementImp(cecsar::Cecsar& cecsar);
 		virtual IFactoryImp<Controller>* SetControllerImp(cecsar::Cecsar& cecsar);
+		virtual IFactoryImp<RigidBody>* SetRigidBodyImp(const cecsar::Cecsar& cecsar);
 
 	private:
 		IFactoryImp<MovementComponent>* _movementImp = nullptr;
 		IFactoryImp<Controller>* _controllerImp = nullptr;
+		IFactoryImp<RigidBody>* _rigidBodyImp = nullptr;
 	};
 }
