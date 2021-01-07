@@ -1,6 +1,6 @@
 #include <Factories/Implementations/StandardRendererImp.h>
 
-void game::StandardRendererImp::Initialize(cecsar::Cecsar& cecsar)
+void game::StandardRendererImp::PreInitialize(cecsar::Cecsar& cecsar)
 {
 	_renderModule = &cecsar.GetModule<RenderModule>();
 }

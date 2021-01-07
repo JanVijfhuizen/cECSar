@@ -96,6 +96,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)\SDL2_image-2.0.5\include;$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)/ECS/Include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,6 +151,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)\SDL2_image-2.0.5\include;$(ProjectDir)\SDL2-2.0.12\include;$(SolutionDir)/ECS/Include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -162,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\RigidBodySystem.cpp" />
     <ClCompile Include="src\CollisionSystem.cpp" />
     <ClCompile Include="src\KinematicSystem.cpp" />
     <ClCompile Include="src\TransformSystem.cpp" />
@@ -181,6 +184,7 @@
     <ClInclude Include="include\Components\MovementComponent.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
+    <ClInclude Include="include\Components\RigidBody.h" />
     <ClInclude Include="include\Components\Transform.h" />
     <ClInclude Include="include\Factories\Environment\EnvironmentFactory.h" />
     <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h" />
@@ -190,6 +194,7 @@
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninFactory.h" />
     <ClInclude Include="include\Factories\StandardFactory.h" />
+    <ClInclude Include="include\Info\CollisionInfo.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />
     <ClInclude Include="include\Modules\JobSystemModule.h" />
@@ -203,15 +208,19 @@
     <ClInclude Include="include\Systems\KinematicSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
+    <ClInclude Include="include\Systems\RigidBodySystem.h" />
     <ClInclude Include="include\Systems\TransformSystem.h" />
     <ClInclude Include="include\Utils\Color.h" />
     <ClInclude Include="include\Utils\IObserver.h" />
     <ClInclude Include="include\Utils\Mathf.h" />
     <ClInclude Include="include\Utils\Pool.h" />
+    <ClInclude Include="include\Utils\Quad.h" />
     <ClInclude Include="include\Utils\QuadTree.h" />
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
+    <ClInclude Include="include\Visitors\QuadCollisionVisitor.h" />
+    <ClInclude Include="include\Visitors\ShapeCollisionVisitor.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png" />

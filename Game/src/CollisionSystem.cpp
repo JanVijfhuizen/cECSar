@@ -1,7 +1,8 @@
 ﻿#include <Systems/CollisionSystem.h>
 #include "Systems/TransformSystem.h"
 #include "Modules/RenderModule.h"
-#include <iostream>
+#include "Visitors/QuadCollisionVisitor.h"
+#include "Visitors/ShapeCollisionVisitor.h"
 
 void game::CollisionSystem::NotifyCollisions()
 {
@@ -9,12 +10,12 @@ void game::CollisionSystem::NotifyCollisions()
 		Notify(hit);
 }
 
-void game::CollisionSystem::DrawDebug()
+void game::CollisionSystem::DrawDebug() const
 {
 	auto& renderer = _renderModule->GetRenderer();
 	const auto offset = _renderModule->cameraPos;
 
-	_quadTree->Iterate([this, &renderer, &offset](auto& nodes, const int32_t anchor)
+	_quadTree->Iterate([&renderer, &offset](auto& nodes, const int32_t anchor)
 		{
 			for (int32_t i = nodes.size() - 1; i >= anchor; --i)
 			{
@@ -126,14 +127,15 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 							pushed = _quadTree->TryPush(index, [&collider, &buffer](
 								const int32_t _, const utils::Quad& quad)
 								{
-									return IntersectsQuad(
-										collider, buffer.world, quad);
+									return std::visit(QuadCollisionVisitor{
+										buffer.world, quad }, collider.type);
 								}, &node, true);
 						}
 
 						// If it doesn't have nested nodes or the pushing failed.
 						if(!pushed)
-							if (IntersectsQuad(collider, buffer.world, quad))
+							if(std::visit(QuadCollisionVisitor{buffer.world, quad },
+								collider.type))
 								continue;
 					}
 
@@ -164,7 +166,8 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 		buffer.sorted = _quadTree->TryPush(index, [&collider, &world](
 			const int32_t _, const utils::Quad& quad) 
 			{
-				return IntersectsQuad(collider, world, quad);
+				return std::visit(QuadCollisionVisitor{world, quad }, 
+					collider.type);
 			});
 	}
 }
@@ -226,35 +229,6 @@ void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& collider
 	});
 }
 
-bool game::CollisionSystem::IntersectsQuad(const Collider& collider,
-	const Transform& world, const utils::Quad& quad)
-{
-	const auto& position = world.position;
-
-	const float xCol = position.x;
-	const float yCol = position.y;
-
-	const float xQuad = quad.pos.x;
-	const float yQuad = quad.pos.y;
-
-	const float quadWidth = quad.width;
-	const float quadHeight = quad.height;
-
-	const float radiusHalf = collider.radius / 2;
-
-	// Horizontal check.
-	if (xCol - radiusHalf < xQuad ||
-		yCol - radiusHalf < yQuad)
-		return false;
-
-	// Vertical check.
-	if (xCol + radiusHalf >= xQuad + quadWidth ||
-		yCol + radiusHalf >= yQuad + quadHeight)
-		return false;
-
-	return true;
-}
-
 void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 	const Collider& aCollider, const Transform& aWorld,
 	const Collider& bCollider, const Transform& bWorld)
@@ -264,23 +238,37 @@ void game::CollisionSystem::CheckIntersection(const int32_t a, const int32_t b,
 		(bCollider.targetMask & aCollider.mask) == 0)
 		return;
 
-	// Circle collision.
-	const float threshold = aCollider.radius / 2 + bCollider.radius / 2;
-	const auto intersection = aWorld.position - bWorld.position;
-	const float intMagnitude = intersection.Magnitude();
+	/*
+	This looks bad (why not use inheritance?), but faking inheritance
+	like this actually saves so much performance, and there are only going to be two
+	shapes max.
 
-	// Check if in range.
-	if (intMagnitude > threshold)
+	Collisions are the most performance heavy part of this program (at the time of writing),
+	even after optimizing it quite a bit with a quadtree and minimizing pushing/clearing calls.
+	*/
+
+	utils::Vector3 aPoint, bPoint;
+	utils::Vector3 aIntersect, bIntersect;
+
+	CollisionInfo info{&aWorld, &bWorld, 
+		&aPoint, &bPoint, 
+		&aIntersect, &bIntersect};
+
+	ShapeCollisionVisitor&& visitor = ShapeCollisionVisitor{ aCollider.type, info };
+	const bool hit = std::visit(visitor, bCollider.type);
+	if (!hit)
 		return;
 
-	// Set up hit info.
+	// Parse collision information.
 	HitInfo aInfo{};
-	HitInfo bInfo{};
-	
-	aInfo.point = intersection;
-	bInfo.point = intersection * -1;
+	aInfo.point = aPoint;
+	aInfo.intersection = aIntersect;
 
-	// Set up hit instances.
+	HitInfo bInfo{};
+	bInfo.point = bPoint;
+	bInfo.intersection = bIntersect;
+
+	// Parse instance information.
 	auto& aInstance = aInfo.instance;
 	auto& bInstance = bInfo.instance;
 

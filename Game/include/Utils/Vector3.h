@@ -28,6 +28,8 @@ namespace utils
 
 		inline Vector3 Rotate(float rotation) const;
 		constexpr Vector3 To2D() const;
+
+		inline Vector3 Reduce(const Vector3& other) const;
 #pragma endregion 
 
 #pragma region 2d
@@ -59,6 +61,10 @@ namespace utils
 
 		inline Vector3 operator /(const float& f) const;
 		inline Vector3& operator/=(const float& f);
+
+#pragma region Predefined Constructors
+		static constexpr Vector3 One();
+#pragma endregion 
 
 #pragma region Statics
 		inline static float RotateTowards2d(const float& f, const Vector3& to, const float& delta);
@@ -137,6 +143,20 @@ namespace utils
 	constexpr Vector3 Vector3::To2D() const
 	{
 		return{ x, y };
+	}
+
+	constexpr Vector3 Vector3::One()
+	{
+		return Vector3(1, 1, 1);
+	}
+
+	inline Vector3 Vector3::Reduce(const Vector3& other) const
+	{
+#define REDUCE(a) a - other.a * (a > 0 ? 1 : -1)
+#define CLAMP(a) abs(a) < other.a ? 0 : a
+#define AXIS(a) CLAMP(REDUCE(a))
+
+		return Vector3(AXIS(x), AXIS(y), AXIS(z));
 	}
 
 	inline Vector3& Vector3::operator=(const Vector3& other)

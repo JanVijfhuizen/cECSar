@@ -1,21 +1,10 @@
 #pragma once
 #include <Utils/Pool.h>
+#include "Quad.h"
 
 namespace utils
 {
 constexpr auto QUAD_BLOCK_SIZE = 4;
-
-	/*
-	Used for intersection checks in the QuadTree.
-	*/
-	struct Quad final
-	{
-		Vector3 pos{};
-		float width = 0, height = 0;
-
-		constexpr Quad();
-		inline Quad(const Vector3& pos, float width, float height);
-	};
 
 	/*
 	Used to decrease the amount of intersection checks needed for large groups.
@@ -288,17 +277,8 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 		anchor = maxDepth - _depth;
 	}
 
-	constexpr Quad::Quad() = default;
-
-constexpr bool QuadTree::Node::IsLeaf() const
-{
-	return _isLeaf;
-}
-
-
-inline Quad::Quad(const Vector3& pos, const float width, const float height) :
-		pos(pos), width(width), height(height)
+	constexpr bool QuadTree::Node::IsLeaf() const
 	{
-
+		return _isLeaf;
 	}
 }

@@ -3,45 +3,34 @@
 
 game::StandardFactory::~StandardFactory()
 {
-	delete _renderImp;
-	delete _transformImp;
-	delete _colliderImp;
+	for (auto& imp : _imps)
+		delete imp.second;
 }
 
 void game::StandardFactory::Initialize(cecsar::Cecsar& cecsar)
 {
-	_renderImp = SetRenderImp(cecsar);
-	_transformImp = SetTransformImp(cecsar);
-	_colliderImp = SetColliderImp(cecsar);
+	_cecsar = &cecsar;
+	OnInitializeCustom(cecsar);
+	for (auto& imp : _imps)
+		imp.second->PostInitialize(cecsar);
+}
 
-	_renderImp->Initialize(cecsar);
-	_transformImp->Initialize(cecsar);
-	_colliderImp->Initialize(cecsar);
+void game::StandardFactory::OnInitializeCustom(cecsar::Cecsar&)
+{
+
 }
 
 void game::StandardFactory::OnConstruction(
 	cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 {
-	auto& renderer = cecsar.AddComponent<Renderer>(info.index);
-	auto& transform = cecsar.AddComponent<Transform>(info.index);
-	auto& collider = cecsar.AddComponent<Collider>(info.index);
-
-	_renderImp->OnConstruction(cecsar, renderer, info.index);
-	_transformImp->OnConstruction(cecsar, transform, info.index);
-	_colliderImp->OnConstruction(cecsar, collider, info.index);
+	const int32_t index = info.index;
+	for (auto& imp : _imps)
+		imp.second->Construct(cecsar, index);
+	OnConstructionCustom(cecsar, info);
 }
 
-game::IFactoryImp<game::Renderer>* game::StandardFactory::SetRenderImp(cecsar::Cecsar& cecsar)
+void game::StandardFactory::OnConstructionCustom(
+	cecsar::Cecsar&, const cecsar::EntityInfo&)
 {
-	return new IFactoryImp<Renderer>;
-}
 
-game::IFactoryImp<game::Transform>* game::StandardFactory::SetTransformImp(cecsar::Cecsar& cecsar)
-{
-	return new IFactoryImp<Transform>;
-}
-
-game::IFactoryImp<game::Collider>* game::StandardFactory::SetColliderImp(cecsar::Cecsar& cecsar)
-{
-	return new IFactoryImp<Collider>;
 }

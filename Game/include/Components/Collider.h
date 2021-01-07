@@ -1,4 +1,5 @@
 #pragma once
+#include <variant>
 
 namespace game
 {
@@ -7,9 +8,25 @@ namespace game
 
 	struct Collider final
 	{
-		float radius = 8;
+		struct Circle final
+		{
+			float radius = 16;
+		};
+
+		struct Rectangle final
+		{
+			float width = 16;
+			float height = 16;
+		};
+
+		using Type = std::variant<Circle, Rectangle>;
+
+		bool isTrigger = false;
+		bool isStatic = false;
 
 		uint32_t mask = MASK_DEFAULT;
 		uint32_t targetMask = MASK_DEFAULT;
+
+		Type type = Circle();
 	};
 }
