@@ -7,30 +7,28 @@ namespace game
 {
 	struct QuadCollisionVisitor final
 	{
-	public:
+		const Transform& world;
+		const utils::Quad& quad;
+
 		constexpr QuadCollisionVisitor(const Transform& world, const utils::Quad& quad);
 
 		constexpr bool operator()(Collider::Circle& circle) const;
 		constexpr bool operator()(Collider::Rectangle& circle) const;
-
-	private:
-		const Transform& _world;
-		const utils::Quad& _quad;
 	};
 
 	constexpr bool QuadCollisionVisitor::operator()(
 		Collider::Circle& circle) const
 	{
-		const auto& position = _world.position;
+		const auto& position = world.position;
 
 		const float xCol = position.x;
 		const float yCol = position.y;
 
-		const float xQuad = _quad.pos.x;
-		const float yQuad = _quad.pos.y;
+		const float xQuad = quad.pos.x;
+		const float yQuad = quad.pos.y;
 
-		const float quadWidth = _quad.width;
-		const float quadHeight = _quad.height;
+		const float quadWidth = quad.width;
+		const float quadHeight = quad.height;
 
 		const float radiusHalf = circle.radius / 2;
 
@@ -54,7 +52,7 @@ namespace game
 
 	constexpr QuadCollisionVisitor::QuadCollisionVisitor(
 		const Transform& world, const utils::Quad& quad):
-		_world(world), _quad(quad)
+		world(world), quad(quad)
 	{
 
 	}
