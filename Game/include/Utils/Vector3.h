@@ -20,7 +20,7 @@ namespace utils
 		constexpr Vector3();
 		inline Vector3(const Vector3& other);
 		constexpr Vector3(__m128 v4);
-		constexpr Vector3(float x, float y, float z);
+		constexpr Vector3(float x, float y = 0, float z = 0);
 
 #pragma region 3d
 		inline float Magnitude() const;
@@ -64,6 +64,7 @@ namespace utils
 
 #pragma region Predefined Constructors
 		static constexpr Vector3 One();
+		static constexpr Vector3 One2d();
 #pragma endregion 
 
 #pragma region Statics
@@ -83,7 +84,7 @@ namespace utils
 
 	}
 
-	constexpr Vector3::Vector3(const float x, const float y = 0, const float z = 0) : 
+	constexpr Vector3::Vector3(const float x, const float y, const float z) : 
 		x(x), y(y), z(z)
 	{
 	}
@@ -148,6 +149,11 @@ namespace utils
 	constexpr Vector3 Vector3::One()
 	{
 		return Vector3(1, 1, 1);
+	}
+
+	constexpr Vector3 Vector3::One2d()
+	{
+		return Vector3(1, 1);
 	}
 
 	inline Vector3 Vector3::Reduce(const Vector3& other) const
