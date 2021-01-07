@@ -13,6 +13,8 @@ namespace game
 
 	inline void GroundBlockFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	{
+		DefineImplementation<Transform>();
+
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
 		renderer.path = "Art/GroundBlock.png";
 

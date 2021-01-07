@@ -7,6 +7,8 @@
 
 void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
+	DefineImplementation<Transform>();
+
 	DefineImplementation<Renderer, StandardRendererImp>();
 	DefineImplementation<Collider>();
 
