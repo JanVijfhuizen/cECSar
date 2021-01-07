@@ -173,13 +173,13 @@
     <ClInclude Include="include\Systems\RigidBodySystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Utils\Onion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Utils\Quad.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Visitors\QuadCollisionVisitor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Visitors\ShapeCollisionVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

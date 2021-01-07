@@ -1,7 +1,5 @@
 #pragma once
 #include <variant>
-#include <Components/Transform.h>
-#include <Utils/Quad.h>
 
 namespace game
 {
