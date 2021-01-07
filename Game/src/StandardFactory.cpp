@@ -10,7 +10,14 @@ game::StandardFactory::~StandardFactory()
 void game::StandardFactory::Initialize(cecsar::Cecsar& cecsar)
 {
 	_cecsar = &cecsar;
-	OnInitialize(cecsar);
+	OnInitializeCustom(cecsar);
+	for (auto& imp : _imps)
+		imp.second->PostInitialize(cecsar);
+}
+
+void game::StandardFactory::OnInitializeCustom(cecsar::Cecsar&)
+{
+
 }
 
 void game::StandardFactory::OnConstruction(
@@ -19,4 +26,11 @@ void game::StandardFactory::OnConstruction(
 	const int32_t index = info.index;
 	for (auto& imp : _imps)
 		imp.second->Construct(cecsar, index);
+	OnConstructionCustom(cecsar, info);
+}
+
+void game::StandardFactory::OnConstructionCustom(
+	cecsar::Cecsar&, const cecsar::EntityInfo&)
+{
+
 }

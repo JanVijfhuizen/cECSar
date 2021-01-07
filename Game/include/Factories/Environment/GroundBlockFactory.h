@@ -1,27 +1,22 @@
 #pragma once
 #include <Factories/StandardFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
+#include <Components/Collider.h>
 
 namespace game
 {
 	class GroundBlockFactory final : public StandardFactory
 	{
 	protected:
-		inline FactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
-		FactoryImp<Collider>* SetColliderImp(cecsar::Cecsar& cecsar) override;
+		inline void OnInitializeCustom(cecsar::Cecsar& cecsar) override;
 	};
 
-	inline FactoryImp<Renderer>* GroundBlockFactory::SetRenderImp(cecsar::Cecsar& cecsar)
+	inline void GroundBlockFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	{
-		const auto renderer = new StandardRendererImp;
-		renderer->path = "Art/GroundBlock.png";
-		return renderer;
-	}
+		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
+		renderer.path = "Art/GroundBlock.png";
 
-	inline FactoryImp<Collider>* GroundBlockFactory::SetColliderImp(cecsar::Cecsar& cecsar)
-	{
-		const auto collider = new FactoryImp<Collider>;
-		collider->prototype.targetMask = 0;
-		return collider;
+		auto& collider = DefineImplementation<Collider>();
+		collider.prototype.targetMask = 0;
 	}
 }

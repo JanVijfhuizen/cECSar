@@ -8,7 +8,8 @@ namespace game
 	public:
 		inline virtual ~IFactoryImp();
 
-		virtual void Initialize(cecsar::Cecsar& cecsar) = 0;
+		virtual void PreInitialize(cecsar::Cecsar& cecsar) = 0;
+		virtual void PostInitialize(cecsar::Cecsar& cecsar) = 0;
 		virtual void Construct(cecsar::Cecsar& cecsar, int32_t index) = 0;
 	};
 
@@ -18,9 +19,10 @@ namespace game
 	public:
 		T prototype;
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
+		void PreInitialize(cecsar::Cecsar& cecsar) override;
+		void PostInitialize(cecsar::Cecsar& cecsar) override;
+
 		void Construct(cecsar::Cecsar& cecsar, int32_t index) final override;
-		
 		virtual void OnConstruction(
 			cecsar::Cecsar& cecsar, T& component, int32_t index);
 	};
@@ -28,7 +30,13 @@ namespace game
 	inline IFactoryImp::~IFactoryImp() = default;
 
 	template <typename T>
-	void FactoryImp<T>::Initialize(cecsar::Cecsar&)
+	void FactoryImp<T>::PreInitialize(cecsar::Cecsar&)
+	{
+
+	}
+
+	template <typename T>
+	void FactoryImp<T>::PostInitialize(cecsar::Cecsar&)
 	{
 
 	}

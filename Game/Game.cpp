@@ -59,7 +59,7 @@ int main(int argc, char* argv[])
 
 		cecsar.Update<game::CameraSystem>();
 		cecsar.Update<game::RenderSystem>();
-		//collisionSystem.DrawDebug();
+		collisionSystem.DrawDebug();
 
 		renderModule.PostRender();
 

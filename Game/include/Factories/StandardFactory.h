@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "EntityFactory.h"
-#include "IFactoryImp.h"
+#include <EntityFactory.h>
+#include <Factories/IFactoryImp.h>
 #include <map>
 
 namespace game
@@ -12,17 +12,19 @@ namespace game
 
 	protected:
 		void Initialize(cecsar::Cecsar& cecsar) final override;
-
-		virtual void OnInitialize(cecsar::Cecsar& cecsar) = 0;
 		void OnConstruction(
-			cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info) override;
+			cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info) final override;
 
-		template <typename Component, typename Imp>
+		virtual void OnConstructionCustom(
+			cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info);
+		virtual void OnInitializeCustom(cecsar::Cecsar& cecsar);
+
+		template <typename Component, typename Imp = FactoryImp<Component>>
 		Imp& DefineImplementation();
 
 	private:
 		cecsar::Cecsar* _cecsar = nullptr;
-		std::map<std::type_index, IFactoryImp*> _imps;
+		std::map<std::type_index, IFactoryImp*> _imps{};
 
 		template <typename Component, typename Imp>
 		Imp& SetImplementation();
@@ -49,8 +51,8 @@ namespace game
 	Imp& StandardFactory::SetImplementation()
 	{
 		auto imp = new Imp();
-		imp->Initialize(_cecsar);
+		imp->PreInitialize(*_cecsar);
 		_imps[typeid(Component)] = imp;
-		return static_cast<Imp*>(imp);
+		return *static_cast<Imp*>(imp);
 	}
 }
