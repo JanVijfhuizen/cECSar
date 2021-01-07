@@ -4,49 +4,47 @@
 
 namespace game
 {
-#pragma region Intershapes Checks
 	inline bool CircleRectangleIntersects(
-		Collider::Circle& a, Collider::Rectangle& b, CollisionInfo& info);
-#pragma endregion 
+		const Collider::Circle& a, const Collider::Rectangle& b, CollisionInfo& info);
 
-#pragma region Visitors
 	struct CircleCollisionVisitor final
 	{
-		Collider::Circle& a;
+		const Collider::Circle& a;
 		CollisionInfo& info;
 
 		inline CircleCollisionVisitor(
-			Collider::Circle& a, CollisionInfo& info);
+			const Collider::Circle& a, CollisionInfo& info);
 
-		inline bool operator()(Collider::Circle& b) const;
-		inline bool operator()(Collider::Rectangle& b) const;
+		inline bool operator()(const Collider::Circle& b) const;
+		inline bool operator()(const Collider::Rectangle& b) const;
 	};
 
 	struct RectangleCollisionVisitor final
 	{
-		Collider::Rectangle& a;
+		const Collider::Rectangle& a;
 		CollisionInfo& info;
 
-		inline RectangleCollisionVisitor(Collider::Rectangle& a, CollisionInfo& info);
+		inline RectangleCollisionVisitor(
+			const Collider::Rectangle& a, CollisionInfo& info);
 
-		inline bool operator()(Collider::Circle& b) const;
-		inline bool operator()(Collider::Rectangle& b) const;
+		inline bool operator()(const Collider::Circle& b) const;
+		inline bool operator()(const Collider::Rectangle& b) const;
 	};
 
 	struct ShapeCollisionVisitor final
 	{
-		Collider::Type& a;
-		CollisionInfo info;
+		const Collider::Type& a;
+		CollisionInfo& info;
 
-		inline ShapeCollisionVisitor(Collider::Type& a, CollisionInfo&& info);
+		inline ShapeCollisionVisitor(
+			const Collider::Type& a, CollisionInfo& info);
 
-		inline bool operator()(Collider::Circle& b);
-		inline bool operator()(Collider::Rectangle& b);
+		inline bool operator()(const Collider::Circle& b) const;
+		inline bool operator()(const Collider::Rectangle& b) const;
 	};
-#pragma endregion 
 
 	inline bool CircleRectangleIntersects(
-		Collider::Circle& a, Collider::Rectangle& b,
+		const Collider::Circle& a, const Collider::Rectangle& b,
 		CollisionInfo& info)
 	{
 		// Do a normal check.
@@ -54,13 +52,14 @@ namespace game
 	}
 
 	inline CircleCollisionVisitor::CircleCollisionVisitor(
-		Collider::Circle& a, CollisionInfo& info) :
+		const Collider::Circle& a, CollisionInfo& info) :
 		a(a), info(info)
 	{
 
 	}
 
-	inline bool CircleCollisionVisitor::operator()(Collider::Circle& b) const
+	inline bool CircleCollisionVisitor::operator()(
+		const Collider::Circle& b) const
 	{
 		const float threshold = a.radius / 2 + b.radius / 2;
 		const auto dir = info.aWorld.position - info.bWorld.position;
@@ -79,45 +78,50 @@ namespace game
 		return true;
 	}
 
-	inline bool CircleCollisionVisitor::operator()(Collider::Rectangle& b) const
+	inline bool CircleCollisionVisitor::operator()(
+		const Collider::Rectangle& b) const
 	{
 		return CircleRectangleIntersects(a, b, info);
 	}
 
 	inline RectangleCollisionVisitor::RectangleCollisionVisitor(
-		Collider::Rectangle& a, CollisionInfo& info) :
+		const Collider::Rectangle& a, CollisionInfo& info) :
 		a(a), info(info)
 	{
 
 	}
 
-	inline bool RectangleCollisionVisitor::operator()(Collider::Circle& b) const
+	inline bool RectangleCollisionVisitor::operator()(
+		const Collider::Circle& b) const
 	{
 		auto reverse = info.Reverse();
 		return CircleRectangleIntersects(b, a, reverse);
 	}
 
-	inline bool RectangleCollisionVisitor::operator()(Collider::Rectangle& b) const
+	inline bool RectangleCollisionVisitor::operator()(
+		const Collider::Rectangle& b) const
 	{
 		// Do a normal check.
 		return false;
 	}
 
 	inline ShapeCollisionVisitor::ShapeCollisionVisitor(
-		Collider::Type& a, CollisionInfo&& info) :
+		const Collider::Type& a, CollisionInfo& info) :
 		a(a), info(info)
 	{
 
 	}
 
-	inline bool ShapeCollisionVisitor::operator()(Collider::Circle& b)
+	inline bool ShapeCollisionVisitor::operator()(
+		const Collider::Circle& b) const
 	{
 		auto reverse = info.Reverse();
 		return std::visit(
 			CircleCollisionVisitor{b, reverse}, a);
 	}
 
-	inline bool ShapeCollisionVisitor::operator()(Collider::Rectangle& b)
+	inline bool ShapeCollisionVisitor::operator()(
+		const Collider::Rectangle& b) const
 	{
 		auto reverse = info.Reverse();
 		return std::visit(

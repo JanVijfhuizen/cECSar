@@ -56,33 +56,8 @@ namespace game
 		void FillQuadTree(utils::SparseSet<Collider>&) const;
 		void IterateQuadTree(utils::SparseSet<Collider>&);
 
-#pragma region Quad Intersections
-		static bool IntersectsQuadRectangle(const Collider& collider,
-			const Transform& world, const utils::Quad& quad);
-#pragma endregion 
-
-#pragma region Shape Intersections
 		void CheckIntersection(int32_t a, int32_t b,
 			const Collider& aCollider, const Transform& aWorld,
 			const Collider& bCollider, const Transform& bWorld);
-
-		static bool CheckIntersectionCircles(
-			const Collider& aCollider, const Transform& aWorld,
-			const Collider& bCollider, const Transform& bWorld,
-			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
-			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
-
-		static bool CheckIntersectionRectangles(
-			const Collider& aCollider, const Transform& aWorld,
-			const Collider& bCollider, const Transform& bWorld,
-			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
-			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
-
-		static bool CheckIntersectionCircleRectangle(
-			const Collider& aCollider, const Transform& aWorld,
-			const Collider& bCollider, const Transform& bWorld,
-			utils::Vector3& aIntersectionOut, utils::Vector3& aPointOut,
-			utils::Vector3& bIntersectionOut, utils::Vector3& bPointOut);
-#pragma endregion 
 	};
 }

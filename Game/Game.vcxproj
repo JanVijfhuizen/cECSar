@@ -194,6 +194,7 @@
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninFactory.h" />
     <ClInclude Include="include\Factories\StandardFactory.h" />
+    <ClInclude Include="include\Info\CollisionInfo.h" />
     <ClInclude Include="include\Modules\BufferModule.h" />
     <ClInclude Include="include\Modules\JobConverterModule.h" />
     <ClInclude Include="include\Modules\JobSystemModule.h" />

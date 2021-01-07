@@ -15,7 +15,7 @@ namespace game
 			utils::Vector3& aPointOut, utils::Vector3& bPointOut,
 			utils::Vector3& aIntersectOut, utils::Vector3& bIntersectOut);
 
-		constexpr CollisionInfo Reverse();
+		inline CollisionInfo Reverse();
 	};
 
 	inline CollisionInfo::CollisionInfo(
@@ -29,7 +29,7 @@ namespace game
 
 	}
 
-	constexpr CollisionInfo CollisionInfo::Reverse()
+	inline CollisionInfo CollisionInfo::Reverse()
 	{
 		return { bWorld, aWorld, bPointOut,
 			aPointOut, bIntersectOut, aIntersectOut };
