@@ -1,39 +1,32 @@
 #pragma once
 #include <Factories/Humanoids/HumanoidFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
+#include <Components/RigidBody.h>
+#include <Components/Collider.h>
 
 namespace game
 {
 	class OniFactory final : public HumanoidFactory
 	{
-	protected:
-		inline IFactoryImp<Renderer>* SetRenderImp(cecsar::Cecsar& cecsar) override;
-		inline IFactoryImp<RigidBody>* SetRigidBodyImp(const cecsar::Cecsar& cecsar) override;
-		inline IFactoryImp<Collider>* SetColliderImp(cecsar::Cecsar& cecsar) override;
+	private:
+		inline void OnInitializeCustom(cecsar::Cecsar& cecsar) override;
 	};
 
-	inline IFactoryImp<Renderer>* OniFactory::SetRenderImp(cecsar::Cecsar& cecsar)
+	inline void OniFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	{
-		const auto renderer = new StandardRendererImp;
-		renderer->path = "Art/Oni.png";
-		renderer->prototype.count = 6;
-		return renderer;
-	}
+		HumanoidFactory::OnInitializeCustom(cecsar);
 
-	inline IFactoryImp<RigidBody>* OniFactory::SetRigidBodyImp(const cecsar::Cecsar& cecsar)
-	{
-		const auto rigidBody = new IFactoryImp<RigidBody>;
-		rigidBody->prototype.weight = 1.5f;
-		return rigidBody;
-	}
+		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
+		renderer.path = "Art/Oni.png";
+		renderer.prototype.count = 6;
 
-	inline IFactoryImp<Collider>* OniFactory::SetColliderImp(cecsar::Cecsar& cecsar)
-	{
-		const auto collider = new IFactoryImp<Collider>;
+		auto& rigidBody = DefineImplementation<RigidBody>();
+		rigidBody.prototype.weight = 1.5f;
+
+		auto& collider = DefineImplementation<Collider>();
+
 		auto circle = Collider::Circle();
-		circle.radius *= 2;
-
-		collider->prototype.type = circle;
-		return collider;
+		circle.radius *= 3;
+		collider.prototype.type = circle;
 	}
 }

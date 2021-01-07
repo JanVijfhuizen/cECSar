@@ -152,7 +152,7 @@ namespace utils
 	}
 
 	template <typename T>
-	constexpr T& SparseSet<T>::Get(int32_t sparseIndex)
+	constexpr T& SparseSet<T>::Get(const int32_t sparseIndex)
 	{
 		return _values[_sparse[sparseIndex]];
 	}

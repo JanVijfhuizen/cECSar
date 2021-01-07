@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
 	cecsar.AddEntity<game::OniFactory>();
 	cecsar.AddEntity<game::RoninFactory>();
-	
+
 	while(!quit)
 	{
 		timeModule.Update();

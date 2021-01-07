@@ -5,12 +5,12 @@
 
 namespace game
 {
-	class StandardRendererImp : public IFactoryImp<Renderer>
+	class StandardRendererImp : public FactoryImp<Renderer>
 	{
 	public:
 		std::string path{};
 
-		void Initialize(cecsar::Cecsar& cecsar) override;
+		void PreInitialize(cecsar::Cecsar& cecsar) override;
 		void OnConstruction(cecsar::Cecsar& cecsar,
 			Renderer& component, int32_t index) override;
 
