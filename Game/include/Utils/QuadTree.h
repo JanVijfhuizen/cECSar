@@ -150,6 +150,11 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	constexpr QuadTree::Node* QuadTree::Node::TryNavigate(
 		int32_t instance, const Lambda& lambda)
 	{
+		// Fitness check.
+		const bool fit = lambda(instance, quad);
+		if (!fit)
+			return nullptr;
+
 		// Try to pass it to it's nested leaves/branches.
 		if(!_isLeaf)
 			for (auto& i : _nested)
@@ -160,9 +165,6 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			}
 
 		// Fitness check.
-		const bool fit = lambda(instance, quad);
-		if (!fit)
-			return nullptr;
 		return this;
 	}
 
