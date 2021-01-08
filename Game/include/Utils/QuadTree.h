@@ -28,7 +28,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			Quad quad{};
 			std::vector<int32_t> instances{};
 
-			constexpr bool IsLeaf() const;
+			[[nodiscard]] constexpr bool IsLeaf() const;
 
 			/*
 			Recursively iterate through the nodes.
@@ -164,7 +164,6 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 					return nested;
 			}
 
-		// Fitness check.
 		return this;
 	}
 

@@ -186,6 +186,7 @@
     <ClInclude Include="include\Components\Renderer.h" />
     <ClInclude Include="include\Components\RigidBody.h" />
     <ClInclude Include="include\Components\Transform.h" />
+    <ClInclude Include="include\Engine.h" />
     <ClInclude Include="include\Factories\Environment\EnvironmentFactory.h" />
     <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
