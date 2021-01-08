@@ -8,6 +8,7 @@ void game::CollisionSystem::NotifyCollisions()
 {
 	for (auto& hit : _hits)
 		Notify(hit);
+	_hits.clear();
 }
 
 void game::CollisionSystem::DrawDebug() const
@@ -175,8 +176,6 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders)
 {
-	_hits.clear();
-
 	// Check for possible collisions.
 	_quadTree->Iterate([this, &colliders](
 		auto& nodes, const int32_t anchor)
