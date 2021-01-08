@@ -1,6 +1,7 @@
 #pragma once
 #include <Factories/Humanoids/HumanoidFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
+#include <Factories/Humanoids/RoninHandFactory.h>
 
 namespace game
 {
@@ -22,5 +23,7 @@ namespace game
 
 		auto& controller = DefineImplementation<Controller>();
 		controller.prototype.type = ControllerType::player;
+
+		SetHandFactoryImpl<RoninHandFactory>(cecsar);
 	}
 }

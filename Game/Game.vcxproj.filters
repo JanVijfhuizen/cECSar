@@ -194,6 +194,12 @@
     <ClInclude Include="include\Factories\Humanoids\HandFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\Factories\Humanoids\RoninHandFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Factories\Humanoids\OniHandFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Art\Bat.png">

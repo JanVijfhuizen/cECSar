@@ -192,6 +192,8 @@
     <ClInclude Include="include\Factories\Environment\GroundBlockFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\OniHandFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\RoninHandFactory.h" />
     <ClInclude Include="include\Factories\IFactoryImp.h" />
     <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />

@@ -23,7 +23,9 @@ void game::HumanoidFactory::OnConstructionCustom(
 	cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 {
 	auto& transforms = cecsar.GetSet<Transform>();
+	auto& renderers = cecsar.GetSet<Renderer>();
 
+	// Add the hands.
 	const auto hands = cecsar.AddEntity(2);
 	for (int32_t i = 0; i < 2; ++i)
 	{
@@ -32,6 +34,13 @@ void game::HumanoidFactory::OnConstructionCustom(
 
 		auto& handTransform = transforms.Get(handInfo.index);
 		handTransform.parent = info;
-		handTransform.position.x = 20 * ((i == 0) * 2 - 1);
+
+		auto offset = _handFactory->offset;
+		offset.x *=(i == 0) * 2 - 1;
+		handTransform.position = offset;
+
+		auto& handRenderer = renderers.Get(handInfo.index);
+		if(i == 1)
+			handRenderer.flip = SDL_FLIP_HORIZONTAL;
 	}
 }
