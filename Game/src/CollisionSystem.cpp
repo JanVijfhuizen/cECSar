@@ -62,7 +62,8 @@ void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 
 	const int32_t size = 1600;
-	_quadTree = new utils::QuadTree({-size / 2, -size / 2 }, size, size);
+	_quadTree = new utils::QuadTree({
+		-size / 2, -size / 2 }, size, size, 5);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 	_hits.reserve(cecsar.info.setCapacity * 2);
 }
