@@ -54,6 +54,9 @@
     <ClCompile Include="src\RigidBodySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\HandFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Modules\RenderModule.h">
@@ -186,6 +189,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Engine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Factories\Humanoids\HandFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

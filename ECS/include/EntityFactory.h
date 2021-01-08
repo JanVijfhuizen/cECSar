@@ -14,11 +14,14 @@ namespace cecsar
 	*/
 	class EntityFactory : public IEntityFactory
 	{
-	protected:
+	public:
 		/*
-		Called from cecsar.AddEntity<MyFactory>.
+		Used to construct a set of components over an entity.
+		DOESN'T CREATE AN ENTITY HOWEVER!
 		*/
 		void Construct(Cecsar& cecsar, const EntityInfo& info) final override;
+
+	protected:
 		/*
 		Override to define custom construction behaviour.
 		*/

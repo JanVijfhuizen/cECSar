@@ -15,9 +15,9 @@ namespace cecsar
 
 	public:
 		virtual ~IEntityFactory();
+		virtual void Construct(Cecsar& cecsar, const EntityInfo& info);
 
 	protected:
 		virtual void Initialize(Cecsar& cecsar);
-		virtual void Construct(Cecsar& cecsar, const EntityInfo& info);
 	};
 }
