@@ -9,7 +9,10 @@ void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
 	DefineImplementation<Transform>();
 
-	DefineImplementation<Renderer, StandardRendererImp>();
+	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
+	renderer.prototype.count = 6;
+	renderer.prototype.index = 1;
+
 	DefineImplementation<Collider>();
 
 	DefineImplementation<MovementComponent>();
@@ -17,6 +20,7 @@ void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	DefineImplementation<RigidBody>();
 
 	SetHandFactoryImpl<HandFactory>(cecsar);
+	SetHeadFactoryImpl<HeadFactory>(cecsar);
 }
 
 void game::HumanoidFactory::OnConstructionCustom(
@@ -25,7 +29,7 @@ void game::HumanoidFactory::OnConstructionCustom(
 	auto& transforms = cecsar.GetSet<Transform>();
 	auto& renderers = cecsar.GetSet<Renderer>();
 
-	// Add the hands.
+	// Construct the hands.
 	const auto hands = cecsar.AddEntity(2);
 	for (int32_t i = 0; i < 2; ++i)
 	{
@@ -42,5 +46,16 @@ void game::HumanoidFactory::OnConstructionCustom(
 		auto& handRenderer = renderers.Get(handInfo.index);
 		if(i == 1)
 			handRenderer.flip = SDL_FLIP_HORIZONTAL;
+	}
+
+	{
+		// Construct the head.
+		const auto headInfo = cecsar.AddEntity()[0];
+		_headFactory->Construct(cecsar, headInfo);
+
+		auto& headTransform = transforms.Get(headInfo.index);
+		headTransform.parent = info;
+
+		headTransform.position = _headFactory->offset;
 	}
 }

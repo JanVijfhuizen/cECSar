@@ -2,6 +2,7 @@
 #include <Factories/Humanoids/HumanoidFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
 #include <Factories/Humanoids/RoninHandFactory.h>
+#include "RoninHeadFactory.h"
 
 namespace game
 {
@@ -25,5 +26,6 @@ namespace game
 		controller.prototype.type = ControllerType::player;
 
 		SetHandFactoryImpl<RoninHandFactory>(cecsar);
+		SetHeadFactoryImpl<RoninHeadFactory>(cecsar);
 	}
 }
