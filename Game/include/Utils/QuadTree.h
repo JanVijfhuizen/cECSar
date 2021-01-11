@@ -28,7 +28,7 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 			Quad quad{};
 			std::vector<int32_t> instances{};
 
-			constexpr bool IsLeaf() const;
+			[[nodiscard]] constexpr bool IsLeaf() const;
 
 			/*
 			Recursively iterate through the nodes.
@@ -150,6 +150,11 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 	constexpr QuadTree::Node* QuadTree::Node::TryNavigate(
 		int32_t instance, const Lambda& lambda)
 	{
+		// Fitness check.
+		const bool fit = lambda(instance, quad);
+		if (!fit)
+			return nullptr;
+
 		// Try to pass it to it's nested leaves/branches.
 		if(!_isLeaf)
 			for (auto& i : _nested)
@@ -159,10 +164,6 @@ constexpr auto QUAD_BLOCK_SIZE = 4;
 					return nested;
 			}
 
-		// Fitness check.
-		const bool fit = lambda(instance, quad);
-		if (!fit)
-			return nullptr;
 		return this;
 	}
 

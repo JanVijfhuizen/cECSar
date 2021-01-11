@@ -8,6 +8,7 @@ void game::CollisionSystem::NotifyCollisions()
 {
 	for (auto& hit : _hits)
 		Notify(hit);
+	_hits.clear();
 }
 
 void game::CollisionSystem::DrawDebug() const
@@ -62,7 +63,8 @@ void game::CollisionSystem::Initialize(cecsar::Cecsar& cecsar)
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 
 	const int32_t size = 1600;
-	_quadTree = new utils::QuadTree({-size / 2, -size / 2 }, size, size);
+	_quadTree = new utils::QuadTree({
+		-size / 2, -size / 2 }, size, size, 5);
 	_transformBuffer = new TransformBuffer[cecsar.info.setCapacity];
 	_hits.reserve(cecsar.info.setCapacity * 2);
 }
@@ -174,8 +176,6 @@ void game::CollisionSystem::FillQuadTree(utils::SparseSet<Collider>& colliders) 
 
 void game::CollisionSystem::IterateQuadTree(utils::SparseSet<Collider>& colliders)
 {
-	_hits.clear();
-
 	// Check for possible collisions.
 	_quadTree->Iterate([this, &colliders](
 		auto& nodes, const int32_t anchor)
