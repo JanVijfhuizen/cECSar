@@ -14,12 +14,12 @@
 #include <Systems/KinematicSystem.h>
 #include <Systems/ControllerSystem.h>
 #include <Systems/RigidBodySystem.h>
+#include "Systems/AnimatorSystem.h"
 
 // Factories.
 #include <Factories/Humanoids/RoninFactory.h>
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
-#include <iostream>
 
 namespace game
 {
@@ -42,12 +42,34 @@ namespace game
 			CollisionSystem* collisionSystem = nullptr;
 		};
 
+		/*
+		Setup references, initialize modules, etcetera.
+		*/
 		static inline void Initialize(Info& out);
+		/*
+		Start of the actual game, spawn environment, player etc.
+		*/
 		static inline void Start(Info& info);
+		/*
+		Start threads, update buffers etc.
+		*/
 		static inline void PreUpdate(Info& info);
+		/*
+		Single threaded update call, can use the jobsystem however.
+		*/
 		static inline void Update(Info& info);
+		/*
+		Single threaded render update, be aware of dependencies.
+		*/
 		static inline void RenderUpdate(Info& info);
+		/*
+		Occasional call to the fixed update, which happens N times per second,
+		instead of being bound to the framerate.
+		*/
 		static inline void FixedUpdate(Info& info);
+		/*
+		Cleanup, observer calls, etc.
+		*/
 		static inline void PostUpdate(Info& info);
 	};
 
@@ -102,7 +124,7 @@ namespace game
 	inline void Engine::Start(Info& info)
 	{
 		info.cecsar->AddEntity<EnvironmentFactory>();
-		info.cecsar->AddEntity<OniFactory>();
+		info.cecsar->AddEntity<OniFactory>()[0];
 		info.cecsar->AddEntity<RoninFactory>();
 	}
 
@@ -116,9 +138,9 @@ namespace game
 
 		cecsar.Update<CameraSystem>();
 		cecsar.Update<ControllerSystem>();
+
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
-
 		cecsar.Update<TransformSystem>();
 	}
 
@@ -144,6 +166,11 @@ namespace game
 	{
 		auto& cecsar = *info.cecsar;
 		info.collisionSystem->NotifyCollisions();
+
+		// Dependent on notifications.
 		cecsar.Update<RigidBodySystem>();
+
+		// Dependent on renderers.
+		cecsar.Update<AnimatorSystem>();
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <algorithm>
 
 namespace utils
 {
@@ -8,8 +9,16 @@ namespace utils
 	public:
 		inline static float ConstrainAngle(float f);
 		inline static float GetAngle(float a, float b);
-		inline static float LerpAngle(float a, float b, const float t);
+		inline static float LerpAngle(float a, float b, float t);
+
+		static constexpr float Lerp(float a, float b, float t = .5f, bool clamped = true);
 	};
+
+	constexpr float Mathf::Lerp(const float a, const float b, const float t, const bool clamped)
+	{
+		auto&& res = a + (b - a) * t;
+		return clamped ? std::max(.0f, std::min(res, b)) : res;
+	}
 
 	inline float Mathf::ConstrainAngle(float f)
 	{

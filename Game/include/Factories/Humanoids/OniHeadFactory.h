@@ -16,7 +16,7 @@ namespace game
 		HeadFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Oni.png";
+		renderer.path = "Art/OniHead.png";
 		offset.y *= 2;
 		offset.z *= 2;
 	}
