@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include "Utils/Vector3.h"
+#include <variant>
 
 namespace game
 {
@@ -8,20 +8,30 @@ namespace game
 	{
 		int32_t index = 0;
 		float max = 1;
-
-		utils::Vector3 startOffset{};
-		utils::Vector3 stopOffset{};
 	};
 
 	struct Animator final
 	{
+		struct Simple final
+		{
+			int32_t start = 0, stop = -1;
+		};
+
+		struct Advanced final
+		{
+			std::vector<KeyFrame> keyFrames{};
+		};
+
+		using Type = std::variant<Simple, Advanced>;
+
+		Type type = Simple();
+
 		bool paused = false;
 		bool repeat = true;
 
 		float speed = 1;
 		float lerp = 0;
 
-		std::vector<KeyFrame> keyFrames{};
 		int32_t keyframeOffset = 0;
 	};
 }

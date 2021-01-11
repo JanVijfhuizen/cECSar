@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\AnimatorSystem.cpp" />
     <ClCompile Include="src\HeadFactory.cpp" />
     <ClCompile Include="src\HandFactory.cpp" />
     <ClCompile Include="src\RigidBodySystem.cpp" />
@@ -180,6 +181,7 @@
     <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\Animator.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\Collider.h" />
     <ClInclude Include="include\Components\Kinematic.h" />
@@ -209,6 +211,7 @@
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
+    <ClInclude Include="include\Systems\AnimatorSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
@@ -228,6 +231,7 @@
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
+    <ClInclude Include="include\Visitors\AnimatorVisitor.h" />
     <ClInclude Include="include\Visitors\QuadCollisionVisitor.h" />
     <ClInclude Include="include\Visitors\ShapeCollisionVisitor.h" />
   </ItemGroup>

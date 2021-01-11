@@ -1,5 +1,6 @@
 ﻿#include "Systems/AnimatorSystem.h"
 #include "Modules/TimeModule.h"
+#include "Visitors/AnimatorVisitor.h"
 
 void game::AnimatorSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -20,18 +21,20 @@ void game::AnimatorSystem::OnUpdate(
 		if (animator.paused)
 			continue;
 
-		// Increment lerp, and check if it finished the animation.
-		animator.lerp += deltaTime;
-		if (animator.lerp > 1 && !animator.repeat) 
-		{
-			animator.paused = true;
-		}
-
-		animator.lerp = fmod(animator.lerp, 1.0f);
-
+		// Get renderer.
 		const int32_t index = dense[i];
 		auto& renderer = renderers.Get(index);
 
-		renderer.
+		// Get info for the visitor.
+		AnimatorVisitor::Info&& info
+		{
+			animator,
+			renderer,
+			deltaTime
+		};
+
+		// Handle animator types.
+		AnimatorVisitor&& visitor(info);
+		std::visit(visitor, animator.type);
 	}
 }
