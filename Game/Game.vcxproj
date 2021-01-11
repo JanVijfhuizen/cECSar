@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\BodyPartSystem.cpp" />
     <ClCompile Include="src\AnimatorSystem.cpp" />
     <ClCompile Include="src\HeadFactory.cpp" />
     <ClCompile Include="src\HandFactory.cpp" />
@@ -182,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\Animator.h" />
+    <ClInclude Include="include\Components\BodyPart.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\Collider.h" />
     <ClInclude Include="include\Components\Kinematic.h" />
@@ -212,6 +214,7 @@
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
     <ClInclude Include="include\Systems\AnimatorSystem.h" />
+    <ClInclude Include="include\Systems\BodyPartSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
