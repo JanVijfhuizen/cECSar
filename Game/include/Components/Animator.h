@@ -29,7 +29,7 @@ namespace game
 		bool paused = false;
 		bool repeat = true;
 
-		float speed = 1;
+		float speed = 4;
 		float lerp = 0;
 
 		int32_t keyframeOffset = 0;

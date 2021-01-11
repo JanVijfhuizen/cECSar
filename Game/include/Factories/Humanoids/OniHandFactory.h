@@ -16,7 +16,7 @@ namespace game
 		HandFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Oni.png";
+		renderer.path = "Art/OniHand.png";
 
 		offset.x *= 2;
 		offset.y *= 2;

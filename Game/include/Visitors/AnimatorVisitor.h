@@ -36,12 +36,15 @@ namespace game
 		auto& animator = info.animator;
 		auto& renderer = info.renderer;
 
+		const int32_t start = simple.start;
+		const int32_t stop = simple.stop == -1 ? renderer.count - 1 : simple.stop;
+
 		// Update linear interpolation.
 		float& lerp = info.animator.lerp;
-		lerp += info.deltaTime * animator.speed / renderer.count;
+		lerp += info.deltaTime * animator.speed / (stop - start);
 
 		// Get frame index.
-		const int32_t index = utils::Mathf::Lerp(simple.start, simple.stop, lerp);
+		const int32_t index = utils::Mathf::Lerp(start, stop, lerp);
 		renderer.index = index;
 
 		Update();
@@ -75,10 +78,14 @@ namespace game
 	inline void AnimatorVisitor::Update() const
 	{
 		auto& animator = info.animator;
-		animator.lerp = fmod(animator.lerp, 1.0f);
 
 		// Pause if not finished and not repeating.
-		if (animator.lerp >= 1 && !animator.repeat)
+		if (animator.lerp >= 1 && !animator.repeat) 
+		{
 			animator.paused = true;
+			return;
+		}
+
+		animator.lerp = fmod(animator.lerp, 1.0f);
 	}
 }

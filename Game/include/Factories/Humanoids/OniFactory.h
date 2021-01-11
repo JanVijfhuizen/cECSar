@@ -19,8 +19,10 @@ namespace game
 		HumanoidFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Oni.png";
-		renderer.prototype.count = 6;
+		renderer.path = "Art/OniBody.png";
+		renderer.prototype.count = 4;
+
+		DefineImplementation<Animator>();
 
 		auto& rigidBody = DefineImplementation<RigidBody>();
 		rigidBody.prototype.weight = 1.5f;

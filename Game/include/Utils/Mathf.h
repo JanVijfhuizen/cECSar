@@ -17,7 +17,7 @@ namespace utils
 	constexpr float Mathf::Lerp(const float a, const float b, const float t, const bool clamped)
 	{
 		auto&& res = a + (b - a) * t;
-		return clamped ? std::max(.0f, std::min(res, 1.0f)) : res;
+		return clamped ? std::max(.0f, std::min(res, b)) : res;
 	}
 
 	inline float Mathf::ConstrainAngle(float f)

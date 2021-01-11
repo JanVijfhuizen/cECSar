@@ -124,7 +124,7 @@ namespace game
 	inline void Engine::Start(Info& info)
 	{
 		info.cecsar->AddEntity<EnvironmentFactory>();
-		info.cecsar->AddEntity<OniFactory>();
+		info.cecsar->AddEntity<OniFactory>()[0];
 		info.cecsar->AddEntity<RoninFactory>();
 	}
 
