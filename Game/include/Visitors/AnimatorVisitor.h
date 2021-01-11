@@ -45,7 +45,7 @@ namespace game
 
 		// Get frame index.
 		const int32_t index = utils::Mathf::Lerp(start, stop, lerp);
-		renderer.index = index;
+		renderer.index = index + animator.keyframeOffset;
 
 		Update();
 	}
@@ -68,7 +68,7 @@ namespace game
 			if (frame.max > lerp)
 				continue;
 
-			renderer.index = frame.index;
+			renderer.index = frame.index + animator.keyframeOffset;
 			break;
 		}
 
