@@ -13,7 +13,7 @@ void game::KinematicSystem::OnUpdate(
 	const int32_t count = kinematics.GetCount();
 	const auto dense = kinematics.GetDenseRaw();
 
-	std::vector<int32_t> removables;
+	std::vector<int32_t> removables{};
 
 	for (int32_t i = count - 1; i >= 0; --i)
 	{
