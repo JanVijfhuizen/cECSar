@@ -1,7 +1,6 @@
 #pragma once
 #include <Factories/StandardFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
-#include <Components/Collider.h>
 
 namespace game
 {
@@ -17,8 +16,5 @@ namespace game
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
 		renderer.path = "Art/GroundBlock.png";
-
-		auto& collider = DefineImplementation<Collider>();
-		collider.prototype.targetMask = 0;
 	}
 }

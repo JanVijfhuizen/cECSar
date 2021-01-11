@@ -19,6 +19,7 @@
 #include <Factories/Humanoids/RoninFactory.h>
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
+#include <iostream>
 
 namespace game
 {
@@ -43,7 +44,11 @@ namespace game
 
 		static inline void Initialize(Info& out);
 		static inline void Start(Info& info);
+		static inline void PreUpdate(Info& info);
 		static inline void Update(Info& info);
+		static inline void RenderUpdate(Info& info);
+		static inline void FixedUpdate(Info& info);
+		static inline void PostUpdate(Info& info);
 	};
 
 	inline void Engine::Run()
@@ -67,7 +72,15 @@ namespace game
 					info.quit = true;
 			}
 
+			PreUpdate(info);
+			RenderUpdate(info);
 			Update(info);
+
+			// Calculate physics update.
+			for (int32_t i = info.timeModule->GetPhysicsSteps() - 1; i >= 0; --i)
+				FixedUpdate(info);
+
+			PostUpdate(info);
 		}
 
 		SDL_Quit();
@@ -93,39 +106,44 @@ namespace game
 		info.cecsar->AddEntity<RoninFactory>();
 	}
 
+	inline void Engine::PreUpdate(Info& info)
+	{
+	}
+
 	inline void Engine::Update(Info& info)
 	{
 		auto& cecsar = *info.cecsar;
 
-#pragma region Pre Buffers
+		cecsar.Update<CameraSystem>();
+		cecsar.Update<ControllerSystem>();
+		cecsar.Update<MovementSystem>();
+		cecsar.Update<KinematicSystem>();
 
-#pragma endregion
+		cecsar.Update<TransformSystem>();
+	}
+
+	inline void Engine::RenderUpdate(Info& info)
+	{
+		auto& cecsar = *info.cecsar;
 
 		info.renderModule->PreRender();
 
-		cecsar.Update<CameraSystem>();
 		cecsar.Update<RenderSystem>();
 		//collisionSystem.DrawDebug();
 
 		info.renderModule->PostRender();
+	}
 
-#pragma region Post Buffers
-		cecsar.Update<ControllerSystem>();
-		cecsar.Update<MovementSystem>();
-		cecsar.Update<KinematicSystem>();
-#pragma endregion
-
-#pragma region Cleanup
-		cecsar.Update<TransformSystem>();
+	inline void Engine::FixedUpdate(Info& info)
+	{
+		auto& cecsar = *info.cecsar;
 		cecsar.Update<CollisionSystem>();
-#pragma endregion 
+	}
 
-#pragma region Observer Calls
+	inline void Engine::PostUpdate(Info& info)
+	{
+		auto& cecsar = *info.cecsar;
 		info.collisionSystem->NotifyCollisions();
-#pragma endregion
-
-#pragma region Observers
 		cecsar.Update<RigidBodySystem>();
-#pragma endregion 
 	}
 }

@@ -15,7 +15,7 @@ void game::RigidBodySystem::OnUpdate(
 	utils::SparseSet<RigidBody>& rigidBodies, 
 	utils::SparseSet<Transform>& transforms)
 {
-	const float deltaTime = _timeModule->GetDeltaTime();
+	const float deltaTime = _timeModule->fixedDeltaTime;
 
 	const auto dense = rigidBodies.GetDenseRaw();
 	for (int32_t i = rigidBodies.GetCount() - 1; i >= 0; --i)
