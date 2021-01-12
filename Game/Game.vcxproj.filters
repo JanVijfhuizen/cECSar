@@ -66,6 +66,9 @@
     <ClCompile Include="src\JointSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LegSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Modules\RenderModule.h">
@@ -227,9 +230,6 @@
     <ClInclude Include="include\Visitors\AnimatorVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Components\Body.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Components\Leg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -237,6 +237,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Systems\JointSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Systems\LegSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

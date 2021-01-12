@@ -54,7 +54,8 @@ void game::JointSystem::OnUpdate(
 					continue;
 
 				// Move both objects to eachother until it's right at the maximum distance.
-				const auto dir = offset.Normalized2d() * intersection;
+				const auto dir = _transformSystem->ToLocal(
+					transform, offset.Normalized2d() * intersection).position;
 
 				JointDelta&& delta
 				{

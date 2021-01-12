@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\LegSystem.cpp" />
     <ClCompile Include="src\JointSystem.cpp" />
     <ClCompile Include="src\AnimatorSystem.cpp" />
     <ClCompile Include="src\HeadFactory.cpp" />
@@ -183,7 +184,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Components\Animator.h" />
-    <ClInclude Include="include\Components\Body.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\Collider.h" />
     <ClInclude Include="include\Components\Joint.h" />
@@ -223,6 +223,7 @@
     <ClInclude Include="include\Systems\ControllerSystem.h" />
     <ClInclude Include="include\Systems\JointSystem.h" />
     <ClInclude Include="include\Systems\KinematicSystem.h" />
+    <ClInclude Include="include\Systems\LegSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\RigidBodySystem.h" />

@@ -7,10 +7,10 @@ namespace game
 	class TransformSystem final : public JobSystem<Transform>
 	{
 	public:
-		Transform ToWorld(
+		[[nodiscard]] Transform ToWorld(
 			const Transform& t, const utils::Vector3& p = {}) const;
 
-		Transform ToLocal(
+		[[nodiscard]] Transform ToLocal(
 			const Transform& t, const utils::Vector3& p = {}) const;
 
 	private:
