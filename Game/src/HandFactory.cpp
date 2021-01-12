@@ -4,6 +4,7 @@
 #include <Factories/Implementations/StandardRendererImp.h>
 #include <Components/Kinematic.h>
 #include "Components/Animator.h"
+#include "Components/Joint.h"
 
 void game::HandFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
@@ -13,4 +14,5 @@ void game::HandFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 
 	DefineImplementation<Kinematic>();
 	DefineImplementation<Animator>();
+	DefineImplementation<Joint>();
 }

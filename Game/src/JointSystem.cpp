@@ -42,35 +42,40 @@ void game::JointSystem::OnUpdate(
 
 				// Translate to world information.
 				const auto world = _transformSystem->ToWorld(transform);
-				const auto otherWorld = _transformSystem->ToWorld(otherTransform);
+				const auto otherWorld = _transformSystem->ToWorld(otherTransform, joint.offset);
 
 				// Check offset and whether or not the parts are too far from eachother.
 				const auto offset = world.position - otherWorld.position;
 				const float dis = offset.Magnitude2d();
-				const float intersection = joint.maxDistance - dis;
+				const float intersection = dis - joint.maxDistance;
 
 				// If it's close enough, there's nothing to be done.
 				if (intersection < 0)
 					continue;
 
 				// Move both objects to eachother until it's right at the maximum distance.
-				const auto dir = offset.Normalized2d() * (intersection / 2);
+				const auto dir = offset.Normalized2d() * intersection;
 
 				JointDelta&& delta
 				{
 					index,
-					dir
-				};
-
-				JointDelta&& otherDelta
-				{
-					otherIndex,
-					dir * -1
+					dir * -(1.0f - joint.balance)
 				};
 
 				// Push delta information.
 				_deltas.push_back(delta);
-				_deltas.push_back(otherDelta);
+
+				// Only push the other if it's close.
+				if (dis < joint.teleportDistance)
+				{
+					JointDelta&& otherDelta
+					{
+						otherIndex,
+						dir * joint.balance
+					};
+
+					_deltas.push_back(otherDelta);
+				}
 			}
 		});
 
