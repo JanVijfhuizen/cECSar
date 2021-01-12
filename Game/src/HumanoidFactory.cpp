@@ -5,6 +5,7 @@
 #include <Components/Controller.h>
 #include <Components/RigidBody.h>
 #include "Components/Joint.h"
+#include "Components/Leg.h"
 
 void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
@@ -30,6 +31,7 @@ void game::HumanoidFactory::OnConstructionCustom(
 	auto& transforms = cecsar.GetSet<Transform>();
 	auto& renderers = cecsar.GetSet<Renderer>();
 	auto& joints = cecsar.GetSet<Joint>();
+	auto& legs = cecsar.GetSet<Leg>();
 
 	// Construct the hands.
 	const auto hands = cecsar.AddEntity(2);
@@ -45,6 +47,10 @@ void game::HumanoidFactory::OnConstructionCustom(
 		offset.x *= (i == 0) * 2 - 1;
 		offset.y = -8;
 		joint.offset = offset;
+
+		auto& leg = legs.Get(handInfo.index);
+		leg.root = info;
+		leg.mirror = hands[1 - i];
 
 		auto& handRenderer = renderers.Get(handInfo.index);
 		if(i == 1)

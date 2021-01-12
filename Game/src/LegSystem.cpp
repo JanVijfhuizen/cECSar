@@ -43,10 +43,6 @@ void game::LegSystem::OnUpdate(
 		const auto offset = world.position - rootWorld.position;
 		const float dis = offset.Magnitude2d();
 
-		// If the leg is close enough.
-		if (dis < leg.moveThreshold)
-			continue;
-
 		if (leg.moving) 
 		{
 			// If it's too far away, break the movement.
@@ -56,22 +52,19 @@ void game::LegSystem::OnUpdate(
 				continue;
 			}
 
-			const auto targetOffset = leg.target - world.position;
-			const float targetDis = targetOffset.Magnitude2d();
-
 			// If it's close enough.
-			if(targetDis <= leg.stoppingDistance)
+			if(dis <= leg.stoppingDistance)
 			{
 				leg.moving = false;
 				continue;
 			}
 
-			const auto dir = targetOffset.Normalized2d();
-			const auto delta = dir * std::min(leg.speed * deltaTime, targetDis);
+			const auto dir = offset.Normalized2d();
+			const auto delta = dir * std::min(leg.speed * deltaTime, dis);
 
 			// Move towards target.
 			const auto localDelta = _transformSystem->ToLocal(transform, delta);
-			transform.position += localDelta.position;
+			transform.position -= localDelta.position;
 			continue;
 		}
 
@@ -86,8 +79,6 @@ void game::LegSystem::OnUpdate(
 			}
 
 			leg.moving = true;
-			const auto dir = offset.Normalized2d();
-			leg.target = rootWorld.position + dir * leg.moveThreshold / 2;
 		}
 	}
 

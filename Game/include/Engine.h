@@ -21,6 +21,7 @@
 #include <Factories/Humanoids/RoninFactory.h>
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
+#include "Systems/LegSystem.h"
 
 namespace game
 {
@@ -148,8 +149,9 @@ namespace game
 
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
-		cecsar.Update<JointSystem>();
+		cecsar.Update<LegSystem>();
 
+		cecsar.Update<JointSystem>();
 		cecsar.Update<TransformSystem>();
 	}
 

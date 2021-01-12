@@ -1,6 +1,5 @@
 #pragma once
 #include "EntityInfo.h"
-#include "Utils/Vector3.h"
 
 namespace game
 {
@@ -9,12 +8,11 @@ namespace game
 		cecsar::EntityInfo root{};
 		cecsar::EntityInfo mirror{};
 
-		float moveThreshold = 12;
-		float breakDistance = 24;
+		float moveThreshold = 32;
+		float breakDistance = 64;
 		float stoppingDistance = 4;
-		float speed = 100;
+		float speed = 400;
 
 		bool moving = false;
-		utils::Vector3 target{};
 	};
 }
