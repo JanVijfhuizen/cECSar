@@ -14,7 +14,8 @@
 #include <Systems/KinematicSystem.h>
 #include <Systems/ControllerSystem.h>
 #include <Systems/RigidBodySystem.h>
-#include "Systems/AnimatorSystem.h"
+#include <Systems/AnimatorSystem.h>
+#include <Systems/JointSystem.h>
 
 // Factories.
 #include <Factories/Humanoids/RoninFactory.h>
@@ -95,9 +96,13 @@ namespace game
 			}
 
 			PreUpdate(info);
+
+			// TODO: thread separate.
 			RenderUpdate(info);
+
 			Update(info);
 
+			// TODO: thread separate.
 			// Calculate physics update.
 			for (int32_t i = info.timeModule->GetPhysicsSteps() - 1; i >= 0; --i)
 				FixedUpdate(info);
@@ -141,6 +146,8 @@ namespace game
 
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
+		cecsar.Update<JointSystem>();
+
 		cecsar.Update<TransformSystem>();
 	}
 

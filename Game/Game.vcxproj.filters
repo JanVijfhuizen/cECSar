@@ -63,7 +63,7 @@
     <ClCompile Include="src\AnimatorSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\BodyPartSystem.cpp">
+    <ClCompile Include="src\JointSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -227,10 +227,16 @@
     <ClInclude Include="include\Visitors\AnimatorVisitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Components\BodyPart.h">
+    <ClInclude Include="include\Components\Body.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Systems\BodyPartSystem.h">
+    <ClInclude Include="include\Components\Leg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Components\Joint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Systems\JointSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
