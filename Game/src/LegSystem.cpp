@@ -78,6 +78,13 @@ void game::LegSystem::OnUpdate(
 		// If it's not moving.
 		if (dis > leg.moveThreshold) 
 		{
+			if(_cecsar->IsEntityValid(leg.mirror))
+			{
+				auto& mirror = legs.Get(leg.mirror.index);
+				if (mirror.moving)
+					continue;
+			}
+
 			leg.moving = true;
 			const auto dir = offset.Normalized2d();
 			leg.target = rootWorld.position + dir * leg.moveThreshold / 2;
