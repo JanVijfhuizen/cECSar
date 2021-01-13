@@ -37,7 +37,8 @@ void game::LegSystem::OnUpdate(
 
 		// Translate to world.
 		const auto world = _transformSystem->ToWorld(transform);
-		const auto rootWorld = _transformSystem->ToWorld(rootTransform, joint.offset);
+		const auto rotatedOffset = joint.offset.Rotate(rootTransform.rotation);
+		const auto rootWorld = _transformSystem->ToWorld(rootTransform, rotatedOffset);
 
 		// Calculate offset and distance.
 		const auto offset = world.position - rootWorld.position;

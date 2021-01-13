@@ -42,7 +42,8 @@ void game::JointSystem::OnUpdate(
 
 				// Translate to world information.
 				const auto world = _transformSystem->ToWorld(transform);
-				const auto otherWorld = _transformSystem->ToWorld(otherTransform, joint.offset);
+				const auto rotatedOffset = joint.offset.Rotate(otherTransform.rotation);
+				const auto otherWorld = _transformSystem->ToWorld(otherTransform, rotatedOffset);
 
 				// Check offset and whether or not the parts are too far from eachother.
 				const auto offset = world.position - otherWorld.position;
