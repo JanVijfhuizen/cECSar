@@ -6,15 +6,16 @@
 #include <Components/RigidBody.h>
 #include "Components/Joint.h"
 #include "Components/Leg.h"
+#include "Components/Animator.h"
 
 void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
 	DefineImplementation<Transform>();
 
 	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-	renderer.prototype.count = 6;
-	renderer.prototype.index = 1;
+	renderer.prototype.count = 4;
 
+	DefineImplementation<Animator>();
 	DefineImplementation<Collider>();
 
 	DefineImplementation<MovementComponent>();

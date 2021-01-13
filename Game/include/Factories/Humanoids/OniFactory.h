@@ -20,9 +20,6 @@ namespace game
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
 		renderer.path = "Art/OniBody.png";
-		renderer.prototype.count = 4;
-
-		DefineImplementation<Animator>();
 
 		auto& rigidBody = DefineImplementation<RigidBody>();
 		rigidBody.prototype.weight = 1.5f;

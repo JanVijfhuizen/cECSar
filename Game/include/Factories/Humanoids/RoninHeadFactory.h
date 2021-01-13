@@ -16,6 +16,6 @@ namespace game
 		HeadFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Ronin.png";
+		renderer.path = "Art/RoninHead.png";
 	}
 }

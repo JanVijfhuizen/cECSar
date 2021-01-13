@@ -19,8 +19,7 @@ namespace game
 		DefineImplementation<CameraFollowTarget>();
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Ronin.png";
-		renderer.prototype.count = 6;
+		renderer.path = "Art/RoninBody.png";
 
 		auto& controller = DefineImplementation<Controller>();
 		controller.prototype.type = ControllerType::player;
