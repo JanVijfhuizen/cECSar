@@ -9,7 +9,7 @@ namespace game
 		cecsar::EntityInfo other{};
 		utils::Vector3 offset{};
 
-		float maxDistance = 32;
+		float maxDistance = 16;
 		float teleportDistance = 128;
 		float balance = .25f;
 	};

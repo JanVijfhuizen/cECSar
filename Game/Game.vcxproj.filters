@@ -72,6 +72,9 @@
     <ClCompile Include="src\LegFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LimbFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Modules\RenderModule.h">
@@ -252,6 +255,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Factories\Humanoids\RoninLegFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Factories\Humanoids\LimbFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

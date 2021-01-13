@@ -162,7 +162,7 @@ namespace game
 		info.renderModule->PreRender();
 
 		cecsar.Update<RenderSystem>();
-		//collisionSystem.DrawDebug();
+		//cecsar.GetSystem<CollisionSystem>().DrawDebug();
 
 		info.renderModule->PostRender();
 	}

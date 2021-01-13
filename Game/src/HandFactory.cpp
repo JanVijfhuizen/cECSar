@@ -1,19 +1,12 @@
 ﻿#include <Factories/Humanoids/HandFactory.h>
-#include <Components/Renderer.h>
-#include <Components/Transform.h>
-#include <Factories/Implementations/StandardRendererImp.h>
-#include <Components/Kinematic.h>
-#include "Components/Animator.h"
 #include "Components/Joint.h"
 
-void game::HandFactory::OnInitializeCustom(cecsar::Cecsar&)
+void game::HandFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
-	DefineImplementation<Transform>();
-	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-	renderer.prototype.count = 4;
+	LimbFactory::OnInitializeCustom(cecsar);
 
-	DefineImplementation<Kinematic>();
-	DefineImplementation<Animator>();
+	offset = { 16, 16, -.01f };
+
 	auto& joint = DefineImplementation<Joint>();
 	joint.prototype.maxDistance = 16;
 }

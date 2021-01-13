@@ -1,14 +1,10 @@
 ﻿#pragma once
-#include "Factories/StandardFactory.h"
-#include "Utils/Vector3.h"
+#include "LimbFactory.h"
 
 namespace game
 {
-	class LegFactory : public StandardFactory
+	class LegFactory : public LimbFactory
 	{
-	public:
-		utils::Vector3 offset{ 16, 8, -.01f };
-
 	protected:
 		void OnInitializeCustom(cecsar::Cecsar& cecsar) override;
 	};

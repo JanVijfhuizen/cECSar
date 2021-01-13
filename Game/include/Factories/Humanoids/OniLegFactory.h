@@ -19,10 +19,13 @@ namespace game
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
 		renderer.path = "Art/OniLeg.png";
 
-		offset.x = 32;
-		offset.y = -32;
+		offset.x = 24;
+		offset.y = -24;
+
+		auto& joint = DefineImplementation<Joint>();
+		joint.prototype.maxDistance = 32;
 
 		auto& leg = DefineImplementation<Leg>();
-		leg.prototype.moveThreshold = 32;
+		leg.prototype.moveThreshold = 24;
 	}
 }

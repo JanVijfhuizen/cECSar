@@ -1,18 +1,10 @@
 ﻿#include "Factories/Humanoids/LegFactory.h"
-#include "Components/Transform.h"
-#include "Components/Renderer.h"
-#include "Factories/Implementations/StandardRendererImp.h"
-#include "Components/Animator.h"
-#include "Components/Joint.h"
 #include "Components/Leg.h"
 
-void game::LegFactory::OnInitializeCustom(cecsar::Cecsar&)
+void game::LegFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
-	DefineImplementation<Transform>();
-	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-	renderer.prototype.count = 4;
+	LimbFactory::OnInitializeCustom(cecsar);
 
-	DefineImplementation<Animator>();
-	DefineImplementation<Joint>();
+	offset = { 16, 8, -.01f };
 	DefineImplementation<Leg>();
 }
