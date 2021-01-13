@@ -164,6 +164,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\LimbFactory.cpp" />
+    <ClCompile Include="src\LegFactory.cpp" />
+    <ClCompile Include="src\LegSystem.cpp" />
+    <ClCompile Include="src\JointSystem.cpp" />
+    <ClCompile Include="src\AnimatorSystem.cpp" />
     <ClCompile Include="src\HeadFactory.cpp" />
     <ClCompile Include="src\HandFactory.cpp" />
     <ClCompile Include="src\RigidBodySystem.cpp" />
@@ -180,9 +185,12 @@
     <ClCompile Include="src\StandardRendererImp.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Components\Animator.h" />
     <ClInclude Include="include\Components\CameraFollowTarget.h" />
     <ClInclude Include="include\Components\Collider.h" />
+    <ClInclude Include="include\Components\Joint.h" />
     <ClInclude Include="include\Components\Kinematic.h" />
+    <ClInclude Include="include\Components\Leg.h" />
     <ClInclude Include="include\Components\MovementComponent.h" />
     <ClInclude Include="include\Components\Controller.h" />
     <ClInclude Include="include\Components\Renderer.h" />
@@ -194,10 +202,14 @@
     <ClInclude Include="include\Factories\Humanoids\HandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HeadFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\LegFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\LimbFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\OniHandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\OniHeadFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\OniLegFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninHandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninHeadFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\RoninLegFactory.h" />
     <ClInclude Include="include\Factories\IFactoryImp.h" />
     <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />
@@ -209,12 +221,15 @@
     <ClInclude Include="include\Modules\JobSystemModule.h" />
     <ClInclude Include="include\Modules\RenderModule.h" />
     <ClInclude Include="include\Modules\TimeModule.h" />
+    <ClInclude Include="include\Systems\AnimatorSystem.h" />
     <ClInclude Include="include\Systems\CollisionSystem.h" />
     <ClInclude Include="include\Systems\JobConverterModule.h" />
     <ClInclude Include="include\Systems\JobSystem.h" />
     <ClInclude Include="include\Systems\CameraSystem.h" />
     <ClInclude Include="include\Systems\ControllerSystem.h" />
+    <ClInclude Include="include\Systems\JointSystem.h" />
     <ClInclude Include="include\Systems\KinematicSystem.h" />
+    <ClInclude Include="include\Systems\LegSystem.h" />
     <ClInclude Include="include\Systems\MovementSystem.h" />
     <ClInclude Include="include\Systems\RenderSystem.h" />
     <ClInclude Include="include\Systems\RigidBodySystem.h" />
@@ -228,6 +243,7 @@
     <ClInclude Include="include\Utils\Stack.h" />
     <ClInclude Include="include\Utils\Utils.h" />
     <ClInclude Include="include\Utils\Vector3.h" />
+    <ClInclude Include="include\Visitors\AnimatorVisitor.h" />
     <ClInclude Include="include\Visitors\QuadCollisionVisitor.h" />
     <ClInclude Include="include\Visitors\ShapeCollisionVisitor.h" />
   </ItemGroup>

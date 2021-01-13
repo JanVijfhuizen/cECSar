@@ -16,6 +16,6 @@ namespace game
 		HandFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Ronin.png";
+		renderer.path = "Art/RoninHand.png";
 	}
 }

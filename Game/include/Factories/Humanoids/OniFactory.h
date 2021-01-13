@@ -4,7 +4,8 @@
 #include <Components/RigidBody.h>
 #include <Components/Collider.h>
 #include <Factories/Humanoids/OniHandFactory.h>
-#include "OniHeadFactory.h"
+#include <Factories/Humanoids/OniLegFactory.h>
+#include <Factories/Humanoids/OniHeadFactory.h>
 
 namespace game
 {
@@ -19,8 +20,7 @@ namespace game
 		HumanoidFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Oni.png";
-		renderer.prototype.count = 6;
+		renderer.path = "Art/OniBody.png";
 
 		auto& rigidBody = DefineImplementation<RigidBody>();
 		rigidBody.prototype.weight = 1.5f;
@@ -32,6 +32,7 @@ namespace game
 		collider.prototype.type = circle;
 
 		SetHandFactoryImpl<OniHandFactory>(cecsar);
+		SetLegFactoryImpl<OniLegFactory>(cecsar);
 		SetHeadFactoryImpl<OniHeadFactory>(cecsar);
 	}
 }

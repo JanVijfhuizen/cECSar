@@ -14,12 +14,14 @@
 #include <Systems/KinematicSystem.h>
 #include <Systems/ControllerSystem.h>
 #include <Systems/RigidBodySystem.h>
+#include <Systems/AnimatorSystem.h>
+#include <Systems/JointSystem.h>
 
 // Factories.
 #include <Factories/Humanoids/RoninFactory.h>
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
-#include <iostream>
+#include "Systems/LegSystem.h"
 
 namespace game
 {
@@ -42,12 +44,34 @@ namespace game
 			CollisionSystem* collisionSystem = nullptr;
 		};
 
+		/*
+		Setup references, initialize modules, etcetera.
+		*/
 		static inline void Initialize(Info& out);
+		/*
+		Start of the actual game, spawn environment, player etc.
+		*/
 		static inline void Start(Info& info);
+		/*
+		Start threads, update buffers etc.
+		*/
 		static inline void PreUpdate(Info& info);
+		/*
+		Single threaded update call, can use the jobsystem however.
+		*/
 		static inline void Update(Info& info);
+		/*
+		Single threaded render update, be aware of dependencies.
+		*/
 		static inline void RenderUpdate(Info& info);
+		/*
+		Occasional call to the fixed update, which happens N times per second,
+		instead of being bound to the framerate.
+		*/
 		static inline void FixedUpdate(Info& info);
+		/*
+		Cleanup, observer calls, etc.
+		*/
 		static inline void PostUpdate(Info& info);
 	};
 
@@ -73,9 +97,13 @@ namespace game
 			}
 
 			PreUpdate(info);
+
+			// TODO: thread separate.
 			RenderUpdate(info);
+
 			Update(info);
 
+			// TODO: thread separate.
 			// Calculate physics update.
 			for (int32_t i = info.timeModule->GetPhysicsSteps() - 1; i >= 0; --i)
 				FixedUpdate(info);
@@ -102,8 +130,10 @@ namespace game
 	inline void Engine::Start(Info& info)
 	{
 		info.cecsar->AddEntity<EnvironmentFactory>();
-		info.cecsar->AddEntity<OniFactory>();
-		info.cecsar->AddEntity<RoninFactory>();
+		const auto oni = info.cecsar->AddEntity<OniFactory>()[0];
+		const auto ronin = info.cecsar->AddEntity<RoninFactory>()[0];
+
+		info.cecsar->GetSet<Transform>().Get(oni.index).position = { 240, 120 };
 	}
 
 	inline void Engine::PreUpdate(Info& info)
@@ -116,9 +146,12 @@ namespace game
 
 		cecsar.Update<CameraSystem>();
 		cecsar.Update<ControllerSystem>();
+
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
+		cecsar.Update<LegSystem>();
 
+		cecsar.Update<JointSystem>();
 		cecsar.Update<TransformSystem>();
 	}
 
@@ -129,7 +162,7 @@ namespace game
 		info.renderModule->PreRender();
 
 		cecsar.Update<RenderSystem>();
-		//collisionSystem.DrawDebug();
+		//cecsar.GetSystem<CollisionSystem>().DrawDebug();
 
 		info.renderModule->PostRender();
 	}
@@ -144,6 +177,11 @@ namespace game
 	{
 		auto& cecsar = *info.cecsar;
 		info.collisionSystem->NotifyCollisions();
+
+		// Dependent on notifications.
 		cecsar.Update<RigidBodySystem>();
+
+		// Dependent on renderers.
+		cecsar.Update<AnimatorSystem>();
 	}
 }

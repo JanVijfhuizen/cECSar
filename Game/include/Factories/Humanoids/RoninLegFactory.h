@@ -1,21 +1,20 @@
 #pragma once
-#include "HeadFactory.h"
 #include <Components/Renderer.h>
 #include <Factories/Implementations/StandardRendererImp.h>
 
 namespace game
 {
-	class RoninHeadFactory final : public HeadFactory
+	class RoninLegFactory final : public LegFactory
 	{
 	protected:
 		inline void OnInitializeCustom(cecsar::Cecsar& cecsar) override;
 	};
 
-	inline void RoninHeadFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
+	inline void RoninLegFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	{
-		HeadFactory::OnInitializeCustom(cecsar);
+		LegFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/RoninHead.png";
+		renderer.path = "Art/RoninHand.png";
 	}
 }

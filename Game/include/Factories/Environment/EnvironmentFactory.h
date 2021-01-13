@@ -43,7 +43,7 @@ namespace game
 				auto& transform = transforms.Get(blockIndex);
 
 				const float xPos = x * h;
-				transform.position = {xPos, yPos, -.1f };
+				transform.position = {xPos, yPos, -.02f };
 			}
 		}
 

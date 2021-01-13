@@ -7,7 +7,7 @@ namespace game
 	class HeadFactory : public StandardFactory
 	{
 	public:
-		utils::Vector3 offset{ 0, 10, .01f };
+		utils::Vector3 offset{ 0, 8, .01f };
 
 	protected:
 		void OnInitializeCustom(cecsar::Cecsar& cecsar) override;

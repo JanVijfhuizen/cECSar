@@ -2,6 +2,7 @@
 #include <Factories/Humanoids/HandFactory.h>
 #include <Components/Renderer.h>
 #include <Factories/Implementations/StandardRendererImp.h>
+#include "Components/Leg.h"
 
 namespace game
 {
@@ -16,9 +17,12 @@ namespace game
 		HandFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Oni.png";
+		renderer.path = "Art/OniHand.png";
 
-		offset.x *= 2;
-		offset.y *= 2;
+		offset.x = 32;
+		offset.y = 40;
+
+		auto& leg = DefineImplementation<Leg>();
+		leg.prototype.moveThreshold *= 2;
 	}
 }
