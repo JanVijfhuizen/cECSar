@@ -23,6 +23,7 @@ void game::HumanoidFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	DefineImplementation<RigidBody>();
 
 	SetHandFactoryImpl<HandFactory>(cecsar);
+	SetLegFactoryImpl<LegFactory>(cecsar);
 	SetHeadFactoryImpl<HeadFactory>(cecsar);
 }
 
@@ -32,7 +33,7 @@ void game::HumanoidFactory::OnConstructionCustom(
 	auto& transforms = cecsar.GetSet<Transform>();
 	auto& renderers = cecsar.GetSet<Renderer>();
 	auto& joints = cecsar.GetSet<Joint>();
-	auto& legs = cecsar.GetSet<Leg>();
+	auto& legComponents = cecsar.GetSet<Leg>();
 
 	// Construct the hands.
 	const auto hands = cecsar.AddEntity(2);
@@ -46,27 +47,43 @@ void game::HumanoidFactory::OnConstructionCustom(
 
 		auto offset = _handFactory->offset;
 		offset.x *= (i == 0) * 2 - 1;
-		offset.y = -8;
+		offset.y = 8;
 		joint.offset = offset;
-
-		// This needs to be separated.
-		auto& leg = legs.Get(handInfo.index);
-		leg.root = info;
-		leg.mirror = hands[1 - i];
 
 		auto& handRenderer = renderers.Get(handInfo.index);
 		if(i == 1)
 			handRenderer.flip = SDL_FLIP_HORIZONTAL;
 	}
 
+	const auto legs = cecsar.AddEntity(2);
+	for (int32_t i = 0; i < 2; ++i)
 	{
-		// Construct the head.
-		const auto headInfo = cecsar.AddEntity()[0];
-		_headFactory->Construct(cecsar, headInfo);
+		auto& legInfo = legs[i];
+		_legFactory->Construct(cecsar, legInfo);
 
-		auto& headTransform = transforms.Get(headInfo.index);
-		headTransform.parent = info;
+		auto& joint = joints.Get(legInfo.index);
+		joint.other = info;
 
-		headTransform.position = _headFactory->offset;
+		auto offset = _handFactory->offset;
+		offset.x *= (i == 0) * 2 - 1;
+		offset.y = -8;
+		joint.offset = offset;
+
+		auto& leg = legComponents.Get(legInfo.index);
+		leg.root = info;
+		leg.mirror = legs[1 - i];
+
+		auto& legRenderer = renderers.Get(legInfo.index);
+		if (i == 1)
+			legRenderer.flip = SDL_FLIP_HORIZONTAL;
 	}
+
+	// Construct the head.
+	const auto headInfo = cecsar.AddEntity()[0];
+	_headFactory->Construct(cecsar, headInfo);
+
+	auto& headTransform = transforms.Get(headInfo.index);
+	headTransform.parent = info;
+
+	headTransform.position = _headFactory->offset;
 }

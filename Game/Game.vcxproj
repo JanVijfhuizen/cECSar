@@ -164,6 +164,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="src\LegFactory.cpp" />
     <ClCompile Include="src\LegSystem.cpp" />
     <ClCompile Include="src\JointSystem.cpp" />
     <ClCompile Include="src\AnimatorSystem.cpp" />
@@ -200,10 +201,13 @@
     <ClInclude Include="include\Factories\Humanoids\HandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HeadFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\HumanoidFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\LegFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\OniHandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\OniHeadFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\OniLegFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninHandFactory.h" />
     <ClInclude Include="include\Factories\Humanoids\RoninHeadFactory.h" />
+    <ClInclude Include="include\Factories\Humanoids\RoninLegFactory.h" />
     <ClInclude Include="include\Factories\IFactoryImp.h" />
     <ClInclude Include="include\Factories\Implementations\StandardRendererImp.h" />
     <ClInclude Include="include\Factories\Humanoids\OniFactory.h" />

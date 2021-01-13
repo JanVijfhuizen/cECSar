@@ -2,6 +2,7 @@
 #include <Factories/StandardFactory.h>
 #include "HandFactory.h"
 #include "HeadFactory.h"
+#include "LegFactory.h"
 
 namespace game
 {
@@ -16,10 +17,14 @@ namespace game
 		void SetHandFactoryImpl(cecsar::Cecsar& cecsar);
 
 		template <typename T>
+		void SetLegFactoryImpl(cecsar::Cecsar& cecsar);
+
+		template <typename T>
 		void SetHeadFactoryImpl(cecsar::Cecsar& cecsar);
 
 	private:
 		HandFactory* _handFactory = nullptr;
+		LegFactory* _legFactory = nullptr;
 		HeadFactory* _headFactory = nullptr;
 	};
 
@@ -27,6 +32,12 @@ namespace game
 	void HumanoidFactory::SetHandFactoryImpl(cecsar::Cecsar& cecsar)
 	{
 		_handFactory = static_cast<HandFactory*>(&cecsar.GetFactory<T>());
+	}
+
+	template <typename T>
+	void HumanoidFactory::SetLegFactoryImpl(cecsar::Cecsar& cecsar)
+	{
+		_legFactory = static_cast<LegFactory*>(&cecsar.GetFactory<T>());
 	}
 
 	template <typename T>
