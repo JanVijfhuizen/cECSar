@@ -5,9 +5,8 @@
 #include <Components/Kinematic.h>
 #include "Components/Animator.h"
 #include "Components/Joint.h"
-#include "Components/Leg.h"
 
-void game::HandFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
+void game::HandFactory::OnInitializeCustom(cecsar::Cecsar&)
 {
 	DefineImplementation<Transform>();
 	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
@@ -16,6 +15,4 @@ void game::HandFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	DefineImplementation<Kinematic>();
 	DefineImplementation<Animator>();
 	DefineImplementation<Joint>();
-
-	DefineImplementation<Leg>();
 }

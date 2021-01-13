@@ -49,6 +49,7 @@ void game::HumanoidFactory::OnConstructionCustom(
 		offset.y = -8;
 		joint.offset = offset;
 
+		// This needs to be separated.
 		auto& leg = legs.Get(handInfo.index);
 		leg.root = info;
 		leg.mirror = hands[1 - i];
