@@ -4,7 +4,8 @@
 #include <Components/RigidBody.h>
 #include <Components/Collider.h>
 #include <Factories/Humanoids/OniHandFactory.h>
-#include "OniHeadFactory.h"
+#include <Factories/Humanoids/OniLegFactory.h>
+#include <Factories/Humanoids/OniHeadFactory.h>
 
 namespace game
 {
@@ -31,6 +32,7 @@ namespace game
 		collider.prototype.type = circle;
 
 		SetHandFactoryImpl<OniHandFactory>(cecsar);
+		SetLegFactoryImpl<OniLegFactory>(cecsar);
 		SetHeadFactoryImpl<OniHeadFactory>(cecsar);
 	}
 }
