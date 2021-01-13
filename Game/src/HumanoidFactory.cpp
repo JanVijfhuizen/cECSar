@@ -47,7 +47,6 @@ void game::HumanoidFactory::OnConstructionCustom(
 
 		auto offset = _handFactory->offset;
 		offset.x *= (i == 0) * 2 - 1;
-		offset.y = 8;
 		joint.offset = offset;
 
 		auto& handRenderer = renderers.Get(handInfo.index);
@@ -64,9 +63,8 @@ void game::HumanoidFactory::OnConstructionCustom(
 		auto& joint = joints.Get(legInfo.index);
 		joint.other = info;
 
-		auto offset = _handFactory->offset;
+		auto offset = _legFactory->offset;
 		offset.x *= (i == 0) * 2 - 1;
-		offset.y = -8;
 		joint.offset = offset;
 
 		auto& leg = legComponents.Get(legInfo.index);

@@ -17,12 +17,12 @@ namespace game
 		LegFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/OniHand.png";
+		renderer.path = "Art/OniLeg.png";
 
-		offset.x *= 2;
-		offset.y *= 2;
+		offset.x = 32;
+		offset.y = -32;
 
 		auto& leg = DefineImplementation<Leg>();
-		leg.prototype.moveThreshold *= 2;
+		leg.prototype.moveThreshold = 32;
 	}
 }

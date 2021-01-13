@@ -7,7 +7,7 @@ namespace game
 	class HandFactory : public StandardFactory
 	{
 	public:
-		utils::Vector3 offset{20, 10, -.01f};
+		utils::Vector3 offset{16, 16, -.01f};
 
 	protected:
 		void OnInitializeCustom(cecsar::Cecsar& cecsar) override;

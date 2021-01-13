@@ -131,9 +131,9 @@ namespace game
 	{
 		info.cecsar->AddEntity<EnvironmentFactory>();
 		const auto oni = info.cecsar->AddEntity<OniFactory>()[0];
-		info.cecsar->AddEntity<RoninFactory>();
+		const auto ronin = info.cecsar->AddEntity<RoninFactory>()[0];
 
-		info.cecsar->GetSet<Transform>().Get(oni.index).position = { 120, 30 };
+		info.cecsar->GetSet<Transform>().Get(oni.index).position = { 240, 120 };
 	}
 
 	inline void Engine::PreUpdate(Info& info)

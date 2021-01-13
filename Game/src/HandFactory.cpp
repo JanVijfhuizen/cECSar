@@ -14,5 +14,6 @@ void game::HandFactory::OnInitializeCustom(cecsar::Cecsar&)
 
 	DefineImplementation<Kinematic>();
 	DefineImplementation<Animator>();
-	DefineImplementation<Joint>();
+	auto& joint = DefineImplementation<Joint>();
+	joint.prototype.maxDistance = 16;
 }
