@@ -2,6 +2,7 @@
 #include <Factories/Humanoids/HandFactory.h>
 #include <Components/Renderer.h>
 #include <Factories/Implementations/StandardRendererImp.h>
+#include "Components/Leg.h"
 
 namespace game
 {
@@ -20,5 +21,8 @@ namespace game
 
 		offset.x *= 2;
 		offset.y *= 2;
+
+		auto& leg = DefineImplementation<Leg>();
+		leg.prototype.moveThreshold *= 2;
 	}
 }

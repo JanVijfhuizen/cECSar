@@ -66,6 +66,9 @@ void game::LegSystem::OnUpdate(
 			// Move towards target.
 			const auto localDelta = _transformSystem->ToLocal(transform, delta);
 			transform.position -= localDelta.position;
+
+			// Rotate leg.
+			transform.rotation -= world.rotation - rootWorld.rotation;
 			continue;
 		}
 

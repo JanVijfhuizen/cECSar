@@ -8,9 +8,9 @@ namespace game
 		cecsar::EntityInfo root{};
 		cecsar::EntityInfo mirror{};
 
-		float moveThreshold = 32;
+		float moveThreshold = 16;
 		float breakDistance = 64;
-		float stoppingDistance = 4;
+		float stoppingDistance = 2;
 		float speed = 400;
 
 		bool moving = false;
