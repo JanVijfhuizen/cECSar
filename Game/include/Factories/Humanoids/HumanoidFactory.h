@@ -26,6 +26,10 @@ namespace game
 		HandFactory* _handFactory = nullptr;
 		LegFactory* _legFactory = nullptr;
 		HeadFactory* _headFactory = nullptr;
+
+		static std::shared_ptr<cecsar::EntityInfo[]> ConstructLimbPair(
+			cecsar::Cecsar& cecsar, LimbFactory& factory,
+			const cecsar::EntityInfo& info);
 	};
 
 	template <typename T>

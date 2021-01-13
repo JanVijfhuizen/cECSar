@@ -31,49 +31,20 @@ void game::HumanoidFactory::OnConstructionCustom(
 	cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info)
 {
 	auto& transforms = cecsar.GetSet<Transform>();
-	auto& renderers = cecsar.GetSet<Renderer>();
-	auto& joints = cecsar.GetSet<Joint>();
 	auto& legComponents = cecsar.GetSet<Leg>();
 
-	// Construct the hands.
-	const auto hands = cecsar.AddEntity(2);
-	for (int32_t i = 0; i < 2; ++i)
-	{
-		auto& handInfo = hands[i];
-		_handFactory->Construct(cecsar, handInfo);
+	// Construct the hands and legs.
+	const auto hands = ConstructLimbPair(cecsar, *_handFactory, info);
+	const auto legs = ConstructLimbPair(cecsar, *_legFactory, info);
 
-		auto& joint = joints.Get(handInfo.index);
-		joint.other = info;
-
-		auto offset = _handFactory->offset;
-		offset.x *= (i == 0) * 2 - 1;
-		joint.offset = offset;
-
-		auto& handRenderer = renderers.Get(handInfo.index);
-		if(i == 1)
-			handRenderer.flip = SDL_FLIP_HORIZONTAL;
-	}
-
-	const auto legs = cecsar.AddEntity(2);
+	// Assign leg mirrors.
 	for (int32_t i = 0; i < 2; ++i)
 	{
 		auto& legInfo = legs[i];
-		_legFactory->Construct(cecsar, legInfo);
-
-		auto& joint = joints.Get(legInfo.index);
-		joint.other = info;
-
-		auto offset = _legFactory->offset;
-		offset.x *= (i == 0) * 2 - 1;
-		joint.offset = offset;
-
 		auto& leg = legComponents.Get(legInfo.index);
+
 		leg.root = info;
 		leg.mirror = legs[1 - i];
-
-		auto& legRenderer = renderers.Get(legInfo.index);
-		if (i == 1)
-			legRenderer.flip = SDL_FLIP_HORIZONTAL;
 	}
 
 	// Construct the head.
@@ -82,6 +53,33 @@ void game::HumanoidFactory::OnConstructionCustom(
 
 	auto& headTransform = transforms.Get(headInfo.index);
 	headTransform.parent = info;
-
 	headTransform.position = _headFactory->offset;
+}
+
+std::shared_ptr<cecsar::EntityInfo[]> game::HumanoidFactory::ConstructLimbPair(
+	cecsar::Cecsar& cecsar, LimbFactory& factory, const cecsar::EntityInfo& info)
+{
+	auto& joints = cecsar.GetSet<Joint>();
+	auto& renderers = cecsar.GetSet<Renderer>();
+
+	const auto limbs = cecsar.AddEntity(2);
+
+	for (int32_t i = 0; i < 2; ++i)
+	{
+		auto& limbInfo = limbs[i];
+		factory.Construct(cecsar, limbInfo);
+
+		auto& joint = joints.Get(limbInfo.index);
+		joint.other = info;
+
+		auto offset = factory.offset;
+		offset.x *= (i == 0) * 2 - 1;
+		joint.offset = offset;
+
+		auto& renderer = renderers.Get(limbInfo.index);
+		if (i == 1)
+			renderer.flip = SDL_FLIP_HORIZONTAL;
+	}
+
+	return limbs;
 }
