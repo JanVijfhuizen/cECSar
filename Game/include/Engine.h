@@ -14,12 +14,14 @@
 #include <Systems/KinematicSystem.h>
 #include <Systems/ControllerSystem.h>
 #include <Systems/RigidBodySystem.h>
-#include "Systems/AnimatorSystem.h"
+#include <Systems/AnimatorSystem.h>
+#include <Systems/JointSystem.h>
 
 // Factories.
 #include <Factories/Humanoids/RoninFactory.h>
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
+#include "Systems/LegSystem.h"
 
 namespace game
 {
@@ -95,9 +97,13 @@ namespace game
 			}
 
 			PreUpdate(info);
+
+			// TODO: thread separate.
 			RenderUpdate(info);
+
 			Update(info);
 
+			// TODO: thread separate.
 			// Calculate physics update.
 			for (int32_t i = info.timeModule->GetPhysicsSteps() - 1; i >= 0; --i)
 				FixedUpdate(info);
@@ -124,8 +130,10 @@ namespace game
 	inline void Engine::Start(Info& info)
 	{
 		info.cecsar->AddEntity<EnvironmentFactory>();
-		info.cecsar->AddEntity<OniFactory>()[0];
-		info.cecsar->AddEntity<RoninFactory>();
+		const auto oni = info.cecsar->AddEntity<OniFactory>()[0];
+		const auto ronin = info.cecsar->AddEntity<RoninFactory>()[0];
+
+		info.cecsar->GetSet<Transform>().Get(oni.index).position = { 240, 120 };
 	}
 
 	inline void Engine::PreUpdate(Info& info)
@@ -141,6 +149,9 @@ namespace game
 
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
+		cecsar.Update<LegSystem>();
+
+		cecsar.Update<JointSystem>();
 		cecsar.Update<TransformSystem>();
 	}
 
@@ -151,7 +162,7 @@ namespace game
 		info.renderModule->PreRender();
 
 		cecsar.Update<RenderSystem>();
-		//collisionSystem.DrawDebug();
+		//cecsar.GetSystem<CollisionSystem>().DrawDebug();
 
 		info.renderModule->PostRender();
 	}

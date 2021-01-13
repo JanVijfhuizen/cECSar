@@ -3,7 +3,7 @@
 
 namespace game
 {
-	class HandFactory : public LimbFactory
+	class LegFactory : public LimbFactory
 	{
 	protected:
 		void OnInitializeCustom(cecsar::Cecsar& cecsar) override;

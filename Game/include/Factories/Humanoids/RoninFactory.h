@@ -2,7 +2,8 @@
 #include <Factories/Humanoids/HumanoidFactory.h>
 #include <Factories/Implementations/StandardRendererImp.h>
 #include <Factories/Humanoids/RoninHandFactory.h>
-#include "RoninHeadFactory.h"
+#include <Factories/Humanoids/RoninLegFactory.h>
+#include <Factories/Humanoids/RoninHeadFactory.h>
 
 namespace game
 {
@@ -19,13 +20,13 @@ namespace game
 		DefineImplementation<CameraFollowTarget>();
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/Ronin.png";
-		renderer.prototype.count = 6;
+		renderer.path = "Art/RoninBody.png";
 
 		auto& controller = DefineImplementation<Controller>();
 		controller.prototype.type = ControllerType::player;
 
 		SetHandFactoryImpl<RoninHandFactory>(cecsar);
+		SetLegFactoryImpl<RoninLegFactory>(cecsar);
 		SetHeadFactoryImpl<RoninHeadFactory>(cecsar);
 	}
 }
