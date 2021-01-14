@@ -129,7 +129,7 @@ namespace game
 
 	inline void Engine::Start(Info& info)
 	{
-		info.cecsar->AddEntity<EnvironmentFactory>();
+		//info.cecsar->AddEntity<EnvironmentFactory>();
 		const auto oni = info.cecsar->AddEntity<OniFactory>()[0];
 		const auto ronin = info.cecsar->AddEntity<RoninFactory>()[0];
 
