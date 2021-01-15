@@ -10,6 +10,7 @@ void game::SwordFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	DefineImplementation<Transform>();
 	auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
 	renderer.path = "Art/Sword.png";
+	renderer.prototype.rotation = -90;
 
 	DefineImplementation<RigidBody>();
 	DefineImplementation<Collider>();

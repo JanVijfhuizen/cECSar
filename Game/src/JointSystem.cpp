@@ -1,5 +1,6 @@
 ﻿#include "Systems/JointSystem.h"
 #include "Systems/TransformSystem.h"
+#include "Modules/TimeModule.h"
 
 void game::JointSystem::Initialize(cecsar::Cecsar& cecsar)
 {
@@ -7,6 +8,7 @@ void game::JointSystem::Initialize(cecsar::Cecsar& cecsar)
 
 	_cecsar = &cecsar;
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
+	_timeModule = &cecsar.GetModule<TimeModule>();
 	_deltas.reserve(cecsar.info.setCapacity);
 }
 
@@ -14,12 +16,15 @@ void game::JointSystem::OnUpdate(
 	utils::SparseSet<Joint>& joints, 
 	utils::SparseSet<Transform>& transforms)
 {
+	std::mutex mut{};
 	std::vector<int32_t> removables{};
+
+	const float deltaTime = _timeModule->GetDeltaTime();
 	const auto dense = joints.GetDenseRaw();
 
 	auto& jobModule = GetJobConvModule();
 	jobModule.ToLinearJobs(joints.GetCount(), 
-		[this, &joints, &transforms, &removables, dense](
+		[this, &joints, &transforms, &removables, dense, deltaTime, &mut](
 			const int32_t start, const int32_t stop) 
 		{
 			for (int32_t i = start; i < stop; ++i)
@@ -32,6 +37,7 @@ void game::JointSystem::OnUpdate(
 				// Other validation check.
 				if (!_cecsar->IsEntityValid(joint.other))
 				{
+					std::unique_lock<std::mutex> lk(mut);
 					removables.push_back(index);
 					continue;
 				}
@@ -54,15 +60,22 @@ void game::JointSystem::OnUpdate(
 				if (intersection < 0)
 					continue;
 
+				const auto offsetNormalized = offset.Normalized2d();
+
 				// Move both objects to eachother until it's right at the maximum distance.
 				const auto dir = _transformSystem->ToLocal(
-					transform, offset.Normalized2d() * intersection).position;
+					transform, offsetNormalized * intersection).position;
 
 				JointDelta&& delta
 				{
 					index,
-					dir * -(1.0f - joint.balance)
+					dir * -(1.0f - joint.balance),
 				};
+
+				delta.rotation = transform.rotation - utils::Vector3::RotateTowards2d(
+					transform.rotation, offsetNormalized, deltaTime * rotationSpeed);
+
+				std::unique_lock<std::mutex> lk(mut);
 
 				// Push delta information.
 				_deltas.push_back(delta);
@@ -73,7 +86,7 @@ void game::JointSystem::OnUpdate(
 					JointDelta&& otherDelta
 					{
 						otherIndex,
-						dir * joint.balance
+						dir * joint.balance,
 					};
 
 					_deltas.push_back(otherDelta);
@@ -89,6 +102,7 @@ void game::JointSystem::OnUpdate(
 	{
 		auto& transform = transforms.Get(delta.index);
 		transform.position += delta.value;
+		transform.rotation += delta.rotation;
 	}
 	_deltas.clear();
 
