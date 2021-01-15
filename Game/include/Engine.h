@@ -22,6 +22,8 @@
 #include <Factories/Environment/EnvironmentFactory.h>
 #include <Factories\Humanoids\OniFactory.h>
 #include "Systems/LegSystem.h"
+#include "Factories/Items/SwordFactory.h"
+#include "Systems/HandSystem.h"
 
 namespace game
 {
@@ -129,9 +131,13 @@ namespace game
 
 	inline void Engine::Start(Info& info)
 	{
-		//info.cecsar->AddEntity<EnvironmentFactory>();
-		const auto oni = info.cecsar->AddEntity<OniFactory>()[0];
-		const auto ronin = info.cecsar->AddEntity<RoninFactory>()[0];
+		auto& cecsar = *info.cecsar;
+
+		//cecsar->AddEntity<EnvironmentFactory>();
+		const auto oni = cecsar.AddEntity<OniFactory>()[0];
+		const auto ronin = cecsar.AddEntity<RoninFactory>()[0];
+
+		const auto sword = cecsar.AddEntity<SwordFactory>()[0];
 
 		info.cecsar->GetSet<Transform>().Get(oni.index).position = { 240, 120 };
 	}
@@ -149,6 +155,7 @@ namespace game
 
 		cecsar.Update<MovementSystem>();
 		cecsar.Update<KinematicSystem>();
+		cecsar.Update<HandSystem>();
 		cecsar.Update<LegSystem>();
 
 		cecsar.Update<JointSystem>();
