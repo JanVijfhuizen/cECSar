@@ -5,6 +5,6 @@ void game::LegFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
 	LimbFactory::OnInitializeCustom(cecsar);
 
-	offset = { 16, 8, -.01f };
+	offset = { 16, 16, -.01f };
 	DefineImplementation<Leg>();
 }

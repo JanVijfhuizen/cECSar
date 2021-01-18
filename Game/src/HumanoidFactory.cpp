@@ -54,6 +54,25 @@ void game::HumanoidFactory::OnConstructionCustom(
 	auto& headTransform = transforms.Get(headInfo.index);
 	headTransform.parent = info;
 	headTransform.position = _headFactory->offset;
+
+	OnHandsConstruction(cecsar, hands);
+	OnLegsConstruction(cecsar, legs);
+	OnHeadConstruction(cecsar, headInfo);
+}
+
+void game::HumanoidFactory::OnHandsConstruction(
+	cecsar::Cecsar&, std::shared_ptr<cecsar::EntityInfo[]>)
+{
+}
+
+void game::HumanoidFactory::OnLegsConstruction(
+	cecsar::Cecsar&, std::shared_ptr<cecsar::EntityInfo[]>)
+{
+}
+
+void game::HumanoidFactory::OnHeadConstruction(
+	cecsar::Cecsar&, cecsar::EntityInfo)
+{
 }
 
 std::shared_ptr<cecsar::EntityInfo[]> game::HumanoidFactory::ConstructLimbPair(

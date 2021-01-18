@@ -13,6 +13,15 @@ namespace game
 		void OnConstructionCustom(
 			cecsar::Cecsar& cecsar, const cecsar::EntityInfo& info) override;
 
+		virtual void OnHandsConstruction(cecsar::Cecsar& cecsar, 
+			std::shared_ptr<cecsar::EntityInfo[]> info);
+
+		virtual void OnLegsConstruction(cecsar::Cecsar& cecsar, 
+			std::shared_ptr<cecsar::EntityInfo[]> info);
+
+		virtual void OnHeadConstruction(
+			cecsar::Cecsar& cecsar, cecsar::EntityInfo info);
+
 		template <typename T>
 		void SetHandFactoryImpl(cecsar::Cecsar& cecsar);
 
