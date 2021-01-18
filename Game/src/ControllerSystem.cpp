@@ -11,9 +11,11 @@ void game::ControllerSystem::OnUpdate(utils::SparseSet<Controller>& controllers)
 	_playerController.yDir = state[SDL_SCANCODE_S] - state[SDL_SCANCODE_W];
 
 	// Get mouse input.
-	SDL_GetMouseState(&_playerController.xMouse, &_playerController.yMouse);
-	_playerController.lMouse = state[SDL_BUTTON_LEFT];
-	_playerController.rMouse = state[SDL_BUTTON_RIGHT];
+	const Uint32 mouseState = SDL_GetMouseState(
+		&_playerController.xMouse, &_playerController.yMouse);
+
+	_playerController.lMouse = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+	_playerController.rMouse = mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT);
 
 	_playerController.space = state[SDL_SCANCODE_SPACE];
 

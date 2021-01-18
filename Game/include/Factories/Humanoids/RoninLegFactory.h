@@ -15,6 +15,6 @@ namespace game
 		LegFactory::OnInitializeCustom(cecsar);
 
 		auto& renderer = DefineImplementation<Renderer, StandardRendererImp>();
-		renderer.path = "Art/RoninHand.png";
+		renderer.path = "Art/RoninLeg.png";
 	}
 }
