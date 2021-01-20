@@ -9,7 +9,6 @@ void game::JointSystem::Initialize(cecsar::Cecsar& cecsar)
 	_cecsar = &cecsar;
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
 	_timeModule = &cecsar.GetModule<TimeModule>();
-	_deltas.reserve(cecsar.info.setCapacity);
 }
 
 void game::JointSystem::OnUpdate(
@@ -17,15 +16,17 @@ void game::JointSystem::OnUpdate(
 	utils::SparseSet<RigidBody>& rigidBodies,
 	utils::SparseSet<Transform>& transforms)
 {
-	std::mutex mut{};
+	std::mutex forceMutex{};
+	std::mutex removablesMutex{};
 	std::vector<int32_t> removables{};
 
 	const float deltaTime = _timeModule->GetDeltaTime();
-	const auto dense = joints.GetDenseRaw();
+	auto* const dense = joints.GetDenseRaw();
 
 	auto& jobModule = GetJobConvModule();
 	jobModule.ToLinearJobs(joints.GetCount(), 
-		[this, &joints, &rigidBodies, &transforms, &removables, dense, deltaTime, &mut](
+		[this, &joints, &rigidBodies, &transforms, &removables, 
+			dense, deltaTime, &removablesMutex, &forceMutex](
 			const int32_t start, const int32_t stop) 
 		{
 			for (int32_t i = start; i < stop; ++i)
@@ -38,7 +39,7 @@ void game::JointSystem::OnUpdate(
 				// Other validation check.
 				if (!_cecsar->IsEntityValid(joint.other))
 				{
-					std::unique_lock<std::mutex> lk(mut);
+					std::unique_lock<std::mutex> lk(removablesMutex);
 					removables.push_back(index);
 					continue;
 				}
@@ -52,7 +53,7 @@ void game::JointSystem::OnUpdate(
 				const auto rotatedOffset = joint.offset.Rotate(otherTransform.rotation);
 				const auto otherWorld = _transformSystem->ToWorld(otherTransform, rotatedOffset);
 
-				// Check offset and whether or not the parts are too far from eachother.
+				// Check offset and whether or not the parts are too far from each other.
 				const auto offset = world.position - otherWorld.position;
 				const float dis = offset.Magnitude2d();
 				const float intersection = dis - joint.maxDistance;
@@ -73,45 +74,23 @@ void game::JointSystem::OnUpdate(
 				// Calculate the balance between the two joints.
 				const float balance = utils::Mathf::Clamp(.5f + rigidBody.weight - otherRigidBody.weight);
 
-				JointDelta&& delta
-				{
-					index,
-					dir * -(1 - balance),
-				};
+				std::unique_lock<std::mutex> lk(forceMutex);
+
+				// Apply force.
+				const auto force = dir * -(1 - balance);
+				rigidBody.immediateForce += force;
 				
-				delta.rotation = transform.rotation - utils::Vector3::RotateTowards2d(
-					transform.rotation, offsetNormalized, deltaTime * rotationSpeed);
-
-				std::unique_lock<std::mutex> lk(mut);
-
-				// Push delta information.
-				_deltas.push_back(delta);
-
 				// Only push the other if it's close.
 				if (dis < joint.teleportDistance)
 				{
-					JointDelta&& otherDelta
-					{
-						otherIndex,
-						dir * balance,
-					};
-
-					_deltas.push_back(otherDelta);
+					const auto otherForce = dir * balance;
+					otherRigidBody.immediateForce += otherForce;
 				}
 			}
 		});
 
 	jobModule.Start();
 	jobModule.Wait();
-
-	// Update positions all at once.
-	for (auto& delta : _deltas)
-	{
-		auto& transform = transforms.Get(delta.index);
-		transform.position += delta.value;
-		transform.rotation += delta.rotation;
-	}
-	_deltas.clear();
 
 	// Remove all unfit components.
 	for (auto removable : removables)
