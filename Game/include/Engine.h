@@ -157,9 +157,6 @@ namespace game
 		cecsar.Update<KinematicSystem>();
 		cecsar.Update<HandSystem>();
 		cecsar.Update<LegSystem>();
-
-		cecsar.Update<JointSystem>();
-		cecsar.Update<TransformSystem>();
 	}
 
 	inline void Engine::RenderUpdate(Info& info)
@@ -183,12 +180,18 @@ namespace game
 	inline void Engine::PostUpdate(Info& info)
 	{
 		auto& cecsar = *info.cecsar;
+
 		info.collisionSystem->NotifyCollisions();
+		
+		// Dependent on rigidbody forces.
+		cecsar.Update<JointSystem>();
 
 		// Dependent on notifications.
 		cecsar.Update<RigidBodySystem>();
 
 		// Dependent on renderers.
 		cecsar.Update<AnimatorSystem>();
+
+		cecsar.Update<TransformSystem>();
 	}
 }
