@@ -12,12 +12,18 @@ namespace utils
 		inline static float LerpAngle(float a, float b, float t);
 
 		static constexpr float Lerp(float a, float b, float t = .5f, bool clamped = true);
+		static constexpr float Clamp(float t, float min = 0, float max = 1);
 	};
 
 	constexpr float Mathf::Lerp(const float a, const float b, const float t, const bool clamped)
 	{
 		auto&& res = a + (b - a) * t;
 		return clamped ? std::max(.0f, std::min(res, b)) : res;
+	}
+
+	constexpr float Mathf::Clamp(const float t, const float min, const float max)
+	{
+		return std::min(max, std::max(min, t));
 	}
 
 	inline float Mathf::ConstrainAngle(float f)

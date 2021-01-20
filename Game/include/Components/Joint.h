@@ -11,6 +11,5 @@ namespace game
 
 		float maxDistance = 16;
 		float teleportDistance = 128;
-		float balance = .25f;
 	};
 }

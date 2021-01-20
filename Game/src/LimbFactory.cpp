@@ -5,6 +5,7 @@
 #include "Components/Kinematic.h"
 #include "Components/Animator.h"
 #include "Components/Joint.h"
+#include "Components/RigidBody.h"
 
 void game::LimbFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 {
@@ -15,4 +16,7 @@ void game::LimbFactory::OnInitializeCustom(cecsar::Cecsar& cecsar)
 	DefineImplementation<Kinematic>();
 	DefineImplementation<Animator>();
 	DefineImplementation<Joint>();
+	
+	auto& rigidBody = DefineImplementation<RigidBody>();
+	rigidBody.prototype.weight = .75f;
 }

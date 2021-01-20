@@ -20,16 +20,16 @@ void game::HandSystem::OnUpdate(
 
 void game::HandSystem::OnNotify(const HitInfo& info)
 {
-	auto& instance = info.instance;
+	const auto& instance = info.instance;
 	const int32_t index = instance.index;
 
 	if (!_hands->Contains(index))
 		return;
 
 	auto& hand = _hands->Get(index);
-	auto& controller = _controllers->Get(index);
+	const auto& controller = _controllers->Get(index);
 
-	auto& handType = hand.type;
+	const auto& handType = hand.type;
 
 	switch (handType) 
 	{ 
@@ -45,14 +45,12 @@ void game::HandSystem::OnNotify(const HitInfo& info)
 		if (!controller.lMouse && !controller.rMouse)
 			return;
 		break;
-	default: 
-		return; 
 	}
 
 	if (_cecsar->IsEntityValid(hand.equipped))
 		return;
 
-	auto& other = info.other;
+	const auto& other = info.other;
 	const int32_t otherIndex = other.index;
 
 	// Set equipped.
