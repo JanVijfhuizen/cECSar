@@ -4,7 +4,7 @@
 
 void game::JointSystem::Initialize(cecsar::Cecsar& cecsar)
 {
-	JobSystem<Joint, Transform>::Initialize(cecsar);
+	JobSystem<Joint, RigidBody, Transform>::Initialize(cecsar);
 
 	_cecsar = &cecsar;
 	_transformSystem = &cecsar.GetSystem<TransformSystem>();
@@ -13,7 +13,8 @@ void game::JointSystem::Initialize(cecsar::Cecsar& cecsar)
 }
 
 void game::JointSystem::OnUpdate(
-	utils::SparseSet<Joint>& joints, 
+	utils::SparseSet<Joint>& joints,
+	utils::SparseSet<RigidBody>& rigidBodies,
 	utils::SparseSet<Transform>& transforms)
 {
 	std::mutex mut{};
@@ -24,7 +25,7 @@ void game::JointSystem::OnUpdate(
 
 	auto& jobModule = GetJobConvModule();
 	jobModule.ToLinearJobs(joints.GetCount(), 
-		[this, &joints, &transforms, &removables, dense, deltaTime, &mut](
+		[this, &joints, &rigidBodies, &transforms, &removables, dense, deltaTime, &mut](
 			const int32_t start, const int32_t stop) 
 		{
 			for (int32_t i = start; i < stop; ++i)
@@ -62,16 +63,22 @@ void game::JointSystem::OnUpdate(
 
 				const auto offsetNormalized = offset.Normalized2d();
 
-				// Move both objects to eachother until it's right at the maximum distance.
+				// Move both objects to each other until it's right at the maximum distance.
 				const auto dir = _transformSystem->ToLocal(
 					transform, offsetNormalized * intersection).position;
+
+				auto& rigidBody = rigidBodies.Get(index);
+				auto& otherRigidBody = rigidBodies.Get(otherIndex);
+
+				// Calculate the balance between the two joints.
+				const float balance = utils::Mathf::Clamp(.5f + rigidBody.weight - otherRigidBody.weight);
 
 				JointDelta&& delta
 				{
 					index,
-					dir * -(1.0f - joint.balance),
+					dir * -(1 - balance),
 				};
-
+				
 				delta.rotation = transform.rotation - utils::Vector3::RotateTowards2d(
 					transform.rotation, offsetNormalized, deltaTime * rotationSpeed);
 
@@ -86,7 +93,7 @@ void game::JointSystem::OnUpdate(
 					JointDelta&& otherDelta
 					{
 						otherIndex,
-						dir * joint.balance,
+						dir * balance,
 					};
 
 					_deltas.push_back(otherDelta);
