@@ -194,6 +194,9 @@ namespace revamped
 	inline Cecsar::~Cecsar()
 	{
 		delete _entities;
+		for (auto& map : _modules)
+			for (const auto& pair : map)
+				delete pair.second;
 	}
 
 	constexpr Cecsar::ModuleType Cecsar::Get(InternalSystem*)
