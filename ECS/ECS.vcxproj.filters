@@ -39,6 +39,9 @@
     <ClInclude Include="include\IEntityFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\CecsarLow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IComponentSystem.cpp">

@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\CecsarLow.h" />
     <ClInclude Include="Include\framework.h" />
     <ClInclude Include="Include\Cecsar.h" />
     <ClInclude Include="Include\ComponentSystem.h" />
