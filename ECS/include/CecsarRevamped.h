@@ -49,21 +49,21 @@ namespace revamped
 			 */
 			virtual void Initialize(Cecsar& cecsar);
 		};
-		
+
 		// Due to the templated nature of the child class, I have to make a transition class.
 		class InternalSystem : public Module
 		{
 		public:
 			virtual void Update() = 0;
 		};
-		
+
 		// Due to the templated nature of the child class, I have to make a transition class.
 		class InternalFactory : public Module
 		{
 		public:
 			virtual void Construct(int32_t id) = 0;
 		};
-		
+
 	public:
 		/*
 		Settings for the cecsar.
@@ -71,8 +71,13 @@ namespace revamped
 		 */
 		struct Info final
 		{
-			// The maximum number of entities possible.
+			// The maximum number of entities possible.		
 			int32_t capacity = 1e3;
+			/*
+			Useful when loading up a save, otherwise newly created id's might conflict
+			with previously created entities.
+			*/
+			int32_t globalEntityStartIndex = 0;
 		};
 
 		/*
@@ -95,11 +100,11 @@ namespace revamped
 
 		/*
 		INTERMEDIATE
-		
+
 		SYSTEMS are used to define behaviour for a set of components.
 		A RenderSystem might manage the Renderer components for instance.
 		You can create your custom System by inheriting like this: RenderSystem : public Cecsar::System<Renderer>.
-		
+
 		In the missing OnUpdate call, you can define your behaviour, which can be as simple as this:
 		foreach(auto& renderer : instances) Render(renderer).
 		After that, just call Get<RenderSystem>().Update() to use it.
@@ -130,7 +135,7 @@ namespace revamped
 
 		/*
 		INTERMEDIATE
-		
+
 		FACTORIES are used to streamline construction.
 		While an entity is just a collection of components at runtime, you can define the way an entity can be created.
 		You can, for instance, use a factory to predefine the creation of an Orc.
@@ -180,23 +185,23 @@ namespace revamped
 		Validate an entity.
 		An entity's index might be the same as some earlier destroyed entity,
 		but the ID's are always unique.
-		*/	
+		*/
 		[[nodiscard]] constexpr bool Validate(const Entity& entity) const;
 
 		/*
 		INTERMEDIATE:
-		
+
 		Use this method to get systems and factories, like so:
 		Get<RenderSystem>, or Get<OrcFactory>.
 
 		ADVANCED:
-		
+
 		Interfaces and abstraction:
 		Especially when your project is larger, you want to make things as abstract as possible.
 		You can abstract the implementation of your factories and systems by using interfaces, like this:
 		cecsar.Get<IOrcFactory, OrcFactoryImp>.
 		You just need to call that once and it will be initialized.
-		
+
 		Do take note that this system uses lazy initialization,
 		and if IOrcFactory is already initialized, the second template parameter won't matter!
 		Make sure you define your interfaces before you actually start using the framework.
@@ -217,11 +222,11 @@ namespace revamped
 		While the iterating is done in a unordered way,
 		you can get the corresponding indexes for a component by using the dense set.
 		This is useful if you want to get to other component the entity might have.
-		
+
 		const auto dense = set.GetDenseRaw();
 		for(int i = 0; i < set.GetCount(); ++i){
 			auto& component = set[i];
-			
+
 			const int index = dense[i];
 			auto& otherComponent = otherSet.Get(index);
 		}
@@ -230,29 +235,35 @@ namespace revamped
 		constexpr utils::SparseSet<Component>& GetSet();
 
 		/*
-		
+		Useful when saving/loading, to use as a starting point for
+		new entity ids. This way it won't conflict with older entities their ids.
 		*/
 		[[nodiscard]] constexpr int32_t GetGlobalEntityIndex() const;
 
 	private:
+		// Non templated class to be able to store sets.
 		class AbstractSet : public Module
 		{
 		public:
 			virtual void Remove(int32_t index) = 0;
 		};
 
+		// Set that contains a sparse set for the corresponding component type.
 		template <typename Component>
 		class Set final : public AbstractSet
 		{
 		public:
 			utils::SparseSet<Component>* components = nullptr;
-			
+
+			// Delete set.
 			~Set();
+			// Initialize set.
 			void Initialize(Cecsar& cecsar) override;
-			
+
 			constexpr void Remove(int32_t index) override;
 		};
-		
+
+		// An internal tool to make lookup faster and decrease boilerplate.
 		enum class ModuleType
 		{
 			System,
@@ -261,11 +272,15 @@ namespace revamped
 			Count
 		};
 
+		// Global index, given to new entities as their id, and then incremented.
 		int32_t _globalEntityIndex = 0;
 		utils::SparseSet<Entity>* _entities = nullptr;
+		// Contains the sets, systems and factories.
 		std::unordered_map<std::type_index, Module*> _modules[static_cast<int32_t>(ModuleType::Count)]{};
 
+		// Used to make the type check constexpr.
 		constexpr static ModuleType Get(InternalSystem* out);
+		// Used to make the type check constexpr.
 		constexpr static ModuleType Get(InternalFactory* out);
 	};
 
@@ -292,11 +307,12 @@ namespace revamped
 	{
 		Interface* i = nullptr;
 		const auto type = Get(i);
+
 		Module*& ptr = _modules[static_cast<int32_t>(type)][typeid(Interface)];
-		if(!ptr)
+		if (!ptr)
 		{
 			ptr = new InitType;
-			
+
 			ptr->_cecsar = this;
 			ptr->Initialize(*this);
 		}
@@ -309,7 +325,7 @@ namespace revamped
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
 	{
 		Module*& ptr = _modules[static_cast<int32_t>(ModuleType::Set)][typeid(Component)];
-		if(!ptr)
+		if (!ptr)
 		{
 			ptr = new Set<Component>;
 			ptr->Initialize(*this);
@@ -330,12 +346,13 @@ namespace revamped
 		components->RemoveAt(index);
 	}
 
-	inline void Cecsar::Factory::Construct(int32_t id)
+	inline void Cecsar::Factory::Construct(const int32_t id)
 	{
 		OnConstruct(*_cecsar, id);
 	}
 
-	inline Cecsar::Cecsar(const Info& info) : info(info)
+	inline Cecsar::Cecsar(const Info& info) :
+		info(info), _globalEntityIndex(info.globalEntityStartIndex)
 	{
 		_entities = new utils::SparseSet<Entity>(info.capacity);
 	}
@@ -364,7 +381,7 @@ namespace revamped
 			{
 				_globalEntityIndex++
 			});
-		
+
 		auto& entity = _entities->Get(index);
 		entity.index = index;
 		return entity;

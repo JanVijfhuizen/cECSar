@@ -39,7 +39,7 @@
     <ClInclude Include="include\IEntityFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\CecsarLow.h">
+    <ClInclude Include="include\CecsarRevamped.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
