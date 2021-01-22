@@ -7,26 +7,13 @@
 
 namespace revamped
 {
-	struct Entity final
-	{
-		int32_t id = -1;
-		int32_t index = -1;
-
-		constexpr bool operator==(const Entity& other) const;
-	};
-
-	constexpr bool Entity::operator==(const Entity& other) const
-	{
-		return index == other.index && id == other.id;
-	}
-	
 	class Cecsar final
 	{
 	private:
 		class Module
 		{
 		public:
-			Cecsar* cecsar = nullptr;
+			Cecsar* _cecsar = nullptr;
 
 			virtual ~Module() = default;
 			virtual void Initialize(Cecsar& cecsar);
@@ -50,6 +37,14 @@ namespace revamped
 			int32_t capacity = 1e3;
 		};
 
+		struct Entity final
+		{
+			int32_t id = -1;
+			int32_t index = -1;
+
+			constexpr bool operator==(const Entity& other) const;
+		};
+
 		template <typename Component, typename ...Args>
 		class System : public InternalSystem
 		{
@@ -57,7 +52,7 @@ namespace revamped
 			constexpr void Update() final override;
 
 		private:
-			using Module::cecsar;
+			using Module::_cecsar;
 			
 			virtual void OnUpdate(utils::SparseSet<Component>& instances, utils::SparseSet<Args>&...) = 0;
 		};
@@ -68,7 +63,7 @@ namespace revamped
 			inline void Construct(int32_t id) final override;
 
 		private:
-			using Module::cecsar;
+			using Module::_cecsar;
 			
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
@@ -79,7 +74,7 @@ namespace revamped
 		inline ~Cecsar();
 
 		[[nodiscard]] constexpr Entity Spawn();
-		inline void Delete(int32_t index) const;
+		inline void Destroy(int32_t index) const;
 		[[nodiscard]] constexpr bool Validate(const Entity& entity) const;
 		
 		template <typename Interface, typename InitType = Interface>
@@ -88,7 +83,7 @@ namespace revamped
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
-		constexpr int32_t GetGlobalEntityIndex() const;
+		[[nodiscard]] constexpr int32_t GetGlobalEntityIndex() const;
 
 	private:
 		class AbstractSet : public Module
@@ -103,7 +98,7 @@ namespace revamped
 		public:
 			utils::SparseSet<Component>* components = nullptr;
 			
-			inline ~Set();
+			~Set();
 			void Initialize(Cecsar& cecsar) override;
 			
 			constexpr void Remove(int32_t index) override;
@@ -128,7 +123,7 @@ namespace revamped
 	template <typename Component, typename ... Args>
 	constexpr void Cecsar::System<Component, Args...>::Update()
 	{
-		OnUpdate(cecsar->GetSet<Component>(), cecsar->GetSet<Args>()...);
+		OnUpdate(_cecsar->GetSet<Component>(), _cecsar->GetSet<Args>()...);
 	}
 
 	template <typename Component>
@@ -153,7 +148,7 @@ namespace revamped
 		{
 			ptr = new InitType;
 			
-			ptr->cecsar = this;
+			ptr->_cecsar = this;
 			ptr->Initialize(*this);
 		}
 
@@ -175,6 +170,11 @@ namespace revamped
 		return *set->components;
 	}
 
+	constexpr bool Cecsar::Entity::operator==(const Entity& other) const
+	{
+		return index == other.index && id == other.id;
+	}
+
 	template <typename Component>
 	constexpr void Cecsar::Set<Component>::Remove(const int32_t index)
 	{
@@ -183,7 +183,7 @@ namespace revamped
 
 	inline void Cecsar::Factory::Construct(int32_t id)
 	{
-		OnConstruct(*cecsar, id);
+		OnConstruct(*_cecsar, id);
 	}
 
 	inline Cecsar::Cecsar(const Info& info) : info(info)
@@ -209,7 +209,7 @@ namespace revamped
 		return ModuleType::Factory;
 	}
 
-	constexpr Entity Cecsar::Spawn()
+	constexpr Cecsar::Entity Cecsar::Spawn()
 	{
 		const int32_t index = _entities->Add(
 			{
@@ -221,7 +221,7 @@ namespace revamped
 		return entity;
 	}
 
-	inline void Cecsar::Delete(const int32_t index) const
+	inline void Cecsar::Destroy(const int32_t index) const
 	{
 		_entities->RemoveAt(index);
 

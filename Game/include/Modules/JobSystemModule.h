@@ -7,8 +7,6 @@
 
 namespace game
 {
-	constexpr int32_t THREAD_NUM = 6;
-
 	class JobSystemModule final : public cecsar::IModule
 	{
 	public:

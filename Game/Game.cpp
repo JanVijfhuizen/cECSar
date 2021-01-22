@@ -37,14 +37,19 @@ void SomeSystem::OnUpdate(utils::SparseSet<SomeComponent>& instances, utils::Spa
 int main(int argc, char* argv[])
 {
 	//game::Engine::Run();
-	revamped::Cecsar cecsar{};
+	revamped::Cecsar cecsar{{static_cast<int32_t>(1e5)}};
 
-	const auto entity = cecsar.Spawn();
-	cecsar.Get<SomeFactory>().Construct(entity.index);
+	auto& factory = cecsar.Get<SomeFactory>();
+
+	for (int i = 0; i < 1e4; ++i) {
+		const auto entity = cecsar.Spawn();
+		factory.Construct(entity.index);
+	}
 	
-	cecsar.Delete(entity.index);
+	cecsar.Destroy(12);
 
-	cecsar.Get<SomeSystem>().Update();
+	while(true)
+		cecsar.Get<SomeSystem>().Update();
 	
 	return 0;
 }
