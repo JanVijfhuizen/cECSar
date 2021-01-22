@@ -8,87 +8,56 @@
 namespace revamped
 {
 	/*
-	 This is a framework that streamlines the ECS workflow by simplifying it quite a bit.
-	 The goal here is to make ECS as inviting as possible for people not yet used to
-	 the workflow.
-	 
-	 This is also why there aren't a lot of features: I want simplicity.
-	 You can always expand on it by writing a wrapper class.
-	
-	 For ease of use, this framework uses lazy initialization for everything.
-	 So just create your System or Factory, inherit from the corresponding class and things will work out.
+	SUMMARY:
+	This is a ECS framework that tries to be as beginner-friendly as possible,
+	while still having the option to do some more complex stuff.
 
-	BASICS:
-	The framework works as follows:
-	- You create the cecsar class, optionally overloading a Cecsar::Info struct with your preferences, like the entity capacity.
-	- You're done.
-
-	You can now use Spawn() to create a new entity, and Destroy() to...well destroy an entity.
-	Spawn returns an entity struct, which holds two values: an index and a id.
-	The index can be used to add/remove or access components.
-	
-	While one entity might have the same index as an entity that was destroyed earlier on, the ID is always unique.
-	So always compare with the IDs, and not the indexes!
-	
-	You can grab the set you want, like set = GetSet<Renderer>().
-	After that, you can use set.Insert(index), set.RemoveAt(index) or just set.Get(index) to adjust the component.
+	FUNDAMENTALS:
+	Classes: Entity, Info,
+	Methods: GetSet(), Spawn(), Destroy(), Validate(), Module::Initialize()
 
 	INTERMEDIATE:
-	While the basics are cool and all, the end user still has to write their own way of streamlining entity construction
-	and component behaviour.
-	Thia ia where both the System and the Factory base classes come into play.
-
-	SYSTEMS are used to define behaviour for a set of components.
-	A RenderSystem might manage the Renderer components for instance.
-	You can create your custom System by inheriting like this: RenderSystem : public Cecsar::System<Renderer>.
-	
-	In the missing OnUpdate call, you can define your behaviour, which can be as simple as this:
-	foreach(auto& renderer : instances) Render(renderer).
-	After that, just call Get<RenderSystem>().Update() to use it.
-
-	FACTORIES are used to streamline construction.
-	While an entity is just a collection of components at runtime, you can define the way an entity can be created.
-	You can, for instance, use a factory to predefine the creation of an Orc.
-	To create a custom factory, use OrcFactory : public Cecsar::Factory.
-	In the missing OnConstruction call, you can use the overloaded index to add components, and adjust them.
-	
-	It can be as simple as this:
-	cecsar.GetSet<Collider>().Insert(index);
-	auto& renderer = cecsar.GetSet<Renderer>().Insert(index).
-	renderer.texture = orcTexture.
-	Now you just need to call Get<OrcFactory>().Construct(index), and your orc construction process is streamlined!
+	Classes: System, Factory
+	Method: Get()
 
 	ADVANCED:
-	ARGS in systems: Systems do usually manage only one component type, but often these components can be dependent on other components,
-	like a Renderer is dependent on the Transform component.
-	When defining your system, you can easily get access to these other sets by defining it like this:
-	RenderSystem : public Cecsar::System<Renderer, Transform, AnotherComponent, ...etc>.
-	
-	INTERFACES AND ABSTRACTION: Especially when your project is larger, you want to make things as abstract as possible.
-	You can abstract the implementation of your factories and systems by using interfaces, like this:
-	cecsar.Get<IOrcFactory, OrcFactoryImp>.
-	You just need to call that once and it will be initialized. Do take note that this system uses lazy initialization,
-	and if IOrcFactory is already initialized, the second template parameter won't matter!
-	Make sure you define your interfaces before you actually start using the framework.
+	Method: Get() abstraction.
+
+	MISC:
+	Method: GetGlobalEntityIndex()
 	 */
 	class Cecsar final
 	{
+		/*
+		I'm not going to comment internal workings in detail,
+		because the end user won't use it anyway.
+		*/
 	private:
+		/*
+		Base module where every cecsar related type inherits from.
+		 */
 		class Module
 		{
 		public:
 			Cecsar* _cecsar = nullptr;
 
 			virtual ~Module() = default;
+
+			/*
+			Used for initialization.
+			Empty by default, but you can use it to set up stuff at the start of the cecsar lifespan.
+			 */
 			virtual void Initialize(Cecsar& cecsar);
 		};
-
+		
+		// Due to the templated nature of the child class, I have to make a transition class.
 		class InternalSystem : public Module
 		{
 		public:
 			virtual void Update() = 0;
 		};
-
+		
+		// Due to the templated nature of the child class, I have to make a transition class.
 		class InternalFactory : public Module
 		{
 		public:
@@ -96,57 +65,173 @@ namespace revamped
 		};
 		
 	public:
+		/*
+		Settings for the cecsar.
+		Cannot be adjusted after construction.
+		 */
 		struct Info final
 		{
+			// The maximum number of entities possible.
 			int32_t capacity = 1e3;
 		};
 
+		/*
+		The entity struct can be used to compare entities, and to access the corresponding components.
+		 */
 		struct Entity final
 		{
+			// The ID can be used to compare entities.
 			int32_t id = -1;
+			/*
+			The index can be used to add, remove or adjust components, like so:
+
+			auto entity = cecsar.Spawn();
+			cecsar.GetSet<Renderer>().Insert(entity.index)
+			 */
 			int32_t index = -1;
 
 			constexpr bool operator==(const Entity& other) const;
 		};
 
+		/*
+		INTERMEDIATE
+		
+		SYSTEMS are used to define behaviour for a set of components.
+		A RenderSystem might manage the Renderer components for instance.
+		You can create your custom System by inheriting like this: RenderSystem : public Cecsar::System<Renderer>.
+		
+		In the missing OnUpdate call, you can define your behaviour, which can be as simple as this:
+		foreach(auto& renderer : instances) Render(renderer).
+		After that, just call Get<RenderSystem>().Update() to use it.
+
+		Systems do usually manage only one component type, but often these components can be dependent on other components,
+		like a Renderer is dependent on the Transform component.
+		When defining your system, you can easily get access to these other sets by defining it like this:
+		RenderSystem : public Cecsar::System<Renderer, Transform, AnotherComponent, ...etc>.
+		 */
 		template <typename Component, typename ...Args>
 		class System : public InternalSystem
 		{
 		public:
+			/*
+			Updates the system, so for a RenderSystem this would mean to visualize all the renderers,
+			for a CollisionSystem to check collisions, etc.
+			 */
 			constexpr void Update() final override;
 
 		private:
 			using Module::_cecsar;
-			
+
+			/*
+			Called when Update is called.
+			 */
 			virtual void OnUpdate(utils::SparseSet<Component>& instances, utils::SparseSet<Args>&...) = 0;
 		};
 
+		/*
+		INTERMEDIATE
+		
+		FACTORIES are used to streamline construction.
+		While an entity is just a collection of components at runtime, you can define the way an entity can be created.
+		You can, for instance, use a factory to predefine the creation of an Orc.
+		To create a custom factory, use OrcFactory : public Cecsar::Factory.
+		In the missing OnConstruction call, you can use the overloaded index to add components, and adjust them.
+
+		It can be as simple as this:
+		cecsar.GetSet<Collider>().Insert(index);
+		auto& renderer = cecsar.GetSet<Renderer>().Insert(index).
+		renderer.texture = orcTexture.
+		Now you just need to call Get<OrcFactory>().Construct(index), and your orc construction process is streamlined!
+		 */
 		class Factory : public InternalFactory
 		{
 		public:
+			/*
+			Execute a streamlined construction over an entity.
+			This doesn't create an entity, it only expands on it!
+			 */
 			inline void Construct(int32_t id) final override;
 
 		private:
 			using Module::_cecsar;
-			
+
+			/*
+			Called when Construct is called.
+			 */
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
 
+		// Information regarding the current instance of cecsar.
 		const Info info;
 
 		inline Cecsar(const Info& info = Info());
 		inline ~Cecsar();
 
+		/*
+		Spawns an entity. Returns an Entity struct, which provides the data you need to
+		further define the entity.
+		 */
 		[[nodiscard]] constexpr Entity Spawn();
+
+		// Destroys an entity. Takes in the entity's index.
 		inline void Destroy(int32_t index) const;
+
+		/*
+		Validate an entity.
+		An entity's index might be the same as some earlier destroyed entity,
+		but the ID's are always unique.
+		*/	
 		[[nodiscard]] constexpr bool Validate(const Entity& entity) const;
+
+		/*
+		INTERMEDIATE:
 		
+		Use this method to get systems and factories, like so:
+		Get<RenderSystem>, or Get<OrcFactory>.
+
+		ADVANCED:
+		
+		Interfaces and abstraction:
+		Especially when your project is larger, you want to make things as abstract as possible.
+		You can abstract the implementation of your factories and systems by using interfaces, like this:
+		cecsar.Get<IOrcFactory, OrcFactoryImp>.
+		You just need to call that once and it will be initialized.
+		
+		Do take note that this system uses lazy initialization,
+		and if IOrcFactory is already initialized, the second template parameter won't matter!
+		Make sure you define your interfaces before you actually start using the framework.
+		*/
 		template <typename Interface, typename InitType = Interface>
 		constexpr Interface& Get();
 
+		/*
+		Gets the set of a target component.
+		You might want to read up on sparse set, as they're not often used.
+		The way they can be used is as follows:
+
+		you can iterate over them with a foreach loop: foreach(auto& component : set).
+		you can use a for loop: for(int i = 0; i < set.GetCount(); ++i).
+
+		You have functionality like Insert, RemoveAt and Get.
+
+		While the iterating is done in a unordered way,
+		you can get the corresponding indexes for a component by using the dense set.
+		This is useful if you want to get to other component the entity might have.
+		
+		const auto dense = set.GetDenseRaw();
+		for(int i = 0; i < set.GetCount(); ++i){
+			auto& component = set[i];
+			
+			const int index = dense[i];
+			auto& otherComponent = otherSet.Get(index);
+		}
+		 */
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
+		/*
+		
+		*/
 		[[nodiscard]] constexpr int32_t GetGlobalEntityIndex() const;
 
 	private:
