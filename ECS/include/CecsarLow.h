@@ -7,6 +7,70 @@
 
 namespace revamped
 {
+	/*
+	 This is a framework that streamlines the ECS workflow by simplifying it quite a bit.
+	 The goal here is to make ECS as inviting as possible for people not yet used to
+	 the workflow.
+	 
+	 This is also why there aren't a lot of features: I want simplicity.
+	 You can always expand on it by writing a wrapper class.
+	
+	 For ease of use, this framework uses lazy initialization for everything.
+	 So just create your System or Factory, inherit from the corresponding class and things will work out.
+
+	BASICS:
+	The framework works as follows:
+	- You create the cecsar class, optionally overloading a Cecsar::Info struct with your preferences, like the entity capacity.
+	- You're done.
+
+	You can now use Spawn() to create a new entity, and Destroy() to...well destroy an entity.
+	Spawn returns an entity struct, which holds two values: an index and a id.
+	The index can be used to add/remove or access components.
+	
+	While one entity might have the same index as an entity that was destroyed earlier on, the ID is always unique.
+	So always compare with the IDs, and not the indexes!
+	
+	You can grab the set you want, like set = GetSet<Renderer>().
+	After that, you can use set.Insert(index), set.RemoveAt(index) or just set.Get(index) to adjust the component.
+
+	INTERMEDIATE:
+	While the basics are cool and all, the end user still has to write their own way of streamlining entity construction
+	and component behaviour.
+	Thia ia where both the System and the Factory base classes come into play.
+
+	SYSTEMS are used to define behaviour for a set of components.
+	A RenderSystem might manage the Renderer components for instance.
+	You can create your custom System by inheriting like this: RenderSystem : public Cecsar::System<Renderer>.
+	
+	In the missing OnUpdate call, you can define your behaviour, which can be as simple as this:
+	foreach(auto& renderer : instances) Render(renderer).
+	After that, just call Get<RenderSystem>().Update() to use it.
+
+	FACTORIES are used to streamline construction.
+	While an entity is just a collection of components at runtime, you can define the way an entity can be created.
+	You can, for instance, use a factory to predefine the creation of an Orc.
+	To create a custom factory, use OrcFactory : public Cecsar::Factory.
+	In the missing OnConstruction call, you can use the overloaded index to add components, and adjust them.
+	
+	It can be as simple as this:
+	cecsar.GetSet<Collider>().Insert(index);
+	auto& renderer = cecsar.GetSet<Renderer>().Insert(index).
+	renderer.texture = orcTexture.
+	Now you just need to call Get<OrcFactory>().Construct(index), and your orc construction process is streamlined!
+
+	ADVANCED:
+	ARGS in systems: Systems do usually manage only one component type, but often these components can be dependent on other components,
+	like a Renderer is dependent on the Transform component.
+	When defining your system, you can easily get access to these other sets by defining it like this:
+	RenderSystem : public Cecsar::System<Renderer, Transform, AnotherComponent, ...etc>.
+	
+	INTERFACES AND ABSTRACTION: Especially when your project is larger, you want to make things as abstract as possible.
+	You can abstract the implementation of your factories and systems by using interfaces, like this:
+	cecsar.Get<IOrcFactory, OrcFactoryImp>.
+	You just need to call that once and it will be initialized. Do take note that this system uses lazy initialization,
+	and if IOrcFactory is already initialized, the second template parameter won't matter!
+	Make sure you define your interfaces before you actually start using the framework.
+	 */
 	class Cecsar final
 	{
 	private:

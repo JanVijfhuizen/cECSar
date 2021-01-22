@@ -124,7 +124,6 @@ namespace utils
 	constexpr int32_t SparseSet<T>::Add(T val)
 	{
 		// Check if the index is filled.
-		// TODO: optimize by using quick injection.
 		for (int32_t i = _count; i < _capacity; ++i)
 		{
 			if (Contains(i))

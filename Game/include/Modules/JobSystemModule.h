@@ -49,7 +49,7 @@ namespace game
 		_threadNum = std::max(1, 
 			static_cast<int32_t>(std::thread::hardware_concurrency()) - 1);
 		for (int32_t i = _threadNum - 1; i >= 0; --i)
-			_threads.emplace_back(std::thread([this]()
+			_threads.emplace_back([this]()
 				{
 					while (true)
 					{
@@ -66,13 +66,13 @@ namespace game
 						std::unique_lock<std::mutex> lock(_mutexJobRequest);
 						_cvJobRequest.wait(lock);
 					}
-				}));
+				});
 	}
 
 	inline void JobSystemModule::Enqueue(const Job& job)
 	{
 		std::unique_lock<std::mutex> lk(_mutexJobPool);
-		_jobPool.push(job);
+		_jobPool.emplace(job);
 		_inactiveNum++;
 	}
 
