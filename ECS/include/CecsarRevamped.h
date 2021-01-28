@@ -240,6 +240,8 @@ namespace revamped
 		*/
 		[[nodiscard]] constexpr int32_t GetGlobalEntityIndex() const;
 
+		[[nodiscard]] constexpr int32_t GetCount() const;
+
 	private:
 		// Non templated class to be able to store sets.
 		class AbstractSet : public Module
@@ -413,5 +415,10 @@ namespace revamped
 	constexpr int32_t Cecsar::GetGlobalEntityIndex() const
 	{
 		return _globalEntityIndex;
+	}
+
+	constexpr int32_t Cecsar::GetCount() const
+	{
+		return _entities->GetCount();
 	}
 }

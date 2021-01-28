@@ -1,5 +1,6 @@
 //#include <Engine.h>
 #include <CecsarRevamped.h>
+#include <iostream>
 
 struct SomeComponent final
 {
@@ -45,8 +46,6 @@ int main(int argc, char* argv[])
 		const auto entity = cecsar.Spawn();
 		factory.Construct(entity.index);
 	}
-	
-	cecsar.Destroy(12);
 
 	while(true)
 		cecsar.Get<SomeSystem>().Update();
