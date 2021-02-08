@@ -1,54 +1,92 @@
-//#include <Engine.h>
 #include <CecsarRevamped.h>
-#include <iostream>
 
-struct SomeComponent final
+template <typename ...Args>
+class ColdSet final
 {
-	int32_t x, y;
-};
+public:
+	std::tuple<Args*...> args{};
+	
+	constexpr ColdSet(const int32_t capacity)
+	{
+		InitMembers<sizeof...(Args) - 1>(capacity);
+	}
 
-struct SomeOtherComponent final
-{
-	int32_t a, b, c;
-};
+	inline ~ColdSet()
+	{
+		DeleteMembers<sizeof...(Args) - 1>();
+	}
 
-class SomeFactory final : public revamped::Cecsar::Factory
-{
+	template <size_t S>
+	constexpr auto Get()
+	{
+		return std::get<S>(args);
+	}
+	
+	constexpr void ClearAt(const int32_t index)
+	{
+		ClearMembers<sizeof...(Args) - 1>(index);
+	}
+
 private:
-	void OnConstruct(revamped::Cecsar& cecsar, int32_t id) override;
+	template <size_t S>
+	constexpr void InitMembers(const int32_t capacity)
+	{
+		InitMember(std::get<S>(args), capacity);
+		if constexpr (S > 0)
+			InitMembers<S - 1>(capacity);
+	}
+
+	template <typename T>
+	static constexpr void InitMember(T*& member, const int32_t capacity)
+	{
+		member = new T[capacity];
+	}
+
+	template <size_t S>
+	constexpr void DeleteMembers()
+	{
+		DeleteMember(std::get<S>(args));
+		if constexpr (S > 0)
+			DeleteMembers<S - 1>();
+	}
+
+	template <typename T>
+	static constexpr void DeleteMember(T*& member)
+	{
+		delete [] member;
+	}
+
+	template <size_t S>
+	constexpr void ClearMembers(const int32_t index)
+	{
+		ClearMember(std::get<S>(args), index);
+		if constexpr (S > 0)
+			ClearMembers<S - 1>(index);
+	}
+
+	template <typename T>
+	static constexpr void ClearMember(T*& member, const int32_t index)
+	{
+		member[index] = 0;
+	}
 };
 
-void SomeFactory::OnConstruct(revamped::Cecsar& cecsar, const int32_t id)
-{
-	auto& component = cecsar.GetSet<SomeComponent>().Insert(id);
-	component.x = 500;
-}
+using ColdTransform = ColdSet<bool, bool, float>;
 
-class SomeSystem final : public revamped::Cecsar::System<SomeComponent, SomeOtherComponent>
+enum ColdTransformMem
 {
-	void OnUpdate(utils::SparseSet<SomeComponent>& instances, utils::SparseSet<SomeOtherComponent>&) override;
+	parented, layer, z
 };
-
-void SomeSystem::OnUpdate(utils::SparseSet<SomeComponent>& instances, utils::SparseSet<SomeOtherComponent>&)
-{
-	for (auto& instance : instances)
-		instance.x--;
-}
 
 int main(int argc, char* argv[])
 {
-	//game::Engine::Run();
-	revamped::Cecsar cecsar{{static_cast<int32_t>(1e5)}};
+	ColdTransform s{20};
 
-	auto& factory = cecsar.Get<SomeFactory>();
+	auto* const b = s.Get<parented>();
+	b[10] = true;	
 
-	for (int i = 0; i < 1e4; ++i) {
-		const auto entity = cecsar.Spawn();
-		factory.Construct(entity.index);
-	}
+	s.ClearAt(10);
 
-	while(true)
-		cecsar.Get<SomeSystem>().Update();
-	
+	revamped::Cecsar{};
 	return 0;
 }

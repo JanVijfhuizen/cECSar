@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <stdexcept>
 #include <typeindex>
 #include <unordered_map>
 
-#include "SparseSet.h"
+#include <SparseSet.h>
 
 namespace revamped
 {
@@ -62,6 +63,13 @@ namespace revamped
 		{
 		public:
 			virtual void Construct(int32_t id) = 0;
+		};
+
+		// Non templated class to be able to store sets.
+		class AbstractSet : public Module
+		{
+		public:
+			virtual void Remove(int32_t index) = 0;
 		};
 
 	public:
@@ -166,6 +174,11 @@ namespace revamped
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
 
+		enum class SetType
+		{
+			Hot, Cold, Map, Count
+		};
+
 		// Information regarding the current instance of cecsar.
 		const Info info;
 
@@ -231,7 +244,7 @@ namespace revamped
 			auto& otherComponent = otherSet.Get(index);
 		}
 		 */
-		template <typename Component>
+		template <typename Component, SetType Type = SetType::Hot, typename InitType = void*>
 		constexpr utils::SparseSet<Component>& GetSet();
 
 		/*
@@ -243,22 +256,39 @@ namespace revamped
 		[[nodiscard]] constexpr int32_t GetCount() const;
 
 	private:
-		// Non templated class to be able to store sets.
-		class AbstractSet : public Module
-		{
-		public:
-			virtual void Remove(int32_t index) = 0;
-		};
-
 		// Set that contains a sparse set for the corresponding component type.
 		template <typename Component>
-		class Set final : public AbstractSet
+		class HotSet final : public AbstractSet
 		{
 		public:
 			utils::SparseSet<Component>* components = nullptr;
 
 			// Delete set.
-			~Set();
+			~HotSet();
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override;
+
+			constexpr void Remove(int32_t index) override;
+		};
+
+		template <typename ...Args>
+		class ColdSet : public AbstractSet
+		{
+		public:
+			// Delete set.
+			~ColdSet();
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override;
+
+			constexpr void Remove(int32_t index) override;
+		};
+
+		template <typename Component>
+		class MapSet : public AbstractSet
+		{
+		public:
+			// Delete set.
+			~MapSet();
 			// Initialize set.
 			void Initialize(Cecsar& cecsar) override;
 
@@ -270,15 +300,16 @@ namespace revamped
 		{
 			System,
 			Factory,
-			Set,
 			Count
 		};
 
 		// Global index, given to new entities as their id, and then incremented.
 		int32_t _globalEntityIndex = 0;
 		utils::SparseSet<Entity>* _entities = nullptr;
-		// Contains the sets, systems and factories.
+		
+		// Contains the systems and factories.
 		std::unordered_map<std::type_index, Module*> _modules[static_cast<int32_t>(ModuleType::Count)]{};
+		std::unordered_map<std::type_index, Module*> _sets[static_cast<int32_t>(SetType::Count)]{};
 
 		// Used to make the type check constexpr.
 		constexpr static ModuleType Get(InternalSystem* out);
@@ -293,13 +324,13 @@ namespace revamped
 	}
 
 	template <typename Component>
-	Cecsar::Set<Component>::Set::~Set()
+	Cecsar::HotSet<Component>::HotSet::~HotSet()
 	{
 		delete components;
 	}
 
 	template <typename Component>
-	void Cecsar::Set<Component>::Initialize(Cecsar& cecsar)
+	void Cecsar::HotSet<Component>::Initialize(Cecsar& cecsar)
 	{
 		components = new utils::SparseSet<Component>(cecsar.info.capacity);
 	}
@@ -323,17 +354,35 @@ namespace revamped
 		return *interface;
 	}
 
-	template <typename Component>
+	template <typename Component, Cecsar::SetType Type, typename InitType>
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
 	{
-		Module*& ptr = _modules[static_cast<int32_t>(ModuleType::Set)][typeid(Component)];
+		Module*& ptr = _sets[static_cast<int32_t>(Type)][typeid(Component)];
 		if (!ptr)
 		{
-			ptr = new Set<Component>;
+			if constexpr (typeid(InitType) == typeid(void*))
+			{
+				switch (Type)
+				{
+				case SetType::Hot:
+					ptr = new HotSet<Component>;
+					break;
+				case SetType::Cold:
+					throw std::invalid_argument("A Cold set cannot be initialized without a given type.");
+				case SetType::Map:
+					ptr = new MapSet<Component>;
+					break;
+				}
+			}
+			else if (Type == SetType::Cold)
+				ptr = new InitType();
+			else
+				throw std::invalid_argument("Set Type cannot be initialized with a given type.");
+			
 			ptr->Initialize(*this);
 		}
 
-		auto set = static_cast<Set<Component>*>(ptr);
+		auto set = static_cast<HotSet<Component>*>(ptr);
 		return *set->components;
 	}
 
@@ -343,7 +392,7 @@ namespace revamped
 	}
 
 	template <typename Component>
-	constexpr void Cecsar::Set<Component>::Remove(const int32_t index)
+	constexpr void Cecsar::HotSet<Component>::Remove(const int32_t index)
 	{
 		components->RemoveAt(index);
 	}
@@ -363,6 +412,9 @@ namespace revamped
 	{
 		delete _entities;
 		for (auto& map : _modules)
+			for (const auto& pair : map)
+				delete pair.second;
+		for (auto& map : _sets)
 			for (const auto& pair : map)
 				delete pair.second;
 	}
@@ -393,11 +445,14 @@ namespace revamped
 	{
 		_entities->RemoveAt(index);
 
-		const auto& sets = _modules[static_cast<int32_t>(ModuleType::Set)];
-		for (const auto& pair : sets)
+		for (int i = static_cast<int32_t>(SetType::Count) - 1; i >= 0; --i)
 		{
-			auto* const set = static_cast<AbstractSet*>(pair.second);
-			set->Remove(index);
+			const auto& sets = _sets[i];
+			for (const auto& pair : sets)
+			{
+				auto* const set = static_cast<AbstractSet*>(pair.second);
+				set->Remove(index);
+			}
 		}
 	}
 
