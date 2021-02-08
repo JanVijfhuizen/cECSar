@@ -1,7 +1,5 @@
 #include <CecsarRevamped.h>
 
-//using ColdTransform = ColdSet<bool, bool, float>;
-
 struct Transform
 {
 	float x, y, z;

@@ -174,78 +174,51 @@ namespace revamped
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
 
+		/*
+		ADVANCED
+		 
+		A set stored in a SoA way.
+		Useful for less used variables, or vectorization of the codebase.
+		 */
 		template <typename ...Args>
 		class ColdSet : public AbstractSet
 		{
 		public:
 			// Delete set.
-			~ColdSet()
-			{
-				DeleteMembers<sizeof...(Args) - 1>();
-			}
+			~ColdSet();
 
+			// Get entity at target index.
 			template <size_t S>
-			constexpr auto Get()
-			{
-				return std::get<S>(args);
-			}
-			
+			constexpr auto Get();
+
 			// Initialize set.
-			void Initialize(Cecsar& cecsar) override
-			{
-				InitMembers<sizeof...(Args) - 1>(cecsar.info.capacity);
-			}
-			
+			void Initialize(Cecsar& cecsar) override;
 			// Remove at index.
-			constexpr void Remove(int32_t index) override
-			{
-				ClearMembers<sizeof...(Args) - 1>(index);
-			}
+			constexpr void Remove(int32_t index) final override;
 
 		private:
-			std::tuple<Args*...> args{};
+			std::tuple<Args*...> _args{};
 
+			// Initializes all member arrays.
 			template <size_t S>
-			constexpr void InitMembers(const int32_t capacity)
-			{
-				InitMember(std::get<S>(args), capacity);
-				if constexpr (S > 0)
-					InitMembers<S - 1>(capacity);
-			}
+			constexpr void InitMembers(int32_t capacity);
 
 			template <typename T>
-			static constexpr void InitMember(T*& member, const int32_t capacity)
-			{
-				member = new T[capacity];
-			}
+			static constexpr void InitMember(T*& member, int32_t capacity);
 
+			// Delete all member arrays.
 			template <size_t S>
-			constexpr void DeleteMembers()
-			{
-				DeleteMember(std::get<S>(args));
-				if constexpr (S > 0)
-					DeleteMembers<S - 1>();
-			}
+			constexpr void DeleteMembers();
 
 			template <typename T>
-			static constexpr void DeleteMember(T*& member)
-			{
-				delete[] member;
-			}
+			static constexpr void DeleteMember(T*& member);
 
+			// Clears target entity.
 			template <size_t S>
-			constexpr void ClearMembers(const int32_t index)
-			{
-				ClearMember(std::get<S>(args), index);
-				if constexpr (S > 0)
-					ClearMembers<S - 1>(index);
-			}
-			
+			constexpr void ClearMembers(int32_t index);
+
 			template <typename T>
-			static constexpr void ClearMember(T*& member, const int32_t index)
-			{
-				member[index] = T();
-			}
+			static constexpr void ClearMember(T*& member, int32_t index);
 		};
 
 		// Information regarding the current instance of cecsar.
@@ -316,9 +289,33 @@ namespace revamped
 		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
 
+		/*
+		INTERMEDIATE
+
+		The same as the GetSet method, but uses a unordered map instead of a sparse set.
+		This is likely slower, but requires less space.
+
+		Useful for rare components, as it saves quite a bit of memory.
+		 */
 		template <typename Component>
 		constexpr std::unordered_map<int32_t, Component>& GetMapSet();
 
+		/*
+		ADVANCED
+
+		The same as the GetSet method, but stores data in in a SoA way.
+		Useful for cold lines, or vectorization of the codebase.
+
+		IMPORTANT: ComponentSoA MUST inherit from Cecsar::ColdSet.
+		The template arguments are the member types, and you can use enums to name them.
+
+		Declare as such:
+		enum TransformMembers{x, y, z};
+		struct TransformSoA : Cecsar::ColdSet<float, float, float>{};
+
+		And use it like this.
+		float* xs = cecsar.GetColdSet<TransformSoA>().Get<x>();
+		 */
 		template <typename ComponentSoA>
 		constexpr ComponentSoA& GetColdSet();
 
@@ -346,6 +343,7 @@ namespace revamped
 			constexpr void Remove(int32_t index) override;
 		};
 
+		// Set that contains a map for the corresponding component type.
 		template <typename Component>
 		class MapSet : public AbstractSet
 		{
@@ -364,6 +362,7 @@ namespace revamped
 			Count
 		};
 
+		// An internal tool to make lookup faster and decrease boilerplate.
 		enum class SetType
 		{
 			Hot,
@@ -390,6 +389,79 @@ namespace revamped
 	constexpr void Cecsar::System<Component, Args...>::Update()
 	{
 		OnUpdate(_cecsar->GetSet<Component>(), _cecsar->GetSet<Args>()...);
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr auto Cecsar::ColdSet<Args...>::Get()
+	{
+		return std::get<S>(_args);
+	}
+
+	template <typename ... Args>
+	constexpr void Cecsar::ColdSet<Args...>::Remove(int32_t index)
+	{
+		ClearMembers<sizeof...(Args) - 1>(index);
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::InitMembers(const int32_t capacity)
+	{
+		InitMember(std::get<S>(_args), capacity);
+		if constexpr (S > 0)
+			InitMembers<S - 1>(capacity);
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::InitMember(T*& member, const int32_t capacity)
+	{
+		member = new T[capacity];
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::DeleteMembers()
+	{
+		DeleteMember(std::get<S>(_args));
+		if constexpr (S > 0)
+			DeleteMembers<S - 1>();
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::DeleteMember(T*& member)
+	{
+		delete[] member;
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::ClearMembers(const int32_t index)
+	{
+		ClearMember(std::get<S>(_args), index);
+		if constexpr (S > 0)
+			ClearMembers<S - 1>(index);
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::ClearMember(T*& member, const int32_t index)
+	{
+		member[index] = T();
+	}
+
+	template <typename ... Args>
+	Cecsar::ColdSet<Args...>::~ColdSet()
+	{
+		DeleteMembers<sizeof...(Args) - 1>();
+	}
+
+	template <typename ... Args>
+	void Cecsar::ColdSet<Args...>::Initialize(Cecsar& cecsar)
+	{
+		InitMembers<sizeof...(Args) - 1>(cecsar.info.capacity);
 	}
 
 	template <typename Component>
