@@ -178,19 +178,74 @@ namespace revamped
 		class ColdSet : public AbstractSet
 		{
 		public:
-			float components{};
-
 			// Delete set.
-			~ColdSet() {};
-			// Initialize set.
-			void Initialize(Cecsar& cecsar) override {};
-			// Remove at index.
-			constexpr void Remove(int32_t index) override {};
-		};
+			~ColdSet()
+			{
+				DeleteMembers<sizeof...(Args) - 1>();
+			}
 
-		enum class SetType
-		{
-			Hot, Cold, Map, Count
+			template <size_t S>
+			constexpr auto Get()
+			{
+				return std::get<S>(args);
+			}
+			
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override
+			{
+				InitMembers<sizeof...(Args) - 1>(cecsar.info.capacity);
+			}
+			
+			// Remove at index.
+			constexpr void Remove(int32_t index) override
+			{
+				ClearMembers<sizeof...(Args) - 1>(index);
+			}
+
+		private:
+			std::tuple<Args*...> args{};
+
+			template <size_t S>
+			constexpr void InitMembers(const int32_t capacity)
+			{
+				InitMember(std::get<S>(args), capacity);
+				if constexpr (S > 0)
+					InitMembers<S - 1>(capacity);
+			}
+
+			template <typename T>
+			static constexpr void InitMember(T*& member, const int32_t capacity)
+			{
+				member = new T[capacity];
+			}
+
+			template <size_t S>
+			constexpr void DeleteMembers()
+			{
+				DeleteMember(std::get<S>(args));
+				if constexpr (S > 0)
+					DeleteMembers<S - 1>();
+			}
+
+			template <typename T>
+			static constexpr void DeleteMember(T*& member)
+			{
+				delete[] member;
+			}
+
+			template <size_t S>
+			constexpr void ClearMembers(const int32_t index)
+			{
+				ClearMember(std::get<S>(args), index);
+				if constexpr (S > 0)
+					ClearMembers<S - 1>(index);
+			}
+			
+			template <typename T>
+			static constexpr void ClearMember(T*& member, const int32_t index)
+			{
+				member[index] = T();
+			}
 		};
 
 		// Information regarding the current instance of cecsar.
@@ -264,8 +319,8 @@ namespace revamped
 		template <typename Component>
 		constexpr std::unordered_map<int32_t, Component>& GetMapSet();
 
-		template <typename Component, typename InitType>
-		constexpr utils::SparseSet<Component>& GetColdSet();
+		template <typename ComponentSoA>
+		constexpr ComponentSoA& GetColdSet();
 
 		/*
 		Useful when saving/loading, to use as a starting point for
@@ -306,6 +361,14 @@ namespace revamped
 		{
 			System,
 			Factory,
+			Count
+		};
+
+		enum class SetType
+		{
+			Hot,
+			Cold,
+			Map,
 			Count
 		};
 
@@ -388,20 +451,18 @@ namespace revamped
 		return set->components;
 	}
 
-	template <typename Component, typename InitType>
-	constexpr utils::SparseSet<Component>& Cecsar::GetColdSet()
+	template <typename ComponentSoA>
+	constexpr ComponentSoA& Cecsar::GetColdSet()
 	{
-		Module*& ptr = _sets[static_cast<int32_t>(SetType::Cold)][typeid(Component)];
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Cold)][typeid(ComponentSoA)];
 		if (!ptr)
 		{
-			if (typeid(InitType) == typeid(void*))
-				throw std::invalid_argument("No cold init type specified.");
-			ptr = static_cast<Module*>(new InitType());
+			ptr = static_cast<Module*>(new ComponentSoA());
 			ptr->Initialize(*this);
 		}
 
-		auto set = static_cast<ColdSet<Component>*>(ptr);
-		return set->components;
+		auto set = static_cast<ComponentSoA*>(ptr);
+		return *set;
 	}
 
 	constexpr bool Cecsar::Entity::operator==(const Entity& other) const
