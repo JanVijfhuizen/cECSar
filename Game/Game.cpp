@@ -78,15 +78,29 @@ enum ColdTransformMem
 	parented, layer, z
 };
 
+struct SomeComponent
+{
+	
+};
+
+struct SomeComponentCold : public revamped::Cecsar::ColdSet<float, int, bool>
+{
+	
+};
+
 int main(int argc, char* argv[])
 {
-	ColdTransform s{20};
+	//ColdTransform s{20};
 
-	auto* const b = s.Get<parented>();
-	b[10] = true;	
+	//auto* const b = s.Get<parented>();
+	//b[10] = true;	
 
-	s.ClearAt(10);
+	//s.ClearAt(10);
 
-	revamped::Cecsar{};
+	revamped::Cecsar shizaa{};
+	auto& a = shizaa.GetSet<SomeComponent>();
+	auto& b = shizaa.GetMapSet<SomeComponent>();
+	auto& c = shizaa.GetColdSet<SomeComponent, SomeComponentCold>();
+	
 	return 0;
 }

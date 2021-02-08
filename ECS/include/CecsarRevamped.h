@@ -174,6 +174,20 @@ namespace revamped
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
 
+		template <typename ...Args>
+		class ColdSet : public AbstractSet
+		{
+		public:
+			float components{};
+
+			// Delete set.
+			~ColdSet() {};
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override {};
+			// Remove at index.
+			constexpr void Remove(int32_t index) override {};
+		};
+
 		enum class SetType
 		{
 			Hot, Cold, Map, Count
@@ -244,8 +258,14 @@ namespace revamped
 			auto& otherComponent = otherSet.Get(index);
 		}
 		 */
-		template <typename Component, SetType Type = SetType::Hot, typename InitType = void*>
+		template <typename Component>
 		constexpr utils::SparseSet<Component>& GetSet();
+
+		template <typename Component>
+		constexpr std::unordered_map<int32_t, Component>& GetMapSet();
+
+		template <typename Component, typename InitType>
+		constexpr utils::SparseSet<Component>& GetColdSet();
 
 		/*
 		Useful when saving/loading, to use as a starting point for
@@ -267,19 +287,7 @@ namespace revamped
 			~HotSet();
 			// Initialize set.
 			void Initialize(Cecsar& cecsar) override;
-
-			constexpr void Remove(int32_t index) override;
-		};
-
-		template <typename ...Args>
-		class ColdSet : public AbstractSet
-		{
-		public:
-			// Delete set.
-			~ColdSet();
-			// Initialize set.
-			void Initialize(Cecsar& cecsar) override;
-
+			// Remove at index.
 			constexpr void Remove(int32_t index) override;
 		};
 
@@ -287,11 +295,9 @@ namespace revamped
 		class MapSet : public AbstractSet
 		{
 		public:
-			// Delete set.
-			~MapSet();
-			// Initialize set.
-			void Initialize(Cecsar& cecsar) override;
-
+			std::unordered_map<int32_t, Component> components{};
+			
+			// Remove at index.
 			constexpr void Remove(int32_t index) override;
 		};
 
@@ -354,36 +360,48 @@ namespace revamped
 		return *interface;
 	}
 
-	template <typename Component, Cecsar::SetType Type, typename InitType>
+	template <typename Component>
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
 	{
-		Module*& ptr = _sets[static_cast<int32_t>(Type)][typeid(Component)];
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Hot)][typeid(Component)];
 		if (!ptr)
 		{
-			if constexpr (typeid(InitType) == typeid(void*))
-			{
-				switch (Type)
-				{
-				case SetType::Hot:
-					ptr = new HotSet<Component>;
-					break;
-				case SetType::Cold:
-					throw std::invalid_argument("A Cold set cannot be initialized without a given type.");
-				case SetType::Map:
-					ptr = new MapSet<Component>;
-					break;
-				}
-			}
-			else if (Type == SetType::Cold)
-				ptr = new InitType();
-			else
-				throw std::invalid_argument("Set Type cannot be initialized with a given type.");
-			
+			ptr = new HotSet<Component>;
+			ptr->Initialize(*this);
+		}
+		
+		auto set = static_cast<HotSet<Component>*>(ptr);
+		return *set->components;
+	}
+
+	template <typename Component>
+	constexpr std::unordered_map<int32_t, Component>& Cecsar::GetMapSet()
+	{
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Map)][typeid(Component)];
+		if (!ptr)
+		{
+			ptr = new MapSet<Component>;
 			ptr->Initialize(*this);
 		}
 
-		auto set = static_cast<HotSet<Component>*>(ptr);
-		return *set->components;
+		auto set = static_cast<MapSet<Component>*>(ptr);
+		return set->components;
+	}
+
+	template <typename Component, typename InitType>
+	constexpr utils::SparseSet<Component>& Cecsar::GetColdSet()
+	{
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Cold)][typeid(Component)];
+		if (!ptr)
+		{
+			if (typeid(InitType) == typeid(void*))
+				throw std::invalid_argument("No cold init type specified.");
+			ptr = static_cast<Module*>(new InitType());
+			ptr->Initialize(*this);
+		}
+
+		auto set = static_cast<ColdSet<Component>*>(ptr);
+		return set->components;
 	}
 
 	constexpr bool Cecsar::Entity::operator==(const Entity& other) const
@@ -395,6 +413,12 @@ namespace revamped
 	constexpr void Cecsar::HotSet<Component>::Remove(const int32_t index)
 	{
 		components->RemoveAt(index);
+	}
+
+	template <typename Component>
+	constexpr void Cecsar::MapSet<Component>::Remove(const int32_t index)
+	{
+		
 	}
 
 	inline void Cecsar::Factory::Construct(const int32_t id)
