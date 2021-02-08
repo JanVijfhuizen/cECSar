@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <stdexcept>
 #include <typeindex>
 #include <unordered_map>
 
-#include "SparseSet.h"
+#include <SparseSet.h>
 
 namespace revamped
 {
@@ -62,6 +63,13 @@ namespace revamped
 		{
 		public:
 			virtual void Construct(int32_t id) = 0;
+		};
+
+		// Non templated class to be able to store sets.
+		class AbstractSet : public Module
+		{
+		public:
+			virtual void Remove(int32_t index) = 0;
 		};
 
 	public:
@@ -166,6 +174,53 @@ namespace revamped
 			virtual void OnConstruct(Cecsar& cecsar, int32_t id) = 0;
 		};
 
+		/*
+		ADVANCED
+		 
+		A set stored in a SoA way.
+		Useful for less used variables, or vectorization of the codebase.
+		 */
+		template <typename ...Args>
+		class ColdSet : public AbstractSet
+		{
+		public:
+			// Delete set.
+			~ColdSet();
+
+			// Get entity at target index.
+			template <size_t S>
+			constexpr auto Get();
+
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override;
+			// Remove at index.
+			constexpr void Remove(int32_t index) final override;
+
+		private:
+			std::tuple<Args*...> _args{};
+
+			// Initializes all member arrays.
+			template <size_t S>
+			constexpr void InitMembers(int32_t capacity);
+
+			template <typename T>
+			static constexpr void InitMember(T*& member, int32_t capacity);
+
+			// Delete all member arrays.
+			template <size_t S>
+			constexpr void DeleteMembers();
+
+			template <typename T>
+			static constexpr void DeleteMember(T*& member);
+
+			// Clears target entity.
+			template <size_t S>
+			constexpr void ClearMembers(int32_t index);
+
+			template <typename T>
+			static constexpr void ClearMember(T*& member, int32_t index);
+		};
+
 		// Information regarding the current instance of cecsar.
 		const Info info;
 
@@ -235,6 +290,36 @@ namespace revamped
 		constexpr utils::SparseSet<Component>& GetSet();
 
 		/*
+		INTERMEDIATE
+
+		The same as the GetSet method, but uses a unordered map instead of a sparse set.
+		This is likely slower, but requires less space.
+
+		Useful for rare components, as it saves quite a bit of memory.
+		 */
+		template <typename Component>
+		constexpr std::unordered_map<int32_t, Component>& GetMapSet();
+
+		/*
+		ADVANCED
+
+		The same as the GetSet method, but stores data in in a SoA way.
+		Useful for cold lines, or vectorization of the codebase.
+
+		IMPORTANT: ComponentSoA MUST inherit from Cecsar::ColdSet.
+		The template arguments are the member types, and you can use enums to name them.
+
+		Declare as such:
+		enum TransformMembers{x, y, z};
+		struct TransformSoA : Cecsar::ColdSet<float, float, float>{};
+
+		And use it like this.
+		float* xs = cecsar.GetColdSet<TransformSoA>().Get<x>();
+		 */
+		template <typename ComponentSoA>
+		constexpr ComponentSoA& GetColdSet();
+
+		/*
 		Useful when saving/loading, to use as a starting point for
 		new entity ids. This way it won't conflict with older entities their ids.
 		*/
@@ -243,25 +328,29 @@ namespace revamped
 		[[nodiscard]] constexpr int32_t GetCount() const;
 
 	private:
-		// Non templated class to be able to store sets.
-		class AbstractSet : public Module
-		{
-		public:
-			virtual void Remove(int32_t index) = 0;
-		};
-
 		// Set that contains a sparse set for the corresponding component type.
 		template <typename Component>
-		class Set final : public AbstractSet
+		class HotSet final : public AbstractSet
 		{
 		public:
 			utils::SparseSet<Component>* components = nullptr;
 
 			// Delete set.
-			~Set();
+			~HotSet();
 			// Initialize set.
 			void Initialize(Cecsar& cecsar) override;
+			// Remove at index.
+			constexpr void Remove(int32_t index) override;
+		};
 
+		// Set that contains a map for the corresponding component type.
+		template <typename Component>
+		class MapSet : public AbstractSet
+		{
+		public:
+			std::unordered_map<int32_t, Component> components{};
+			
+			// Remove at index.
 			constexpr void Remove(int32_t index) override;
 		};
 
@@ -270,15 +359,25 @@ namespace revamped
 		{
 			System,
 			Factory,
-			Set,
+			Count
+		};
+
+		// An internal tool to make lookup faster and decrease boilerplate.
+		enum class SetType
+		{
+			Hot,
+			Cold,
+			Map,
 			Count
 		};
 
 		// Global index, given to new entities as their id, and then incremented.
 		int32_t _globalEntityIndex = 0;
 		utils::SparseSet<Entity>* _entities = nullptr;
-		// Contains the sets, systems and factories.
+		
+		// Contains the systems and factories.
 		std::unordered_map<std::type_index, Module*> _modules[static_cast<int32_t>(ModuleType::Count)]{};
+		std::unordered_map<std::type_index, Module*> _sets[static_cast<int32_t>(SetType::Count)]{};
 
 		// Used to make the type check constexpr.
 		constexpr static ModuleType Get(InternalSystem* out);
@@ -292,14 +391,87 @@ namespace revamped
 		OnUpdate(_cecsar->GetSet<Component>(), _cecsar->GetSet<Args>()...);
 	}
 
+	template <typename ... Args>
+	template <size_t S>
+	constexpr auto Cecsar::ColdSet<Args...>::Get()
+	{
+		return std::get<S>(_args);
+	}
+
+	template <typename ... Args>
+	constexpr void Cecsar::ColdSet<Args...>::Remove(int32_t index)
+	{
+		ClearMembers<sizeof...(Args) - 1>(index);
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::InitMembers(const int32_t capacity)
+	{
+		InitMember(std::get<S>(_args), capacity);
+		if constexpr (S > 0)
+			InitMembers<S - 1>(capacity);
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::InitMember(T*& member, const int32_t capacity)
+	{
+		member = new T[capacity];
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::DeleteMembers()
+	{
+		DeleteMember(std::get<S>(_args));
+		if constexpr (S > 0)
+			DeleteMembers<S - 1>();
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::DeleteMember(T*& member)
+	{
+		delete[] member;
+	}
+
+	template <typename ... Args>
+	template <size_t S>
+	constexpr void Cecsar::ColdSet<Args...>::ClearMembers(const int32_t index)
+	{
+		ClearMember(std::get<S>(_args), index);
+		if constexpr (S > 0)
+			ClearMembers<S - 1>(index);
+	}
+
+	template <typename ... Args>
+	template <typename T>
+	constexpr void Cecsar::ColdSet<Args...>::ClearMember(T*& member, const int32_t index)
+	{
+		member[index] = T();
+	}
+
+	template <typename ... Args>
+	Cecsar::ColdSet<Args...>::~ColdSet()
+	{
+		DeleteMembers<sizeof...(Args) - 1>();
+	}
+
+	template <typename ... Args>
+	void Cecsar::ColdSet<Args...>::Initialize(Cecsar& cecsar)
+	{
+		InitMembers<sizeof...(Args) - 1>(cecsar.info.capacity);
+	}
+
 	template <typename Component>
-	Cecsar::Set<Component>::Set::~Set()
+	Cecsar::HotSet<Component>::HotSet::~HotSet()
 	{
 		delete components;
 	}
 
 	template <typename Component>
-	void Cecsar::Set<Component>::Initialize(Cecsar& cecsar)
+	void Cecsar::HotSet<Component>::Initialize(Cecsar& cecsar)
 	{
 		components = new utils::SparseSet<Component>(cecsar.info.capacity);
 	}
@@ -326,15 +498,43 @@ namespace revamped
 	template <typename Component>
 	constexpr utils::SparseSet<Component>& Cecsar::GetSet()
 	{
-		Module*& ptr = _modules[static_cast<int32_t>(ModuleType::Set)][typeid(Component)];
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Hot)][typeid(Component)];
 		if (!ptr)
 		{
-			ptr = new Set<Component>;
+			ptr = new HotSet<Component>;
+			ptr->Initialize(*this);
+		}
+		
+		auto set = static_cast<HotSet<Component>*>(ptr);
+		return *set->components;
+	}
+
+	template <typename Component>
+	constexpr std::unordered_map<int32_t, Component>& Cecsar::GetMapSet()
+	{
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Map)][typeid(Component)];
+		if (!ptr)
+		{
+			ptr = new MapSet<Component>;
 			ptr->Initialize(*this);
 		}
 
-		auto set = static_cast<Set<Component>*>(ptr);
-		return *set->components;
+		auto set = static_cast<MapSet<Component>*>(ptr);
+		return set->components;
+	}
+
+	template <typename ComponentSoA>
+	constexpr ComponentSoA& Cecsar::GetColdSet()
+	{
+		Module*& ptr = _sets[static_cast<int32_t>(SetType::Cold)][typeid(ComponentSoA)];
+		if (!ptr)
+		{
+			ptr = static_cast<Module*>(new ComponentSoA());
+			ptr->Initialize(*this);
+		}
+
+		auto set = static_cast<ComponentSoA*>(ptr);
+		return *set;
 	}
 
 	constexpr bool Cecsar::Entity::operator==(const Entity& other) const
@@ -343,9 +543,15 @@ namespace revamped
 	}
 
 	template <typename Component>
-	constexpr void Cecsar::Set<Component>::Remove(const int32_t index)
+	constexpr void Cecsar::HotSet<Component>::Remove(const int32_t index)
 	{
 		components->RemoveAt(index);
+	}
+
+	template <typename Component>
+	constexpr void Cecsar::MapSet<Component>::Remove(const int32_t index)
+	{
+		
 	}
 
 	inline void Cecsar::Factory::Construct(const int32_t id)
@@ -363,6 +569,9 @@ namespace revamped
 	{
 		delete _entities;
 		for (auto& map : _modules)
+			for (const auto& pair : map)
+				delete pair.second;
+		for (auto& map : _sets)
 			for (const auto& pair : map)
 				delete pair.second;
 	}
@@ -393,11 +602,14 @@ namespace revamped
 	{
 		_entities->RemoveAt(index);
 
-		const auto& sets = _modules[static_cast<int32_t>(ModuleType::Set)];
-		for (const auto& pair : sets)
+		for (int i = static_cast<int32_t>(SetType::Count) - 1; i >= 0; --i)
 		{
-			auto* const set = static_cast<AbstractSet*>(pair.second);
-			set->Remove(index);
+			const auto& sets = _sets[i];
+			for (const auto& pair : sets)
+			{
+				auto* const set = static_cast<AbstractSet*>(pair.second);
+				set->Remove(index);
+			}
 		}
 	}
 

@@ -1,54 +1,39 @@
-//#include <Engine.h>
 #include <CecsarRevamped.h>
-#include <iostream>
 
-struct SomeComponent final
+struct Transform
 {
-	int32_t x, y;
+	float x, y, z;
 };
 
-struct SomeOtherComponent final
+struct TransformSoA : public revamped::Cecsar::ColdSet<float, float, float, revamped::Cecsar::Entity>
 {
-	int32_t a, b, c;
+	 
 };
 
-class SomeFactory final : public revamped::Cecsar::Factory
+enum TransformSoAMembers
 {
-private:
-	void OnConstruct(revamped::Cecsar& cecsar, int32_t id) override;
+	x, y, z, parent
 };
-
-void SomeFactory::OnConstruct(revamped::Cecsar& cecsar, const int32_t id)
-{
-	auto& component = cecsar.GetSet<SomeComponent>().Insert(id);
-	component.x = 500;
-}
-
-class SomeSystem final : public revamped::Cecsar::System<SomeComponent, SomeOtherComponent>
-{
-	void OnUpdate(utils::SparseSet<SomeComponent>& instances, utils::SparseSet<SomeOtherComponent>&) override;
-};
-
-void SomeSystem::OnUpdate(utils::SparseSet<SomeComponent>& instances, utils::SparseSet<SomeOtherComponent>&)
-{
-	for (auto& instance : instances)
-		instance.x--;
-}
 
 int main(int argc, char* argv[])
 {
-	//game::Engine::Run();
-	revamped::Cecsar cecsar{{static_cast<int32_t>(1e5)}};
+	//ColdTransform s{20};
 
-	auto& factory = cecsar.Get<SomeFactory>();
+	//auto* const b = s.Get<parented>();
+	//b[10] = true;	
 
-	for (int i = 0; i < 1e4; ++i) {
-		const auto entity = cecsar.Spawn();
-		factory.Construct(entity.index);
-	}
+	//s.ClearAt(10);
 
-	while(true)
-		cecsar.Get<SomeSystem>().Update();
+	revamped::Cecsar shizaa{};
+	auto& a = shizaa.GetSet<Transform>();
+	auto& b = shizaa.GetMapSet<Transform>();
+	auto& c = shizaa.GetColdSet<TransformSoA>();
+
+	const auto arr = c.Get<parent>();
+	auto& i = arr[20] = revamped::Cecsar::Entity();
+
+	shizaa.Destroy(20);
+	
 	
 	return 0;
 }
