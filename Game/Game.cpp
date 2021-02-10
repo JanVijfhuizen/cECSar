@@ -5,7 +5,7 @@ struct Transform
 	float x, y, z;
 };
 
-struct TransformSoA : public revamped::Cecsar::ColdSet<float, float, float, revamped::Cecsar::Entity>
+struct TransformSoA : public revamped::Cecsar::SoASet<float, float, float, revamped::Cecsar::Entity>
 {
 	 
 };
