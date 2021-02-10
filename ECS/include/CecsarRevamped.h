@@ -124,7 +124,33 @@ namespace revamped
 #pragma endregion
 
 #pragma region Sets
-		// A set stored in a SoA way.
+		// Set that contains a sparse set for the corresponding component type.
+		template <typename Component>
+		class DefaultSet final : public InternalSet
+		{
+		public:
+			utils::SparseSet<Component>* components = nullptr;
+
+			// Delete set.
+			~DefaultSet();
+			// Initialize set.
+			void Initialize(Cecsar& cecsar) override;
+			// Remove at index.
+			constexpr void Remove(int32_t index) override;
+		};
+
+		// Set that contains a map for the corresponding component type.
+		template <typename Component>
+		class MapSet : public InternalSet
+		{
+		public:
+			std::unordered_map<int32_t, Component> components{};
+
+			// Remove at index.
+			constexpr void Remove(int32_t index) override;
+		};
+		
+		// Set that contains a map for the corresponding component type.
 		template <typename ...Args>
 		class SoASet : public InternalSet
 		{
@@ -163,32 +189,6 @@ namespace revamped
 
 			template <typename T>
 			static constexpr void ClearMember(T*& member, int32_t index);
-		};
-		
-		// Set that contains a sparse set for the corresponding component type.
-		template <typename Component>
-		class DefaultSet final : public InternalSet
-		{
-		public:
-			utils::SparseSet<Component>* components = nullptr;
-
-			// Delete set.
-			~DefaultSet();
-			// Initialize set.
-			void Initialize(Cecsar& cecsar) override;
-			// Remove at index.
-			constexpr void Remove(int32_t index) override;
-		};
-
-		// Set that contains a map for the corresponding component type.
-		template <typename Component>
-		class MapSet : public InternalSet
-		{
-		public:
-			std::unordered_map<int32_t, Component> components{};
-
-			// Remove at index.
-			constexpr void Remove(int32_t index) override;
 		};
 #pragma endregion
 #pragma endregion
