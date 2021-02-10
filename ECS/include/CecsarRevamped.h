@@ -421,7 +421,7 @@ namespace revamped
 	template <typename Component>
 	constexpr void Cecsar::MapSet<Component>::Remove(const int32_t index)
 	{
-		
+		components.erase(index);
 	}
 
 	inline void Cecsar::Factory::Construct(const int32_t id)
