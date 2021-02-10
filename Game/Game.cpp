@@ -2,6 +2,7 @@
 
 int main(int argc, char* argv[])
 {
-	game::Engine::Run();
+	game::Engine engine;
+	engine.Run();
 	return 0;
 }

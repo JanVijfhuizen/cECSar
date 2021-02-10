@@ -310,7 +310,7 @@ namespace cecsar
 	}
 
 	template <typename I>
-	Cecsar::IMap<I>::~IMap()
+	Cecsar::IMap<I>::IMap::~IMap()
 	{
 		for (auto set : _map)
 			delete set.second;
