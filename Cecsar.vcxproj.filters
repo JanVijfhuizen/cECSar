@@ -48,6 +48,9 @@
     <ClInclude Include="ExampleBasics.h">
       <Filter>Examples</Filter>
     </ClInclude>
+    <ClInclude Include="ExampleAbstraction.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\cECSar.cpp">
