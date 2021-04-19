@@ -18,6 +18,26 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Include\cECSar.h" />
+    <ClInclude Include="Include\Entity.h" />
+    <ClInclude Include="Include\MapSet.h" />
+    <ClInclude Include="Include\Module.h" />
+    <ClInclude Include="Include\Observer.h" />
+    <ClInclude Include="Include\pch.h" />
+    <ClInclude Include="Include\Set.h" />
+    <ClInclude Include="Include\SoASet.h" />
+    <ClInclude Include="Include\SparseSet.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\cECSar.cpp" />
+    <ClCompile Include="Source\Entity.cpp" />
+    <ClCompile Include="Source\Observer.cpp" />
+    <ClCompile Include="Source\pch.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{AB45E105-039F-4113-872B-FA2AA3C36E5C}</ProjectGuid>
@@ -90,7 +110,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -140,7 +160,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -158,23 +178,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClInclude Include="include\CecsarRevamped.h" />
-    <ClInclude Include="Include\framework.h" />
-    <ClInclude Include="Include\Cecsar.h" />
-    <ClInclude Include="Include\ComponentSystem.h" />
-    <ClInclude Include="Include\IComponentSystem.h" />
-    <ClInclude Include="Include\EntityFactory.h" />
-    <ClInclude Include="include\IEntityFactory.h" />
-    <ClInclude Include="Include\IModule.h" />
-    <ClInclude Include="Include\SparseSet.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="include\EntityInfo.h" />
-    <ClCompile Include="src\IComponentSystem.cpp" />
-    <ClCompile Include="src\IEntityFactory.cpp" />
-    <ClCompile Include="src\IModule.cpp" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
