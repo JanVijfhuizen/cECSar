@@ -4,6 +4,7 @@
 
 namespace jecs
 {
+	// A specialized set that functions like a map.
 	template <typename T>
 	class MapSet final : public Set<MapSet<T>>
 	{

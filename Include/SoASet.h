@@ -3,9 +3,12 @@
 
 namespace jecs
 {
+	// A specialized set that support vectorized components.
 	template <typename ... Args>
 	class SoASet : public Set<SoASet<Args...>>
 	{
+		// TODO: Implement sorting.
+
 	public:
 		struct Value final
 		{
@@ -39,25 +42,32 @@ namespace jecs
 			SoASet<Args...>& _set;
 		};
 
+		// Adjusting this will make sure that new sets are lazy initialized with
+		// target capacity.
 		static int32_t defaultCapacity;
 
 		explicit SoASet(int32_t capacity = -1);
 		~SoASet();
 
-		// Make sort.
+		// Useful if you need to do access the components in non linear ways.
+		// It does require some knowledge of the sparse set though.
+
 		[[nodiscard]] std::tuple<Args...>& GetTupleRaw() const;
 		[[nodiscard]] const int32_t* GetDenseRaw() const;
 		[[nodiscard]] const int32_t* GetSparseRaw() const;
 
+		// Get a vectorized variable array.
 		template <size_t S>
 		[[nodiscard]] constexpr auto At();
 
 		void Insert(int32_t sparseIndex, Args... args);
 		void EraseAt(int32_t sparseIndex) override;
+		void Clear();
 
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
 
+		// Swap two components.
 		void Swap(int32_t aDense, int32_t bDense);
 
 		[[nodiscard]] bool Contains(int32_t sparseIndex) const;
@@ -199,6 +209,14 @@ namespace jecs
 
 		_sparse[sparseIndex] = -1;
 		IterErase<Args...>(_count);
+	}
+
+	template <typename ... Args>
+	void SoASet<Args...>::Clear()
+	{
+		for (int32_t i = 0; i < _count; ++i)
+			_sparse[_dense[i]] = -1;
+		_count = 0;
 	}
 
 	template <typename ... Args>

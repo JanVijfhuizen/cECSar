@@ -7,23 +7,32 @@
 
 namespace jecs
 {
+	// A lightweight ECS framework that is designed to be extendable.
 	class Cecsar final
 	{
 	public:
+		// If an entity is spawned, the ID is assigned to the global index,
+		// After which this increments.
 		int32_t globalIndex = 0;
 
 		Cecsar();
 		~Cecsar();
 
+		// Lazy singleton getter.
 		static Cecsar& Get();
 
+		// Spawn an entity.
 		Entity Spawn();
-		void EraseAt(int32_t index);
+		// Erase an entity at target index.
+		void Erase(Entity entity);
+		// Check if an entity is still alive.
+		bool IsAlive(Entity entity);
 
-		bool Contains(int32_t index);
-		Entity Get(int32_t index);
-		bool Validate(Entity entity);
+		int32_t GetCount() const;
 
+		// If you want something to be destroyed when cecsar goes out of scope,
+		// Add it in here.
+		// Everything that inherits from Module will automatically do so.
 		void PushDependency(void* dependency);
 
 	private:
