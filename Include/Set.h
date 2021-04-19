@@ -4,6 +4,9 @@
 
 namespace jecs
 {
+	// Inherit from this to define your own set.
+	// Usually the sparse set is sufficient, but there might come a time when you
+	// need something more specialized.
 	template <typename Child>
 	class Set : public Observer
 	{

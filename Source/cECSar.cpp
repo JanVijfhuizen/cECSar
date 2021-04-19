@@ -18,6 +18,7 @@ namespace jecs
 		for (auto module : _dependencies)
 			delete module;
 		Observer::_observers.clear();
+		_instance = nullptr;
 	}
 
 	Cecsar& Cecsar::Get()
@@ -45,42 +46,23 @@ namespace jecs
 		return entity;
 	}
 
-	void Cecsar::EraseAt(const int32_t index)
+	void Cecsar::Erase(const Entity entity)
 	{
-		const Entity empty;
-
-		_entities.erase(empty);
-		_open.emplace(index);
+		_entities.erase(entity);
+		_open.emplace(entity.index);
 	}
 
-	bool Cecsar::Contains(const int32_t index)
-	{
-		const Entity key
-		{
-			index
-		};
-
-		return _entities.find(key) != _entities.end();
-	}
-
-	Entity Cecsar::Get(const int32_t index)
-	{
-		const Entity key
-		{
-			index
-		};
-
-		const auto it = _entities.find(key);
-		assert(it != _entities.end());
-		return *it;
-	}
-
-	bool Cecsar::Validate(const Entity entity)
+	bool Cecsar::IsAlive(const Entity entity)
 	{
 		const auto it = _entities.find(entity);
 		if (it == _entities.end())
 			return false;
 		return entity == *it;
+	}
+
+	int32_t Cecsar::GetCount() const
+	{
+		return _entities.size();
 	}
 
 	void Cecsar::PushDependency(void* dependency)

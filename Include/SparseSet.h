@@ -4,18 +4,19 @@
 
 namespace jecs
 {
+	// A set used to store components.
 	template <typename T>
 	class SparseSet final : public Set<SparseSet<T>>
 	{
 	public:
-		static int32_t defaultCapacity;
-
+		// Iterator value. Used for the for loop.
 		struct Value final
 		{
 			T& value;
 			const int32_t index;
 		};
 
+		// Used for the for loop.
 		class Iterator final
 		{
 		public:
@@ -44,10 +45,18 @@ namespace jecs
 
 		typedef int32_t (*Sorter)(const T& a, const T& b, int32_t aIndex, int32_t bIndex);
 
+		// Adjusting this will make sure that new sets are lazy initialized with
+		// target capacity.
+		static int32_t defaultCapacity;
+
 		explicit constexpr SparseSet(int32_t capacity = -1);
 		~SparseSet();
 
+		// Get a component based on target index.
 		[[nodiscard]] constexpr T& operator[](int32_t sparseIndex) const;
+
+		// Useful if you need to do access the components in non linear ways.
+		// It does require some knowledge of the sparse set though.
 
 		[[nodiscard]] constexpr const T* GetValuesRaw() const;
 		[[nodiscard]] constexpr const int32_t* GetDenseRaw() const;
@@ -63,12 +72,15 @@ namespace jecs
 
 		constexpr void EraseAt(int32_t sparseIndex) override;
 
+		// Remove all values from the sparse set, triggering their destructors.
 		constexpr void Clear();
 
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
 
+		// Swap two components.
 		constexpr void Swap(int32_t aDense, int32_t bDense);
+		// Sort based on a lambda/function.
 		constexpr void Sort(const Sorter& sorter, int32_t start = 0, int32_t stop = -1);
 
 	private:

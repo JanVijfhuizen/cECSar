@@ -3,6 +3,7 @@
 
 namespace jecs
 {
+	// Inherit from this to automatically make your class a cecsar-bound singleton.
 	template <typename T>
 	class Module
 	{
@@ -16,14 +17,14 @@ namespace jecs
 		virtual ~Module();
 
 	private:
-		static T* _instance = nullptr;
+		static T* _instance;
 	};
 
 	template <typename T>
 	Module<T>::Module()
 	{
 		delete _instance;
-		_instance = this;
+		_instance = static_cast<T*>(this);
 
 		Cecsar::Get().PushDependency(this);
 	}
@@ -42,4 +43,7 @@ namespace jecs
 			_instance = new T();
 		return *_instance;
 	}
+
+	template <typename T>
+	T* Module<T>::_instance = nullptr;
 }
