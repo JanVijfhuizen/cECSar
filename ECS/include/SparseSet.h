@@ -1,72 +1,75 @@
-﻿#pragma once
+#pragma once
 #include <cstdint>
-#include <string>
+#include "Set.h"
 
-namespace utils
+namespace jecs
 {
-	/*
-	This is a sort of combination between a normal vector and a map.
-	You can iterate over the contents, but you can also very quickly get instances by index.
-	*/
 	template <typename T>
-	class SparseSet final
+	class SparseSet final : public Set<SparseSet<T>>
 	{
 	public:
-		typedef float (*Sorter)(const T& instance);
-		constexpr T& operator[](int32_t denseIndex) const;
+		static int32_t defaultCapacity;
 
-		/*
-		Get the dense indexes. Each value points to the sparse array and can be used
-		with the method Get() to get the instance at a target index.
-		*/
-		constexpr int32_t* GetDenseRaw() const;
+		struct Value final
+		{
+			T& value;
+			const int32_t index;
+		};
 
-		/*
-		Check if the sparse set contains an object at target index.
-		*/
-		constexpr bool Contains(int32_t sparseIndex) const;
-		/*
-		Gets the count of the dense array.
-		*/
-		constexpr int32_t GetCount() const;
-		/*
-		Gets the capacity, or the count of the sparse array.
-		*/
-		constexpr int32_t GetCapacity() const;
+		class Iterator final
+		{
+		public:
+			Iterator(SparseSet<T>& set, int32_t index);
 
-		constexpr SparseSet(int32_t capacity);
+			Value operator*() const;
+			Value operator->() const;
+
+			const Iterator& operator++();
+			Iterator operator++(int);
+
+			friend auto operator==(const Iterator& a, const Iterator& b) -> bool
+			{
+				return a._index == b._index;
+			};
+
+			friend bool operator!= (const Iterator& a, const Iterator& b)
+			{
+				return !(a == b);
+			};
+
+		private:
+			int32_t _index = 0;
+			SparseSet<T>& _set;
+		};
+
+		typedef int32_t (*Sorter)(const T& a, const T& b, int32_t aIndex, int32_t bIndex);
+
+		explicit constexpr SparseSet(int32_t capacity = -1);
 		~SparseSet();
 
-		/*
-		Add an instance to the sparse set.
-		Will fill in the first empty slot.
-		*/
-		constexpr int32_t Add(T val = T());
-		/*
-		Insert an instance at target index.
-		*/
-		constexpr T& Insert(int32_t sparseIndex, T val = T());
-		/*
-		Get an entity at target index.
-		*/
-		constexpr T& Get(int32_t sparseIndex);
+		[[nodiscard]] constexpr T& operator[](int32_t sparseIndex) const;
 
-		/*
-		Remove an entity at target index.
-		*/
-		constexpr void RemoveAt(int32_t sparseIndex);
-		/*
-		Clear the set.
-		*/
+		[[nodiscard]] constexpr const T* GetValuesRaw() const;
+		[[nodiscard]] constexpr const int32_t* GetDenseRaw() const;
+		[[nodiscard]] constexpr const int32_t* GetSparseRaw() const;
+
+		[[nodiscard]] constexpr bool Contains(int32_t sparseIndex) const;
+
+		[[nodiscard]] constexpr int32_t GetCount() const;
+		[[nodiscard]] constexpr int32_t GetCapacity() const;
+
+		constexpr T& Insert(int32_t sparseIndex, const T& val);
+		constexpr T& Insert(int32_t sparseIndex, T&& val = T());
+
+		constexpr void EraseAt(int32_t sparseIndex) override;
+
 		constexpr void Clear();
 
-		constexpr T* begin() const;
-		constexpr T* end() const;
+		[[nodiscard]] constexpr Iterator begin();
+		[[nodiscard]] constexpr Iterator end();
 
-		/*
-		Swap two values at target indexes.
-		*/
-		constexpr void Swap(int32_t a, int32_t b);
+		constexpr void Swap(int32_t aDense, int32_t bDense);
+		constexpr void Sort(const Sorter& sorter, int32_t start = 0, int32_t stop = -1);
 
 	private:
 		int32_t* _dense = nullptr;
@@ -78,15 +81,27 @@ namespace utils
 	};
 
 	template <typename T>
-	constexpr T& SparseSet<T>::operator[](const int32_t denseIndex) const
+	constexpr T& SparseSet<T>::operator[](const int32_t sparseIndex) const
 	{
-		return _values[denseIndex];
+		return _values[_sparse[sparseIndex]];
 	}
 
 	template <typename T>
-	constexpr int32_t* SparseSet<T>::GetDenseRaw() const
+	constexpr const T* SparseSet<T>::GetValuesRaw() const
+	{
+		return _values;
+	}
+
+	template <typename T>
+	constexpr const int32_t* SparseSet<T>::GetDenseRaw() const
 	{
 		return _dense;
+	}
+
+	template <typename T>
+	constexpr const int32_t* SparseSet<T>::GetSparseRaw() const
+	{
+		return _sparse;
 	}
 
 	template <typename T>
@@ -110,53 +125,18 @@ namespace utils
 
 	template <typename T>
 	constexpr SparseSet<T>::SparseSet(const int32_t capacity) :
-		_capacity(capacity)
+		_capacity(capacity == -1 ? defaultCapacity : capacity)
 	{
-		_dense = new int32_t[capacity];
-		_sparse = new int32_t[capacity];
-		_values = new T[capacity];
+		_dense = new int32_t[_capacity];
+		_sparse = new int32_t[_capacity];
+		_values = new T[_capacity];
 
-		for (int32_t i = 0; i < capacity; ++i)
+		for (int32_t i = 0; i < _capacity; ++i)
 			_sparse[i] = -1;
 	}
 
 	template <typename T>
-	constexpr int32_t SparseSet<T>::Add(T val)
-	{
-		// Check if the index is filled.
-		for (int32_t i = _count; i < _capacity; ++i)
-		{
-			if (Contains(i))
-				continue;
-
-			const int32_t index = _count++;
-			_values[index] = val;
-
-			_dense[index] = i;
-			_sparse[i] = index;
-
-			return i;
-		}
-
-		for (int32_t i = 0; i < _count; ++i)
-		{
-			if (Contains(i))
-				continue;
-
-			const int32_t index = _count++;
-			_values[index] = val;
-
-			_dense[index] = i;
-			_sparse[i] = index;
-
-			return i;
-		}
-
-		return -1;
-	}
-
-	template <typename T>
-	constexpr T& SparseSet<T>::Insert(const int32_t sparseIndex, T val)
+	constexpr T& SparseSet<T>::Insert(int32_t sparseIndex, const T& val)
 	{
 		_sparse[sparseIndex] = _count;
 		T& t = _values[_count] = val;
@@ -165,13 +145,16 @@ namespace utils
 	}
 
 	template <typename T>
-	constexpr T& SparseSet<T>::Get(const int32_t sparseIndex)
+	constexpr T& SparseSet<T>::Insert(const int32_t sparseIndex, T&& val)
 	{
-		return _values[_sparse[sparseIndex]];
+		_sparse[sparseIndex] = _count;
+		T& t = _values[_count] = std::move(val);
+		_dense[_count++] = sparseIndex;
+		return t;
 	}
 
 	template <typename T>
-	constexpr void SparseSet<T>::RemoveAt(const int32_t sparseIndex)
+	constexpr void SparseSet<T>::EraseAt(const int32_t sparseIndex)
 	{
 		if (!Contains(sparseIndex))
 			return;
@@ -180,14 +163,51 @@ namespace utils
 		Swap(denseIndex, --_count);
 
 		_sparse[sparseIndex] = -1;
+		_values[_count] = T();
 	}
 
 	template <typename T>
 	constexpr void SparseSet<T>::Clear()
 	{
-		for (int32_t i = 0; i < _count; ++i)
+		for (int32_t i = 0; i < _count; ++i) 
+		{
 			_sparse[_dense[i]] = -1;
+			_values[i] = T();
+		}
 		_count = 0;
+	}
+
+	template <typename T>
+	SparseSet<T>::Iterator::Iterator(SparseSet<T>& set, const int32_t index):
+		_index(index), _set(set)
+	{
+	}
+
+	template <typename T>
+	typename SparseSet<T>::Value SparseSet<T>::Iterator::operator*() const
+	{
+		return {_set._values[_index], _set._dense[_index]};
+	}
+
+	template <typename T>
+	typename SparseSet<T>::Value SparseSet<T>::Iterator::operator->() const
+	{
+		return {_set._values[_index], _set._dense[_index]};
+	}
+
+	template <typename T>
+	const typename SparseSet<T>::Iterator& SparseSet<T>::Iterator::operator++()
+	{
+		++_index;
+		return *this;
+	}
+
+	template <typename T>
+	typename SparseSet<T>::Iterator SparseSet<T>::Iterator::operator++(int)
+	{
+		Iterator temp{*this};
+		++_index;
+		return temp;
 	}
 
 	template <typename T>
@@ -199,29 +219,54 @@ namespace utils
 	}
 
 	template <typename T>
-	constexpr void SparseSet<T>::Swap(const int32_t a, const int32_t b)
+	constexpr void SparseSet<T>::Swap(const int32_t aDense, const int32_t bDense)
 	{
-		const int32_t aSparse = _dense[a];
-		const int32_t bSparse = _dense[a] = _dense[b];
-		_dense[b] = aSparse;
+		const int32_t aSparse = _dense[aDense];
+		const int32_t bSparse = _dense[aDense] = _dense[bDense];
+		_dense[bDense] = aSparse;
 
-		const T aValue = _values[a];
-		_values[a] = _values[b];
-		_values[b] = aValue;
+		T aValue = std::move(_values[aDense]);
+		_values[aDense] = std::move(_values[bDense]);
+		_values[bDense] = std::move(aValue);
 
-		_sparse[aSparse] = b;
-		_sparse[bSparse] = a;
+		_sparse[aSparse] = bDense;
+		_sparse[bSparse] = aDense;
 	}
 
 	template <typename T>
-	constexpr T* SparseSet<T>::begin() const
+	constexpr void SparseSet<T>::Sort(const Sorter& sorter,
+		const int32_t start, int32_t stop)
 	{
-		return &_values[0];
+		if (stop == -1)
+			stop = _count;
+
+		for (int32_t i = stop - 1; i >= start; --i)
+			for (int32_t j = i + 1; j < stop; ++j)
+			{
+				const int32_t index = _dense[j - 1];
+				const int32_t otherIndex = _dense[j];
+
+				auto& instance = _values[j - 1];
+				auto& other = _values[j];
+
+				if (sorter(instance, other, index, otherIndex) <= 0)
+					break;
+				Swap(j - 1, j);
+			}
 	}
 
 	template <typename T>
-	constexpr T* SparseSet<T>::end() const
+	constexpr typename SparseSet<T>::Iterator SparseSet<T>::begin()
 	{
-		return &_values[_count];
+		return Iterator{ *this, 0 };
 	}
+
+	template <typename T>
+	constexpr typename SparseSet<T>::Iterator SparseSet<T>::end()
+	{
+		return Iterator{ *this, _count };
+	}
+
+	template <typename T>
+	int32_t SparseSet<T>::defaultCapacity = 1e4;
 }
