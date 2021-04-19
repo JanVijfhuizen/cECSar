@@ -64,13 +64,16 @@ namespace jecs
 		void EraseAt(int32_t sparseIndex) override;
 		void Clear();
 
+		[[nodiscard]] bool Contains(int32_t sparseIndex) const;
+
+		[[nodiscard]] constexpr int32_t GetCount() const;
+		[[nodiscard]] constexpr int32_t GetCapacity() const;
+
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
 
 		// Swap two components.
 		void Swap(int32_t aDense, int32_t bDense);
-
-		[[nodiscard]] bool Contains(int32_t sparseIndex) const;
 
 	private:
 		#define TMPL_INDEX sizeof...(Args) - sizeof...(Tail) - 1
@@ -101,6 +104,18 @@ namespace jecs
 	constexpr auto SoASet<Args...>::At()
 	{
 		return std::get<S>(_tuple);
+	}
+
+	template <typename ... Args>
+	constexpr int32_t SoASet<Args...>::GetCount() const
+	{
+		return _count;
+	}
+
+	template <typename ... Args>
+	constexpr int32_t SoASet<Args...>::GetCapacity() const
+	{
+		return _capacity;
 	}
 
 	template <typename ... Args>

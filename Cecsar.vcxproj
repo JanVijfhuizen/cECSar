@@ -19,8 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ExampleAbstraction.h" />
-    <ClInclude Include="ExampleBasics.h" />
+    <ClInclude Include="Examples\ExampleAbstraction.h" />
+    <ClInclude Include="Examples\ExampleBasics.h" />
+    <ClInclude Include="Examples\ExampleCustomSets.h" />
     <ClInclude Include="Include\Cecsar.h" />
     <ClInclude Include="Include\Entity.h" />
     <ClInclude Include="Include\MapSet.h" />

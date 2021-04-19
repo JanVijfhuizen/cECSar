@@ -45,10 +45,13 @@
     <ClInclude Include="Include\SparseSet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ExampleBasics.h">
+    <ClInclude Include="Examples\ExampleAbstraction.h">
       <Filter>Examples</Filter>
     </ClInclude>
-    <ClInclude Include="ExampleAbstraction.h">
+    <ClInclude Include="Examples\ExampleBasics.h">
+      <Filter>Examples</Filter>
+    </ClInclude>
+    <ClInclude Include="Examples\ExampleCustomSets.h">
       <Filter>Examples</Filter>
     </ClInclude>
   </ItemGroup>
