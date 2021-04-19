@@ -75,10 +75,10 @@ namespace jecs::example
 				xArr[dense] = 0;
 		}
 
-		// The SoA set is aligned by default, so you can actually vectorize your code.
+		// The SoA set is packed by default, so you can actually vectorize your code.
 		// We're just going to multiply the x axes now, just to show how it can be done.
 		__m128 mul4 = _mm_set_ps1(2);
-		for (int i = 0; i < soASet.GetCount(); ++i)
+		for (int i = 0; i < soASet.GetCount(); i += 4)
 		{
 			float* f = &xArr[i];
 			__m128 f4 = _mm_load_ps(f);
