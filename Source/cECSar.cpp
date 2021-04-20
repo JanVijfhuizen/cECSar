@@ -44,7 +44,7 @@ namespace jecs
 
 	Entity Cecsar::Spawn()
 	{
-		int32_t index = -1;
+		int32_t index = _entities.size();
 		if (!_openPq.empty())
 		{
 			index = _openPq.top();
@@ -91,6 +91,8 @@ namespace jecs
 	void Cecsar::PushDependency(Dependency* dependency)
 	{
 		_dependencies.push_back(dependency);
+		if (_loaded)
+			dependency->Load();
 	}
 
 	bool Cecsar::GetCecsarLoaded() const
