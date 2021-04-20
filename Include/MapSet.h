@@ -1,6 +1,7 @@
 #pragma once
 #include "Set.h"
 #include <unordered_map>
+#include <fstream>
 
 namespace jecs
 {
@@ -43,17 +44,25 @@ namespace jecs
 			MapSet<T>& _set;
 		};
 
+		explicit MapSet();
+
 		[[nodiscard]] constexpr T& operator[](int32_t index);
 
 		constexpr T& Insert(int32_t index, const T& val);
 		constexpr T& Insert(int32_t index, T&& val = T());
 
 		void EraseAt(int32_t index) override;
+		void Clear();
 
 		[[nodiscard]] std::unordered_map<int32_t, T>& GetMapRaw();
 
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
+
+		// Load set to disk.
+		void Load();
+		// Save set to disk.
+		void Save();
 
 	private:
 		std::unordered_map<int32_t, T> _map{};
@@ -126,14 +135,64 @@ namespace jecs
 	}
 
 	template <typename T>
+	MapSet<T>::MapSet()
+	{
+		if (Cecsar::Get().loadFromFile)
+			Load();
+	}
+
+	template <typename T>
 	void MapSet<T>::EraseAt(const int32_t index)
 	{
 		_map.erase(index);
 	}
 
 	template <typename T>
+	void MapSet<T>::Clear()
+	{
+		_map.clear();
+	}
+
+	template <typename T>
 	std::unordered_map<int32_t, T>& MapSet<T>::GetMapRaw()
 	{
 		return _map;
+	}
+
+	template <typename T>
+	void MapSet<T>::Load()
+	{
+		Clear();
+
+		std::ifstream file;
+		file.open(Set<T>::template GetFilePath<T>(), std::ios::in);
+		if (!file.good())
+			return;
+
+		while (!file.eof())
+		{
+			int32_t key;
+			T value;
+
+			file.read(reinterpret_cast<char*>(&key), sizeof(int32_t));
+			file.read(reinterpret_cast<char*>(&value), sizeof(T));
+			_map[key] = std::move(value);
+		}
+	}
+
+	template <typename T>
+	void MapSet<T>::Save()
+	{
+		std::ofstream file;
+		file.open(Set<T>::template GetFilePath<T>(), std::ios::out);
+
+		for (auto& keyPair : _map)
+		{
+			int32_t first = keyPair.first;
+			T second = keyPair.second;
+
+			file.write(reinterpret_cast<char*>(&first), sizeof(int32_t));
+			file.write(reinterpret_cast<char*>(&second), sizeof(T));
+		}
 	}
 }

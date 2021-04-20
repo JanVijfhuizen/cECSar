@@ -14,7 +14,7 @@ namespace jecs::example
 
 	// To use the SoA set, inherit from it and define the member variable types 
 	// via the template arguments.
-	class PositionSoA : public jecs::SoASet<float, float, float>
+	class PositionSoA : public jecs::SoASet<PositionSoA, float, float, float>
 	{
 	public:
 		// This is an easy way to define the names of the member variables,

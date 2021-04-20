@@ -1,14 +1,13 @@
 #pragma once
 #include "Set.h"
+#include <fstream>
 
 namespace jecs
 {
 	// A specialized set that support vectorized components.
-	template <typename ... Args>
-	class SoASet : public Set<SoASet<Args...>>
+	template <typename Child, typename ... Args>
+	class SoASet : public Set<Child>
 	{
-		// TODO: Implement sorting.
-
 	public:
 		struct Value final
 		{
@@ -19,7 +18,7 @@ namespace jecs
 		class Iterator final
 		{
 		public:
-			Iterator(SoASet<Args...>& set, int32_t index);
+			Iterator(SoASet<Child, Args...>& set, int32_t index);
 
 			Value operator*() const;
 			Value operator->() const;
@@ -39,12 +38,8 @@ namespace jecs
 
 		private:
 			int32_t _index = 0;
-			SoASet<Args...>& _set;
+			SoASet<Child, Args...>& _set;
 		};
-
-		// Adjusting this will make sure that new sets are lazy initialized with
-		// target capacity.
-		static int32_t defaultCapacity;
 
 		explicit SoASet(int32_t capacity = -1);
 		~SoASet();
@@ -75,6 +70,11 @@ namespace jecs
 		// Swap two components.
 		void Swap(int32_t aDense, int32_t bDense);
 
+		// Load set to disk.
+		void Load();
+		// Save set to disk.
+		void Save();
+
 	private:
 		#define TMPL_INDEX sizeof...(Args) - sizeof...(Tail) - 1
 
@@ -97,88 +97,97 @@ namespace jecs
 
 		template <typename Head, typename ...Tail>
 		void IterSwap(int32_t aDense, int32_t bDense);
+
+		template <typename Head, typename ...Tail>
+		void IterLoad(std::ifstream& stream);
+
+		template <typename Head, typename ...Tail>
+		void IterSave(std::ofstream& stream);
 	};
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <size_t S>
-	constexpr auto SoASet<Args...>::At()
+	constexpr auto SoASet<Child, Args...>::At()
 	{
 		return std::get<S>(_tuple);
 	}
 
-	template <typename ... Args>
-	constexpr int32_t SoASet<Args...>::GetCount() const
+	template <typename Child, typename ... Args>
+	constexpr int32_t SoASet<Child, Args...>::GetCount() const
 	{
 		return _count;
 	}
 
-	template <typename ... Args>
-	constexpr int32_t SoASet<Args...>::GetCapacity() const
+	template <typename Child, typename ... Args>
+	constexpr int32_t SoASet<Child, Args...>::GetCapacity() const
 	{
 		return _capacity;
 	}
 
-	template <typename ... Args>
-	constexpr typename SoASet<Args...>::Iterator SoASet<Args...>::begin()
+	template <typename Child, typename ... Args>
+	constexpr typename SoASet<Child, Args...>::Iterator SoASet<Child, Args...>::begin()
 	{
 		return Iterator{ *this, 0 };
 	}
 
-	template <typename ... Args>
-	constexpr typename SoASet<Args...>::Iterator SoASet<Args...>::end()
+	template <typename Child, typename ... Args>
+	constexpr typename SoASet<Child, Args...>::Iterator SoASet<Child, Args...>::end()
 	{
 		return Iterator{ *this, _count };
 	}
 
-	template <typename ... Args>
-	SoASet<Args...>::Iterator::Iterator(SoASet<Args...>& set, const int32_t index) :
+	template <typename Child, typename ... Args>
+	SoASet<Child, Args...>::Iterator::Iterator(SoASet<Child, Args...>& set, const int32_t index) :
 		_index(index), _set(set)
 	{
 
 	}
 
-	template <typename ... Args>
-	typename SoASet<Args...>::Value SoASet<Args...>::Iterator::operator*() const
+	template <typename Child, typename ... Args>
+	typename SoASet<Child, Args...>::Value SoASet<Child, Args...>::Iterator::operator*() const
 	{
 		return { _index, _set._dense[_index] };
 	}
 
-	template <typename ... Args>
-	typename SoASet<Args...>::Value SoASet<Args...>::Iterator::operator->() const
+	template <typename Child, typename ... Args>
+	typename SoASet<Child, Args...>::Value SoASet<Child, Args...>::Iterator::operator->() const
 	{
 		return { _index, _set._dense[_index] };
 	}
 
-	template <typename ... Args>
-	const typename SoASet<Args...>::Iterator& SoASet<Args...>::Iterator::operator++()
+	template <typename Child, typename ... Args>
+	const typename SoASet<Child, Args...>::Iterator& SoASet<Child, Args...>::Iterator::operator++()
 	{
 		++_index;
 		return *this;
 	}
 
-	template <typename ... Args>
-	typename SoASet<Args...>::Iterator SoASet<Args...>::Iterator::operator++(int)
+	template <typename Child, typename ... Args>
+	typename SoASet<Child, Args...>::Iterator SoASet<Child, Args...>::Iterator::operator++(int)
 	{
 		Iterator temp{ *this };
 		++_index;
 		return temp;
 	}
 
-	template <typename ... Args>
-	SoASet<Args...>::SoASet(const int32_t capacity) : 
-		_capacity(capacity == -1 ? defaultCapacity : capacity)
+	template <typename Child, typename ... Args>
+	SoASet<Child, Args...>::SoASet(const int32_t capacity) :
+		_capacity(capacity == -1 ? Cecsar::Get().setDefaultCapacity : capacity)
 	{
 		_dense = new int32_t[_capacity];
 		_sparse = new int32_t[_capacity];
 
-		for (int32_t i = _capacity - 1; i >= 0; --i)
-			_sparse[i] = -1;
+		if (Cecsar::Get().loadFromFile)
+			Load();
+		else
+			for (int32_t i = _capacity - 1; i >= 0; --i)
+				_sparse[i] = -1;
 
 		AllocArrays<Args...>();
 	}
 
-	template <typename ... Args>
-	SoASet<Args...>::~SoASet()
+	template <typename Child, typename ... Args>
+	SoASet<Child, Args...>::~SoASet()
 	{
 		delete[] _dense;
 		delete[] _sparse;
@@ -186,26 +195,26 @@ namespace jecs
 		DeallocArray<Args...>();
 	}
 
-	template <typename ... Args>
-	std::tuple<Args...>& SoASet<Args...>::GetTupleRaw() const
+	template <typename Child, typename ... Args>
+	std::tuple<Args...>& SoASet<Child, Args...>::GetTupleRaw() const
 	{
 		return _tuple;
 	}
 
-	template <typename ... Args>
-	const int32_t* SoASet<Args...>::GetDenseRaw() const
+	template <typename Child, typename ... Args>
+	const int32_t* SoASet<Child, Args...>::GetDenseRaw() const
 	{
 		return _dense;
 	}
 
-	template <typename ... Args>
-	const int32_t* SoASet<Args...>::GetSparseRaw() const
+	template <typename Child, typename ... Args>
+	const int32_t* SoASet<Child, Args...>::GetSparseRaw() const
 	{
 		return _sparse;
 	}
 
-	template <typename ... Args>
-	void SoASet<Args...>::Insert(const int32_t sparseIndex, Args... args)
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::Insert(const int32_t sparseIndex, Args... args)
 	{
 		IterInsert<Args...>(_count, args...);
 
@@ -213,8 +222,8 @@ namespace jecs
 		_dense[_count++] = sparseIndex;
 	}
 
-	template <typename ... Args>
-	void SoASet<Args...>::EraseAt(const int32_t sparseIndex)
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::EraseAt(const int32_t sparseIndex)
 	{
 		if (!Contains(sparseIndex))
 			return;
@@ -226,16 +235,16 @@ namespace jecs
 		IterErase<Args...>(_count);
 	}
 
-	template <typename ... Args>
-	void SoASet<Args...>::Clear()
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::Clear()
 	{
 		for (int32_t i = 0; i < _count; ++i)
 			_sparse[_dense[i]] = -1;
 		_count = 0;
 	}
 
-	template <typename ... Args>
-	void SoASet<Args...>::Swap(const int32_t aDense, const int32_t bDense)
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::Swap(const int32_t aDense, const int32_t bDense)
 	{
 		IterSwap<Args...>(aDense, bDense);
 
@@ -247,15 +256,43 @@ namespace jecs
 		_sparse[bSparse] = aDense;
 	}
 
-	template <typename ... Args>
-	bool SoASet<Args...>::Contains(const int32_t sparseIndex) const
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::Load()
+	{
+		Clear();
+
+		std::ifstream file;
+		file.open(Set<Child>::template GetFilePath<Child>(), std::ios::in);
+		if (!file.good())
+			return;
+
+		file.read(reinterpret_cast<char*>(&_capacity), sizeof(int32_t));
+		file.read(reinterpret_cast<char*>(&_count), sizeof(int32_t));
+
+		IterLoad<Args...>(file);
+	}
+
+	template <typename Child, typename ... Args>
+	void SoASet<Child, Args...>::Save()
+	{
+		std::ofstream file;
+		file.open(Set<Child>::template GetFilePath<Child>(), std::ios::out);
+
+		file.write(reinterpret_cast<char*>(&_capacity), sizeof int32_t);
+		file.write(reinterpret_cast<char*>(&_count), sizeof int32_t);
+
+		IterSave<Args...>(file);
+	}
+
+	template <typename Child, typename ... Args>
+	bool SoASet<Child, Args...>::Contains(const int32_t sparseIndex) const
 	{
 		return _sparse[sparseIndex] != -1;
 	}
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <typename Head, typename ...Tail>
-	void SoASet<Args...>::AllocArrays()
+	void SoASet<Child, Args...>::AllocArrays()
 	{
 		std::get<TMPL_INDEX>(_tuple) = new Head[_capacity];
 
@@ -263,9 +300,9 @@ namespace jecs
 			AllocArrays<Tail...>();
 	}
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <typename Head, typename ...Tail>
-	void SoASet<Args...>::DeallocArray()
+	void SoASet<Child, Args...>::DeallocArray()
 	{
 		delete[] std::get<TMPL_INDEX>(_tuple);
 
@@ -273,9 +310,9 @@ namespace jecs
 			DeallocArray<Tail...>();
 	}
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <typename Head, typename ... Tail>
-	void SoASet<Args...>::IterInsert(const int32_t denseIndex, 
+	void SoASet<Child, Args...>::IterInsert(const int32_t denseIndex,
 		const Head head, Tail... tail)
 	{
 		std::get<TMPL_INDEX>(_tuple)[denseIndex] = head;
@@ -284,9 +321,9 @@ namespace jecs
 			IterInsert<Tail...>(denseIndex, tail...);
 	}
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <typename Head, typename ... Tail>
-	void SoASet<Args...>::IterErase(const int32_t denseIndex)
+	void SoASet<Child, Args...>::IterErase(const int32_t denseIndex)
 	{
 		std::get<TMPL_INDEX>(_tuple)[denseIndex] = {};
 
@@ -294,9 +331,9 @@ namespace jecs
 			IterErase<Tail...>(denseIndex);
 	}
 
-	template <typename ... Args>
+	template <typename Child, typename ... Args>
 	template <typename Head, typename ... Tail>
-	void SoASet<Args...>::IterSwap(const int32_t aDense, const int32_t bDense)
+	void SoASet<Child, Args...>::IterSwap(const int32_t aDense, const int32_t bDense)
 	{
 		const auto arr = std::get<TMPL_INDEX>(_tuple);
 
@@ -308,6 +345,25 @@ namespace jecs
 			IterSwap<Tail...>(aDense, bDense);
 	}
 
-	template <typename ... Args>
-	int32_t SoASet<Args...>::defaultCapacity = 1e4;
+	template <typename Child, typename ... Args>
+	template <typename Head, typename ... Tail>
+	void SoASet<Child, Args...>::IterLoad(std::ifstream& stream)
+	{
+		const auto arr = std::get<TMPL_INDEX>(_tuple);
+		stream.read(reinterpret_cast<char*>(arr), sizeof(Head) * _capacity);
+
+		if constexpr (sizeof...(Tail) > 0)
+			IterLoad<Tail...>(stream);
+	}
+
+	template <typename Child, typename ... Args>
+	template <typename Head, typename ... Tail>
+	void SoASet<Child, Args...>::IterSave(std::ofstream& stream)
+	{
+		const auto arr = std::get<TMPL_INDEX>(_tuple);
+		stream.write(reinterpret_cast<char*>(arr), sizeof(Head) * _capacity);
+
+		if constexpr (sizeof...(Tail) > 0)
+			IterSave<Tail...>(stream);
+	}
 }

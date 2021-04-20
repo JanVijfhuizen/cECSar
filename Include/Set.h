@@ -1,6 +1,7 @@
 #pragma once
 #include "Cecsar.h"
 #include "Observer.h"
+#include <vcruntime_typeinfo.h>
 
 namespace jecs
 {
@@ -14,6 +15,9 @@ namespace jecs
 		virtual void EraseAt(int32_t index) = 0;
 
 		static Child& Get();
+
+		template <typename T>
+		static std::string GetFilePath();
 
 	protected:
 		Set();
@@ -30,6 +34,16 @@ namespace jecs
 		if (!_instance)
 			_instance = new Child();
 		return *_instance;
+	}
+
+	template <typename Child>
+	template <typename T>
+	std::string Set<Child>::GetFilePath()
+	{
+		const std::string post{ Cecsar::Get().loadPostfix + ".txt" };
+		const std::string pre{ std::string(typeid(T).name()) };
+		const std::string final{ pre.substr(pre.find_last_of(':') + 1) + post };
+		return final;
 	}
 
 	template <typename Child>

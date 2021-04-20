@@ -30,10 +30,10 @@ namespace jecs::example
 			// Here we're looking for the highest transform.
 			for (auto [instance, index] : transforms)
 			{
-				if (instance.x > yHighestValue)
+				if (instance.y > yHighestValue)
 				{
 					yHighestIndex = index;
-					yHighestValue = instance.x;
+					yHighestValue = instance.y;
 				}
 			}
 
