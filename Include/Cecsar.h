@@ -7,22 +7,28 @@
 
 namespace jecs
 {
+	class Dependency
+	{
+	public:
+		virtual ~Dependency();
+
+		virtual void Preload();
+		virtual void Load();
+		virtual void Save();
+	};
+
 	// A lightweight ECS framework that is designed to be extendable.
 	class Cecsar final
 	{
 	public:
-		// If an entity is spawned, the ID is assigned to the global index,
-		// After which this increments.
-		int32_t globalIndex = 0;
+		struct LoadInfo final
+		{
+			// Load set data from memory.
+			bool loadFromFile = false;
+			std::string loadPostfix = "";
+		};
 
-		// If a set's size is not explicitely defined, it will spawn with this capacity.
-		int32_t setDefaultCapacity = 1e4;
-
-		// Load set data from memory.
-		bool loadFromFile = false;
-		std::string loadPostfix = "";
-
-		Cecsar();
+		explicit Cecsar(int32_t capacity = 1e4);
 		~Cecsar();
 
 		// Lazy singleton getter.
@@ -40,14 +46,30 @@ namespace jecs
 		// If you want something to be destroyed when cecsar goes out of scope,
 		// Add it in here.
 		// Everything that inherits from Module will automatically do so.
-		void PushDependency(void* dependency);
+		void PushDependency(Dependency* dependency);
+
+		// Get information about the currently spawned cecsar.
+		[[nodiscard]] bool GetCecsarLoaded() const;
+		[[nodiscard]] std::string GetPostfix() const;
+		[[nodiscard]] int32_t GetDefaultCapacity() const;
+
+		// Load entities from disk.
+		bool TryLoad(const std::string& postfix);
+		// Save entities to disk.
+		void Save(const std::string& postfix);
 
 	private:
 		static Cecsar* _instance;
 
-		std::unordered_set<Entity, Entity::Hasher> _entities{};
-		std::priority_queue<int32_t, std::vector<int32_t>, std::greater<>> _open{};
+		int32_t _globalId = 0;
+		int32_t _defaultCapacity = 1e4;
+		bool _loaded = false;
+		std::string _postfix = "";
 
-		std::vector<void*> _dependencies{};
+		std::unordered_set<Entity, Entity::Hasher> _entities{};
+		std::priority_queue<int32_t, std::vector<int32_t>, std::greater<>> _openPq{};
+		std::unordered_set<int32_t> _openSet; 
+
+		std::vector<Dependency*> _dependencies{};
 	};
 }

@@ -29,12 +29,12 @@ namespace jecs
 			const Iterator& operator++();
 			Iterator operator++(int);
 
-			friend auto operator==(const Iterator& a, const Iterator& b) -> bool
+			friend bool operator==(const Iterator& a, const Iterator& b)
 			{
 				return a._it == b._it;
 			};
 
-			friend bool operator!= (const Iterator& a, const Iterator& b)
+			friend bool operator!=(const Iterator& a, const Iterator& b)
 			{
 				return !(a == b);
 			};
@@ -59,10 +59,10 @@ namespace jecs
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
 
-		// Load set to disk.
-		void Load();
+		// Load set from disk.
+		void Preload() override;
 		// Save set to disk.
-		void Save();
+		void Save() override;
 
 	private:
 		std::unordered_map<int32_t, T> _map{};
@@ -137,8 +137,8 @@ namespace jecs
 	template <typename T>
 	MapSet<T>::MapSet()
 	{
-		if (Cecsar::Get().loadFromFile)
-			Load();
+		if (Cecsar::Get().GetCecsarLoaded())
+			Preload();
 	}
 
 	template <typename T>
@@ -160,7 +160,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	void MapSet<T>::Load()
+	void MapSet<T>::Preload()
 	{
 		Clear();
 

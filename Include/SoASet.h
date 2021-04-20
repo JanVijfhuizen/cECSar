@@ -70,10 +70,10 @@ namespace jecs
 		// Swap two components.
 		void Swap(int32_t aDense, int32_t bDense);
 
-		// Load set to disk.
-		void Load();
+		// Load set from disk.
+		void Preload() override;
 		// Save set to disk.
-		void Save();
+		void Save() override;
 
 	private:
 		#define TMPL_INDEX sizeof...(Args) - sizeof...(Tail) - 1
@@ -172,13 +172,13 @@ namespace jecs
 
 	template <typename Child, typename ... Args>
 	SoASet<Child, Args...>::SoASet(const int32_t capacity) :
-		_capacity(capacity == -1 ? Cecsar::Get().setDefaultCapacity : capacity)
+		_capacity(capacity == -1 ? Cecsar::Get().GetDefaultCapacity() : capacity)
 	{
 		_dense = new int32_t[_capacity];
 		_sparse = new int32_t[_capacity];
 
-		if (Cecsar::Get().loadFromFile)
-			Load();
+		if (Cecsar::Get().GetCecsarLoaded())
+			Preload();
 		else
 			for (int32_t i = _capacity - 1; i >= 0; --i)
 				_sparse[i] = -1;
@@ -257,7 +257,7 @@ namespace jecs
 	}
 
 	template <typename Child, typename ... Args>
-	void SoASet<Child, Args...>::Load()
+	void SoASet<Child, Args...>::Preload()
 	{
 		Clear();
 
