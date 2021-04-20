@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdint>
 #include "Set.h"
+#include <fstream>
 
 namespace jecs
 {
@@ -45,10 +46,6 @@ namespace jecs
 
 		typedef int32_t (*Sorter)(const T& a, const T& b, int32_t aIndex, int32_t bIndex);
 
-		// Adjusting this will make sure that new sets are lazy initialized with
-		// target capacity.
-		static int32_t defaultCapacity;
-
 		explicit constexpr SparseSet(int32_t capacity = -1);
 		~SparseSet();
 
@@ -82,6 +79,11 @@ namespace jecs
 		constexpr void Swap(int32_t aDense, int32_t bDense);
 		// Sort based on a lambda/function.
 		constexpr void Sort(const Sorter& sorter, int32_t start = 0, int32_t stop = -1);
+
+		// Load set to disk.
+		void Load();
+		// Save set to disk.
+		void Save();
 
 	private:
 		int32_t* _dense = nullptr;
@@ -137,14 +139,17 @@ namespace jecs
 
 	template <typename T>
 	constexpr SparseSet<T>::SparseSet(const int32_t capacity) :
-		_capacity(capacity == -1 ? defaultCapacity : capacity)
+		_capacity(capacity == -1 ? Cecsar::Get().setDefaultCapacity : capacity)
 	{
 		_dense = new int32_t[_capacity];
 		_sparse = new int32_t[_capacity];
 		_values = new T[_capacity];
 
-		for (int32_t i = 0; i < _capacity; ++i)
-			_sparse[i] = -1;
+		if (Cecsar::Get().loadFromFile)
+			Load();
+		else
+			for (int32_t i = 0; i < _capacity; ++i)
+				_sparse[i] = -1;
 	}
 
 	template <typename T>
@@ -231,6 +236,44 @@ namespace jecs
 	}
 
 	template <typename T>
+	void SparseSet<T>::Load()
+	{
+		Clear();
+
+		std::ifstream file;
+		file.open(Set<T>::template GetFilePath<T>(), std::ios::in);
+		if (!file.good())
+			return;
+
+		// Read dense.
+		file.read(reinterpret_cast<char*>(_dense), sizeof(int32_t) * _capacity);
+		// Read sparse.
+		file.read(reinterpret_cast<char*>(_sparse), sizeof(int32_t) * _capacity);
+		// Read values.
+		file.read(reinterpret_cast<char*>(_values), sizeof(T) * _capacity);
+		// Read remaining variables.
+		file.read(reinterpret_cast<char*>(&_count), sizeof int32_t);
+		file.read(reinterpret_cast<char*>(&_capacity), sizeof int32_t);
+	}
+
+	template <typename T>
+	void SparseSet<T>::Save()
+	{
+		std::ofstream file;
+		file.open(Set<T>::template GetFilePath<T>(), std::ios::out);
+
+		// Write dense.
+		file.write(reinterpret_cast<char*>(_dense), sizeof(int32_t) * _capacity);
+		// Write sparse.
+		file.write(reinterpret_cast<char*>(_sparse), sizeof(int32_t) * _capacity);
+		// Write values.
+		file.write(reinterpret_cast<char*>(_values), sizeof(T) * _capacity);
+		// Write remaining variables.
+		file.write(reinterpret_cast<char*>(&_count), sizeof int32_t);
+		file.write(reinterpret_cast<char*>(&_capacity), sizeof int32_t);
+	}
+
+	template <typename T>
 	constexpr void SparseSet<T>::Swap(const int32_t aDense, const int32_t bDense)
 	{
 		const int32_t aSparse = _dense[aDense];
@@ -278,7 +321,4 @@ namespace jecs
 	{
 		return Iterator{ *this, _count };
 	}
-
-	template <typename T>
-	int32_t SparseSet<T>::defaultCapacity = 1e4;
 }

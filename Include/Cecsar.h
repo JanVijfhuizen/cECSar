@@ -15,6 +15,13 @@ namespace jecs
 		// After which this increments.
 		int32_t globalIndex = 0;
 
+		// If a set's size is not explicitely defined, it will spawn with this capacity.
+		int32_t setDefaultCapacity = 1e4;
+
+		// Load set data from memory.
+		bool loadFromFile = false;
+		std::string loadPostfix = "";
+
 		Cecsar();
 		~Cecsar();
 
@@ -28,7 +35,7 @@ namespace jecs
 		// Check if an entity is still alive.
 		bool IsAlive(Entity entity);
 
-		int32_t GetCount() const;
+		[[nodiscard]] int32_t GetCount() const;
 
 		// If you want something to be destroyed when cecsar goes out of scope,
 		// Add it in here.
