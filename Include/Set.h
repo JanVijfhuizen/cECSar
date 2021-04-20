@@ -9,7 +9,7 @@ namespace jecs
 	// Usually the sparse set is sufficient, but there might come a time when you
 	// need something more specialized.
 	template <typename Child>
-	class Set : public Observer
+	class Set : public Dependency, public Observer
 	{
 	public:
 		virtual void EraseAt(int32_t index) = 0;
@@ -40,7 +40,7 @@ namespace jecs
 	template <typename T>
 	std::string Set<Child>::GetFilePath()
 	{
-		const std::string post{ Cecsar::Get().loadPostfix + ".txt" };
+		const std::string post{ Cecsar::Get().GetPostfix() + ".txt" };
 		const std::string pre{ std::string(typeid(T).name()) };
 		const std::string final{ pre.substr(pre.find_last_of(':') + 1) + post };
 		return final;

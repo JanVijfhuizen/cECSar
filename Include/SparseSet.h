@@ -80,10 +80,10 @@ namespace jecs
 		// Sort based on a lambda/function.
 		constexpr void Sort(const Sorter& sorter, int32_t start = 0, int32_t stop = -1);
 
-		// Load set to disk.
-		void Load();
+		// Load set from disk.
+		void Preload() override;
 		// Save set to disk.
-		void Save();
+		void Save() override;
 
 	private:
 		int32_t* _dense = nullptr;
@@ -139,22 +139,25 @@ namespace jecs
 
 	template <typename T>
 	constexpr SparseSet<T>::SparseSet(const int32_t capacity) :
-		_capacity(capacity == -1 ? Cecsar::Get().setDefaultCapacity : capacity)
+		_capacity(capacity == -1 ? Cecsar::Get().GetDefaultCapacity() : capacity)
 	{
 		_dense = new int32_t[_capacity];
 		_sparse = new int32_t[_capacity];
 		_values = new T[_capacity];
 
-		if (Cecsar::Get().loadFromFile)
-			Load();
+		if (Cecsar::Get().GetCecsarLoaded())
+			Preload();
 		else
 			for (int32_t i = 0; i < _capacity; ++i)
 				_sparse[i] = -1;
 	}
 
 	template <typename T>
-	constexpr T& SparseSet<T>::Insert(int32_t sparseIndex, const T& val)
+	constexpr T& SparseSet<T>::Insert(const int32_t sparseIndex, const T& val)
 	{
+		if (Contains(sparseIndex))
+			return operator[](sparseIndex);
+
 		_sparse[sparseIndex] = _count;
 		T& t = _values[_count] = val;
 		_dense[_count++] = sparseIndex;
@@ -164,6 +167,9 @@ namespace jecs
 	template <typename T>
 	constexpr T& SparseSet<T>::Insert(const int32_t sparseIndex, T&& val)
 	{
+		if (Contains(sparseIndex))
+			return operator[](sparseIndex);
+
 		_sparse[sparseIndex] = _count;
 		T& t = _values[_count] = std::move(val);
 		_dense[_count++] = sparseIndex;
@@ -236,7 +242,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	void SparseSet<T>::Load()
+	void SparseSet<T>::Preload()
 	{
 		Clear();
 
