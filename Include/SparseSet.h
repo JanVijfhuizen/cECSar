@@ -81,9 +81,9 @@ namespace jecs
 		constexpr void Sort(const Sorter& sorter, int32_t start = 0, int32_t stop = -1);
 
 		// Load set from disk.
-		void Preload() override;
+		void Load();
 		// Save set to disk.
-		void Save() override;
+		void Save();
 
 	private:
 		int32_t* _dense = nullptr;
@@ -145,11 +145,8 @@ namespace jecs
 		_sparse = new int32_t[_capacity];
 		_values = new T[_capacity];
 
-		if (Cecsar::Get().GetCecsarLoaded())
-			Preload();
-		else
-			for (int32_t i = 0; i < _capacity; ++i)
-				_sparse[i] = -1;
+		for (int32_t i = 0; i < _capacity; ++i)
+			_sparse[i] = -1;
 	}
 
 	template <typename T>
@@ -242,7 +239,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	void SparseSet<T>::Preload()
+	void SparseSet<T>::Load()
 	{
 		Clear();
 

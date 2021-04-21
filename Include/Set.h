@@ -9,7 +9,7 @@ namespace jecs
 	// Usually the sparse set is sufficient, but there might come a time when you
 	// need something more specialized.
 	template <typename Child>
-	class Set : public Dependency, public Observer
+	class Set : public Observer
 	{
 	public:
 		virtual void EraseAt(int32_t index) = 0;

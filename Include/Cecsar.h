@@ -7,16 +7,6 @@
 
 namespace jecs
 {
-	class Dependency
-	{
-	public:
-		virtual ~Dependency();
-
-		virtual void Preload();
-		virtual void Load();
-		virtual void Save();
-	};
-
 	// A lightweight ECS framework that is designed to be extendable.
 	class Cecsar final
 	{
@@ -46,7 +36,7 @@ namespace jecs
 		// If you want something to be destroyed when cecsar goes out of scope,
 		// Add it in here.
 		// Everything that inherits from Module will automatically do so.
-		void PushDependency(Dependency* dependency);
+		void PushDependency(void* dependency);
 
 		// Get information about the currently spawned cecsar.
 		[[nodiscard]] bool GetCecsarLoaded() const;
@@ -70,6 +60,6 @@ namespace jecs
 		std::priority_queue<int32_t, std::vector<int32_t>, std::greater<>> _openPq{};
 		std::unordered_set<int32_t> _openSet; 
 
-		std::vector<Dependency*> _dependencies{};
+		std::vector<void*> _dependencies{};
 	};
 }
