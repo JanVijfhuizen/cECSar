@@ -44,8 +44,6 @@ namespace jecs
 			MapSet<T>& _set;
 		};
 
-		explicit MapSet();
-
 		[[nodiscard]] constexpr T& operator[](int32_t index);
 
 		constexpr T& Insert(int32_t index, const T& val);
@@ -60,9 +58,9 @@ namespace jecs
 		[[nodiscard]] constexpr Iterator end();
 
 		// Load set from disk.
-		void Preload() override;
+		void Load();
 		// Save set to disk.
-		void Save() override;
+		void Save();
 
 	private:
 		std::unordered_map<int32_t, T> _map{};
@@ -135,13 +133,6 @@ namespace jecs
 	}
 
 	template <typename T>
-	MapSet<T>::MapSet()
-	{
-		if (Cecsar::Get().GetCecsarLoaded())
-			Preload();
-	}
-
-	template <typename T>
 	void MapSet<T>::EraseAt(const int32_t index)
 	{
 		_map.erase(index);
@@ -160,7 +151,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	void MapSet<T>::Preload()
+	void MapSet<T>::Load()
 	{
 		Clear();
 

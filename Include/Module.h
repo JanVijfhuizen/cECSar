@@ -5,7 +5,7 @@ namespace jecs
 {
 	// Inherit from this to automatically make your class a cecsar-bound singleton.
 	template <typename T>
-	class Module : public Dependency
+	class Module
 	{
 		friend Cecsar;
 

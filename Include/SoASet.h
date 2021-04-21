@@ -71,9 +71,9 @@ namespace jecs
 		void Swap(int32_t aDense, int32_t bDense);
 
 		// Load set from disk.
-		void Preload() override;
+		void Load();
 		// Save set to disk.
-		void Save() override;
+		void Save();
 
 	private:
 		#define TMPL_INDEX sizeof...(Args) - sizeof...(Tail) - 1
@@ -177,11 +177,8 @@ namespace jecs
 		_dense = new int32_t[_capacity];
 		_sparse = new int32_t[_capacity];
 
-		if (Cecsar::Get().GetCecsarLoaded())
-			Preload();
-		else
-			for (int32_t i = _capacity - 1; i >= 0; --i)
-				_sparse[i] = -1;
+		for (int32_t i = _capacity - 1; i >= 0; --i)
+			_sparse[i] = -1;
 
 		AllocArrays<Args...>();
 	}
@@ -257,7 +254,7 @@ namespace jecs
 	}
 
 	template <typename Child, typename ... Args>
-	void SoASet<Child, Args...>::Preload()
+	void SoASet<Child, Args...>::Load()
 	{
 		Clear();
 

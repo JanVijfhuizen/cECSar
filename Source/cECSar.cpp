@@ -8,20 +8,6 @@ namespace jecs
 {
 	Cecsar* Cecsar::_instance = nullptr;
 
-	Dependency::~Dependency() = default;
-
-	void Dependency::Preload()
-	{
-	}
-
-	void Dependency::Load()
-	{
-	}
-
-	void Dependency::Save()
-	{
-	}
-
 	Cecsar::Cecsar(const int32_t capacity) : _defaultCapacity(capacity)
 	{
 		delete _instance;
@@ -88,11 +74,9 @@ namespace jecs
 		return _entities.size();
 	}
 
-	void Cecsar::PushDependency(Dependency* dependency)
+	void Cecsar::PushDependency(void* dependency)
 	{
 		_dependencies.push_back(dependency);
-		if (_loaded)
-			dependency->Load();
 	}
 
 	bool Cecsar::GetCecsarLoaded() const
@@ -141,11 +125,6 @@ namespace jecs
 			_openSet.insert(index);
 		}
 
-		for (auto& dependency : _dependencies)
-			dependency->Preload();
-		for (auto& dependency : _dependencies)
-			dependency->Load();
-
 		return true;
 	}
 
@@ -168,8 +147,5 @@ namespace jecs
 			int32_t writeable = index;
 			file.write(reinterpret_cast<char*>(&writeable), sizeof(int32_t));
 		}
-
-		for (auto& dependency : _dependencies)
-			dependency->Save();
 	}
 }
