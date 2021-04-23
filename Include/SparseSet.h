@@ -55,7 +55,7 @@ namespace jecs
 		// Useful if you need to do access the components in non linear ways.
 		// It does require some knowledge of the sparse set though.
 
-		[[nodiscard]] constexpr const T* GetValuesRaw() const;
+		[[nodiscard]] constexpr T* GetValuesRaw() const;
 		[[nodiscard]] constexpr const int32_t* GetDenseRaw() const;
 		[[nodiscard]] constexpr const int32_t* GetSparseRaw() const;
 
@@ -101,7 +101,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	constexpr const T* SparseSet<T>::GetValuesRaw() const
+	constexpr T* SparseSet<T>::GetValuesRaw() const
 	{
 		return _values;
 	}
