@@ -57,6 +57,8 @@ namespace jecs
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
 
+		bool Contains(int32_t index) const;
+
 		// Load set from disk.
 		void Load();
 		// Save set to disk.
@@ -148,6 +150,12 @@ namespace jecs
 	std::unordered_map<int32_t, T>& MapSet<T>::GetMapRaw()
 	{
 		return _map;
+	}
+
+	template <typename T>
+	bool MapSet<T>::Contains(int32_t index) const
+	{
+		return _map.count(index);
 	}
 
 	template <typename T>
