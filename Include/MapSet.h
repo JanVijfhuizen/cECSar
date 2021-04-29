@@ -47,7 +47,8 @@ namespace jecs
 		[[nodiscard]] constexpr T& operator[](int32_t index);
 
 		constexpr T& Insert(int32_t index, const T& val);
-		constexpr T& Insert(int32_t index, T&& val = T());
+		constexpr T& Insert(int32_t index, T&& val);
+		constexpr T& Insert(int32_t index);
 
 		void EraseAt(int32_t index) override;
 		void Clear();
@@ -56,6 +57,8 @@ namespace jecs
 
 		[[nodiscard]] constexpr Iterator begin();
 		[[nodiscard]] constexpr Iterator end();
+
+		bool Contains(int32_t index) const;
 
 		// Load set from disk.
 		void Load();
@@ -75,13 +78,25 @@ namespace jecs
 	template <typename T>
 	constexpr T& MapSet<T>::Insert(const int32_t index, const T& val)
 	{
+		if (Contains(index))
+			return operator[](index);
 		return _map[index] = val;
 	}
 
 	template <typename T>
 	constexpr T& MapSet<T>::Insert(const int32_t index, T&& val)
 	{
+		if (Contains(index))
+			return operator[](index);
 		return _map[index] = std::move(val);
+	}
+
+	template <typename T>
+	constexpr T& MapSet<T>::Insert(const int32_t index)
+	{
+		if (Contains(index))
+			return operator[](index);
+		return Insert(index, T());
 	}
 
 	template <typename T>
@@ -148,6 +163,12 @@ namespace jecs
 	std::unordered_map<int32_t, T>& MapSet<T>::GetMapRaw()
 	{
 		return _map;
+	}
+
+	template <typename T>
+	bool MapSet<T>::Contains(int32_t index) const
+	{
+		return _map.count(index);
 	}
 
 	template <typename T>

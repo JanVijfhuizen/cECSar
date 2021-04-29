@@ -42,7 +42,7 @@ namespace jecs
 		};
 
 		explicit SoASet(int32_t capacity = -1);
-		~SoASet();
+		virtual ~SoASet();
 
 		// Useful if you need to do access the components in non linear ways.
 		// It does require some knowledge of the sparse set though.
@@ -55,7 +55,7 @@ namespace jecs
 		template <size_t S>
 		[[nodiscard]] constexpr auto At();
 
-		void Insert(int32_t sparseIndex, Args... args);
+		void Insert(int32_t sparseIndex, Args... args);	
 		void EraseAt(int32_t sparseIndex) override;
 		void Clear();
 

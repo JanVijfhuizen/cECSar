@@ -55,7 +55,7 @@ namespace jecs
 		// Useful if you need to do access the components in non linear ways.
 		// It does require some knowledge of the sparse set though.
 
-		[[nodiscard]] constexpr const T* GetValuesRaw() const;
+		[[nodiscard]] constexpr T* GetValuesRaw() const;
 		[[nodiscard]] constexpr const int32_t* GetDenseRaw() const;
 		[[nodiscard]] constexpr const int32_t* GetSparseRaw() const;
 
@@ -65,7 +65,8 @@ namespace jecs
 		[[nodiscard]] constexpr int32_t GetCapacity() const;
 
 		constexpr T& Insert(int32_t sparseIndex, const T& val);
-		constexpr T& Insert(int32_t sparseIndex, T&& val = T());
+		constexpr T& Insert(int32_t sparseIndex, T&& val);
+		constexpr T& Insert(int32_t sparseIndex);
 
 		constexpr void EraseAt(int32_t sparseIndex) override;
 
@@ -101,7 +102,7 @@ namespace jecs
 	}
 
 	template <typename T>
-	constexpr const T* SparseSet<T>::GetValuesRaw() const
+	constexpr T* SparseSet<T>::GetValuesRaw() const
 	{
 		return _values;
 	}
@@ -171,6 +172,14 @@ namespace jecs
 		T& t = _values[_count] = std::move(val);
 		_dense[_count++] = sparseIndex;
 		return t;
+	}
+
+	template <typename T>
+	constexpr T& SparseSet<T>::Insert(const int32_t sparseIndex)
+	{
+		if (Contains(sparseIndex))
+			return operator[](sparseIndex);
+		return Insert(sparseIndex, T());
 	}
 
 	template <typename T>
