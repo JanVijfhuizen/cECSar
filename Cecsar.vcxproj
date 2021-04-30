@@ -33,7 +33,7 @@
     <ClInclude Include="Include\SparseSet.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\cECSar.cpp" />
+    <ClCompile Include="Source\Cecsar.cpp" />
     <ClCompile Include="Source\Entity.cpp" />
     <ClCompile Include="Source\Observer.cpp" />
     <ClCompile Include="Source\pch.cpp">

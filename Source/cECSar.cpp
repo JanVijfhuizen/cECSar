@@ -8,6 +8,13 @@ namespace jecs
 {
 	Cecsar* Cecsar::_instance = nullptr;
 
+	Dependency::Dependency()
+	{
+		Cecsar::Get().PushDependency(this);
+	}
+
+	Dependency::~Dependency() = default;
+
 	Cecsar::Cecsar(const int32_t capacity) : _defaultCapacity(capacity)
 	{
 		delete _instance;
@@ -16,7 +23,7 @@ namespace jecs
 
 	Cecsar::~Cecsar()
 	{
-		for (auto module : _dependencies)
+		for (Dependency* module : _dependencies)
 			delete module;
 		Observer::_observers.clear();
 		_instance = nullptr;
@@ -74,7 +81,7 @@ namespace jecs
 		return _entities.size();
 	}
 
-	void Cecsar::PushDependency(void* dependency)
+	void Cecsar::PushDependency(Dependency* dependency)
 	{
 		_dependencies.push_back(dependency);
 	}

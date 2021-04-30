@@ -9,7 +9,7 @@ namespace jecs
 	// Usually the sparse set is sufficient, but there might come a time when you
 	// need something more specialized.
 	template <typename Child>
-	class Set : public Observer
+	class Set : public Observer, public Dependency
 	{
 	public:
 		virtual void EraseAt(int32_t index) = 0;
@@ -21,6 +21,7 @@ namespace jecs
 
 	protected:
 		Set();
+		virtual ~Set();
 
 		void OnErase(Entity entity) override;
 
@@ -32,7 +33,7 @@ namespace jecs
 	Child& Set<Child>::Get()
 	{
 		if (!_instance)
-			_instance = new Child();
+			new Child();
 		return *_instance;
 	}
 
@@ -47,12 +48,17 @@ namespace jecs
 	}
 
 	template <typename Child>
-	Set<Child>::Set() : Observer()
+	Set<Child>::Set()
 	{
 		delete _instance;
 		_instance = static_cast<Child*>(this);
+	}
 
-		Cecsar::Get().PushDependency(this);
+	template <typename Child>
+	Set<Child>::~Set()
+	{
+		if (_instance == this)
+			_instance = nullptr;
 	}
 
 	template <typename Child>
