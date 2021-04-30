@@ -1,11 +1,11 @@
 #pragma once
-#include "cECSar.h"
+#include "Cecsar.h"
 
 namespace jecs
 {
 	// Inherit from this to automatically make your class a cecsar-bound singleton.
 	template <typename T>
-	class Module
+	class Module : public Dependency
 	{
 		friend Cecsar;
 
@@ -14,7 +14,7 @@ namespace jecs
 
 	protected:
 		Module();
-		virtual ~Module();
+		~Module();
 
 	private:
 		static T* _instance;
@@ -25,8 +25,6 @@ namespace jecs
 	{
 		delete _instance;
 		_instance = static_cast<T*>(this);
-
-		Cecsar::Get().PushDependency(this);
 	}
 
 	template <typename T>
@@ -40,7 +38,7 @@ namespace jecs
 	T& Module<T>::Get()
 	{
 		if (!_instance)
-			_instance = new T();
+			new T();
 		return *_instance;
 	}
 

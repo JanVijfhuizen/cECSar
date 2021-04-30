@@ -7,6 +7,13 @@
 
 namespace jecs
 {
+	class Dependency
+	{
+	public:
+		Dependency();
+		virtual ~Dependency();
+	};
+	
 	// A lightweight ECS framework that is designed to be extendable.
 	class Cecsar final
 	{
@@ -15,7 +22,7 @@ namespace jecs
 		{
 			// Load set data from memory.
 			bool loadFromFile = false;
-			std::string loadPostfix = "";
+			std::string loadPostfix{};
 		};
 
 		explicit Cecsar(int32_t capacity = 1e4);
@@ -36,7 +43,7 @@ namespace jecs
 		// If you want something to be destroyed when cecsar goes out of scope,
 		// Add it in here.
 		// Everything that inherits from Module will automatically do so.
-		void PushDependency(void* dependency);
+		void PushDependency(Dependency* dependency);
 
 		// Get information about the currently spawned cecsar.
 		[[nodiscard]] bool GetCecsarLoaded() const;
@@ -54,12 +61,12 @@ namespace jecs
 		int32_t _globalId = 0;
 		int32_t _defaultCapacity = 1e4;
 		bool _loaded = false;
-		std::string _postfix = "";
+		std::string _postfix{};
 
 		std::unordered_set<Entity, Entity::Hasher> _entities{};
 		std::priority_queue<int32_t, std::vector<int32_t>, std::greater<>> _openPq{};
 		std::unordered_set<int32_t> _openSet; 
 
-		std::vector<void*> _dependencies{};
+		std::vector<Dependency*> _dependencies{};
 	};
 }
